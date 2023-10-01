@@ -5,7 +5,7 @@
 
 int main (int argc, char * argv [])
 {
-	TRACE (true);
+	TRACE (false);
 
 	Plan * const plan = new ScanPlan (7);
 	// new SortPlan ( new FilterPlan ( new ScanPlan (7) ) );
