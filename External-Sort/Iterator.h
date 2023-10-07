@@ -1,6 +1,8 @@
 #pragma once
 
 #include "defs.h"
+#include "setupConfig.h"
+#include "DataRecord.h"
 
 typedef uint64_t RowCount;
 

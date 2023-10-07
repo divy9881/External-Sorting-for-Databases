@@ -2,11 +2,13 @@
 
 ScanPlan::ScanPlan (RowCount const count) : _count (count)
 {
+	this->_rows = (DataRecord *)malloc(this->_count * sizeof(DataRecord));
 	TRACE (true);
 } // ScanPlan::ScanPlan
 
 ScanPlan::~ScanPlan ()
 {
+	free(this->_rows);
 	TRACE (true);
 } // ScanPlan::~ScanPlan
 
@@ -37,6 +39,9 @@ bool ScanIterator::next ()
 	if (_count >= _plan->_count)
 		return false;
 
+	DataRecord row = DataRecord(Random(RANDOM_INTEGER_RANGE), Random(RANDOM_INTEGER_RANGE), Random(RANDOM_INTEGER_RANGE));
+	this->_plan->_rows[this->_count] = row;
+	row.print();
 	++ _count;
 	return true;
 } // ScanIterator::next

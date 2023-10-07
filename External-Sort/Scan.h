@@ -9,6 +9,7 @@ public:
 	Iterator * init () const;
 private:
 	RowCount const _count;
+	DataRecord *_rows;
 }; // class ScanPlan
 
 class ScanIterator : public Iterator
