@@ -9,4 +9,7 @@ apt-get update
 apt-get install build-essential -y
 apt-get install make -y
 apt-get install g++ -y
+cd ./External-Sort
+make
+./Test.exe
 ```

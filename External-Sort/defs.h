@@ -3,6 +3,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <cstdio>
+#include <climits>
+#include <cstdlib>
 
 typedef uint8_t byte;
 
