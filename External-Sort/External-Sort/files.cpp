@@ -62,7 +62,11 @@ Node* buildTournamentTree(const std::vector<DataRecord>& records, int start, int
 }
 
 DataRecord findWinner(Node* root) {
-    return root->right->data; // Return the winner from the right subtree
+    Node* current = root;
+    while (current->right != nullptr) {
+        current = current->right;
+    }
+    return current->data; // Return the winner (found at the leaf node)
 }
 
 void inOrderTraversal(Node* root, std::set<DataRecord>& result) {
