@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <set>
 
 class DataRecord {
 public:
@@ -23,6 +24,10 @@ public:
     bool operator<(const DataRecord& other) const {
         // Compare DataRecord objects based on col1
         return _record[0] < other._record[0];
+    }
+
+    bool operator==(const DataRecord& other) const {
+        return std::equal(std::begin(_record), std::end(_record), std::begin(other._record));
     }
 
 private:
@@ -49,23 +54,32 @@ Node* buildTournamentTree(const std::vector<DataRecord>& records, int start, int
     Node* winner = (left->data < right->data) ? left : right;
     Node* loser = (winner == left) ? right : left;
 
-    Node* root = new Node(winner->data);
-    root->left = winner;
-    root->right = loser;
+    Node* root = new Node(loser->data); // Note the change here
+    root->left = loser;
+    root->right = winner;
 
     return root;
 }
 
 DataRecord findWinner(Node* root) {
-    return root->data;
+    return root->right->data; // Return the winner from the right subtree
+}
+
+void inOrderTraversal(Node* root, std::set<DataRecord>& result) {
+    if (root == nullptr) {
+        return;
+    }
+    inOrderTraversal(root->left, result);
+    result.insert(root->data);
+    inOrderTraversal(root->right, result);
 }
 
 int main() {
     std::vector<DataRecord> records = {
         DataRecord(45, 2, 100),
         DataRecord(11, 55, 30),
-        DataRecord(600, 43, 200),
-        DataRecord(9, 20, 77)
+        DataRecord(-1, 43, 200),
+        DataRecord(39, 20, 77)
     };
 
     Node* root = buildTournamentTree(records, 0, records.size() - 1);
@@ -74,6 +88,14 @@ int main() {
 
     std::cout << "Winner based on col1:" << std::endl;
     winner.print();
+
+    std::set<DataRecord> sortedRecords;
+    inOrderTraversal(root, sortedRecords);
+
+    std::cout << "\nSorted records based on col1:" << std::endl;
+    for (const DataRecord& record : sortedRecords) {
+        record.print();
+    }
 
     return 0;
 }
