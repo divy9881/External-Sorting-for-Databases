@@ -1,6 +1,10 @@
 #include "DataRecord.h"
 #include <vector>
 #include <algorithm>
+#include <iterator>
+#include <iostream>
+
+DataRecord::DataRecord() {}
 
 DataRecord::DataRecord (int col1, int col2, int col3)
 {
