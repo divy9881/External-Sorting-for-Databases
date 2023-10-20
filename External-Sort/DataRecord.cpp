@@ -35,6 +35,7 @@ void DataRecord::print ()
 bool DataRecord::is_smaller_int(DataRecord incoming_record)
 {
     // TODO How to preserve order here?
+    // TODO Add a way to sort as per the other two columns as well
     if (incoming_record._record[0] >= this->_record[0]) {
         return true;
     }
