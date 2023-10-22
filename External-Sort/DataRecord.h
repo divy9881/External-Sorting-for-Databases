@@ -13,6 +13,6 @@ public:
     bool operator<(const DataRecord& other) const;
     bool operator==(const DataRecord& other) const;
 
-private:
+// private:
     int _record[3];
 }; // class DataRecord
