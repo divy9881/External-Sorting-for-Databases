@@ -39,14 +39,14 @@ int main() {
     // test_tree.print_heap();
     // test_tree.getWinner().print();
     test_tree->run_tree();
-    test_tree->run_tree();
-    test_tree->run_tree();
-    test_tree->run_tree();
-    test_tree->run_tree();
-    test_tree->run_tree();
-    test_tree->run_tree();
-    test_tree->run_tree();
-    test_tree->run_tree();
+    // test_tree->run_tree();
+    // test_tree->run_tree();
+    // test_tree->run_tree();
+    // test_tree->run_tree();
+    // test_tree->run_tree();
+    // test_tree->run_tree();
+    // test_tree->run_tree();
+    // test_tree->run_tree();
 
     test_tree->print_run();
     return 0;
