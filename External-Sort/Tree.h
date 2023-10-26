@@ -35,22 +35,23 @@ class Tree
 {
 private:
     std::vector <struct Node> heap;
-    std::vector <struct DataRecord> generated_run;
+    std::vector <struct DataRecord*> generated_run;
     int total_leaves, total_nodes, tree_depth;
     unsigned long long total_record_count;
 public:
     Tree();
-    Tree(DataRecord **, int);
+    Tree(DataRecord *, int);
     Node* getRoot();
     void run_tree(DataRecord **);
-    void generateTournamentTree(DataRecord **, int);
+    void generateTournamentTree(DataRecord *, int);
     // DataRecord getWinner();
-    void print_heap();
     void run_tree();
     int capacity(int level);
     struct Node leaf(int index, int slot);
     struct Node parent(int slot);
     void compare_and_swap(int, int);
+    void print_heap();
+    void print_run();
     // void getSortedDataRecordsCaller();
     // void getSortedDataRecords(Node* root, std::set<DataRecord>& result);
     ~Tree();
