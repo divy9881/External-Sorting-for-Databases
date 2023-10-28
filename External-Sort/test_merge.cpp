@@ -13,11 +13,11 @@ int main() {
     //     list1[ii] = (DataRecord*)malloc(sizeof(DataRecord) * 3);
     // }
 
-    DataRecord rec1 = DataRecord(1, 1, 1);
+    DataRecord rec1 = DataRecord(10, 1, 1);
     DataRecord rec2 = DataRecord(200, 2, 2);
-    DataRecord rec3 = DataRecord(3, 3, 3);
+    DataRecord rec3 = DataRecord(-33, 3, 3);
     DataRecord rec4 = DataRecord(-4, 4, 4);
-    DataRecord rec5 = DataRecord(5, 5, 5);
+    DataRecord rec5 = DataRecord(56, 5, 5);
     DataRecord rec6 = DataRecord(65, 6, 6);
     DataRecord rec7 = DataRecord(27, 7, 7);
     DataRecord rec8 = DataRecord(8, 8, 8);

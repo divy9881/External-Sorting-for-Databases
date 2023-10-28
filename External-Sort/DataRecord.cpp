@@ -29,8 +29,7 @@ DataRecord::~DataRecord ()
     TRACE (false);
 } // DataRecord::~DataRecord
 
-void DataRecord::print ()
-{
+void DataRecord::print() const{
     printf("%d %d %d\n", this->_record[0], this->_record[1], this->_record[2]);
     TRACE (false);
 } // DataRecord::~DataRecord
@@ -44,3 +43,7 @@ bool DataRecord::operator==(const DataRecord& other) const
 {
     return std::equal(std::begin(_record), std::end(_record), std::begin(other._record));
 }
+
+bool DataRecord::operator<=(const DataRecord& other) const {
+        return _record[0] <= other._record[0];
+    }

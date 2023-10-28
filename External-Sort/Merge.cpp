@@ -1,7 +1,6 @@
 #include "Merge.h"
-#include <vector>
 
-void merge(std::vector<DataRecord>& arr, int left, int middle, int right) {
+void Merge::merge(std::vector<DataRecord>& arr, int left, int middle, int right) {
     int n1 = middle - left + 1;
     int n2 = right - middle;
 
@@ -40,7 +39,7 @@ void merge(std::vector<DataRecord>& arr, int left, int middle, int right) {
     }
 }
 
-void mergeSort(std::vector<DataRecord>& arr, int left, int right) {
+void Merge::mergeSort(std::vector<DataRecord>& arr, int left, int right) {
     if (left < right) {
         int middle = left + (right - left) / 2;
 
@@ -51,23 +50,19 @@ void mergeSort(std::vector<DataRecord>& arr, int left, int right) {
     }
 }
 
-void Merge::printDataRecords(){
-    for (const DataRecord& record : this->sortedDataRecords) {
-        record.print();
+void Merge::sortDataRecords() {
+    mergeSort(sortedDataRecords, 0, sortedDataRecords.size() - 1);
+}
+
+void Merge::printDataRecords() {
+    for (const DataRecord& record : sortedDataRecords) {
+        record.print();  // Call the print function on each DataRecord
     }
 }
 
-Merge::Merge(DataRecord *records, int record_ct)
-{
-    printf("%d\n", record_ct);
-    for (int i=0; i< record_ct; i++){
-        records[i].print();
+Merge::Merge(DataRecord* records, int record_ct) {
+    for (int i = 0; i < record_ct; i++) {
+        sortedDataRecords.push_back(records[i]);
     }
-
-    std::vector<DataRecord> dataRecords(records, records+record_ct);
-
-    mergeSort(dataRecords, 0, record_ct-1);
-
-    this->sortedDataRecords = dataRecords;
-
+    sortDataRecords();
 }

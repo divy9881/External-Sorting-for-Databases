@@ -9,9 +9,10 @@ public:
     DataRecord (const DataRecord& record);
     DataRecord ();
     ~DataRecord ();
-    void print();
+    void print() const;
     bool operator<(const DataRecord& other) const;
     bool operator==(const DataRecord& other) const;
+    bool operator<=(const DataRecord& other) const;
 
 // private:
     int _record[3];
