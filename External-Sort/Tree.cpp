@@ -42,12 +42,16 @@ DataRecord* top_record(RecordList *list) {
  * * By default, we will try to create a full binary tree.
  * 
 */
-Tree::Tree(DataRecord *records, int record_ct)
+Tree::Tree(DataRecord *records, int record_ct, int initial_run)
 {
     // TODO See if this is optimal division for fanning
     this->total_leaves = ceil(log2(record_ct));
     DataRecord *current_ptr = records;
     int count_of_cols_per_row = ceil(record_ct/this->total_leaves);
+    if (initial_run) {
+        count_of_cols_per_row = 1;
+        this->total_leaves = record_ct;
+    }
 
     this->tree_depth = ceil(log2(this->total_leaves));
     this->total_nodes = 2 * pow(2, this->tree_depth) - 1;
@@ -83,9 +87,11 @@ Tree::Tree(DataRecord *records, int record_ct)
         //          18 count_of_cols_per_row + 2 remaining
         // for last row, current_ct will be 2 after subtraction,
         // so we will just add it to the last row
-        if ((current_ct > 0) && (current_ct <= 2*count_of_cols_per_row)) {
-            count_of_cols_per_row = current_ct;
-            current_ct = -1;
+        if (initial_run == 0) {
+            if ((current_ct > 0) && (current_ct <= 2*count_of_cols_per_row)) {
+                count_of_cols_per_row = current_ct;
+                current_ct = -1;
+            }
         }
     }
 }

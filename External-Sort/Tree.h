@@ -53,7 +53,7 @@ private:
     unsigned long long total_record_count;
 public:
     Tree();
-    Tree(DataRecord *, int);
+    Tree(DataRecord *, int, int);
     Node* getRoot();
     void run_tree();
     int capacity(int level);
