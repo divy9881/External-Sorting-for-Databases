@@ -13,12 +13,12 @@ SCRS=
 HDRS=	defs.h setupConfig.h\
 		Iterator.h Scan.h Filter.h Sort.h DataRecord.h\
 		OffsetValueCode.h Tree.h
-SRCS=	defs.cpp Assert.cpp Test.cpp \
+SRCS=	defs.cpp Assert.cpp Test.cpp\
 		Iterator.cpp Scan.cpp Filter.cpp Sort.cpp DataRecord.cpp\
 		OffsetValueCode.cpp Tree.cpp
 
 # compilation targets
-OBJS=	defs.o Assert.o Test.o \
+OBJS=	defs.o Assert.o Test.o\
 		Iterator.o Scan.o Filter.o Sort.o DataRecord.o\
 		OffsetValueCode.o Tree.o
 

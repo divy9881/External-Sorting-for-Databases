@@ -6,12 +6,8 @@
 
 using namespace std;
 
-typedef uint8_t byte;
-
 #define slotsof(a)	(sizeof (a) / sizeof (a[0]))
-
 #define nullptr	((void *) NULL)
-
 #define yesno(b)	((b) ? "yes" : "no")
 
 // call-through to assert() from <assert.h>
@@ -143,3 +139,4 @@ typedef long long int llint;
 typedef long int lint;
 typedef short unsigned int suint;
 typedef short int sint;
+typedef uint8_t byte;
