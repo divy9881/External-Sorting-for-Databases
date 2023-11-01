@@ -1,7 +1,4 @@
 #include "DataRecord.h"
-#include <algorithm>
-#include <iterator>
-#include <iostream>
 
 DataRecord::DataRecord() {}
 
@@ -32,7 +29,7 @@ DataRecord::~DataRecord ()
 void DataRecord::print ()
 {
     printf("%d %d %d\n", this->_record[0], this->_record[1], this->_record[2]);
-    TRACE (false);a
+    TRACE (false);
 } // DataRecord::print
 
 // For integers, OVC would not matter too much (it is faster than string comparison)
@@ -90,7 +87,7 @@ bool DataRecord::is_smaller_str(DataRecord incoming_record)
 void DataRecord::update_or_create_ov_code(DataRecord winner)
 {
     // TODO: Update this when we shift to strings
-    this->ov_code.create_or_update_OVC_int(this->_record[0], winner._record[0]);
+    this->ov_code.populate_ovc_int(this->_record[0], winner._record[0]);
 }
 
 bool DataRecord::operator<(const DataRecord& other) const

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <stddef.h>
-#include <stdint.h>
-#include <cstdio>
-#include <climits>
-#include <cstdlib>
+#include <bits/stdc++.h>
+
+#include "setupConfig.h"
+
+using namespace std;
 
 typedef uint8_t byte;
 
@@ -136,3 +136,10 @@ size_t msb (size_t const x);
 int msbi (size_t const x);
 char const * YesNo (bool const b);
 char const * OkBad (bool const b);
+
+typedef long long unsigned int lluint;
+typedef long unsigned int luint;
+typedef long long int llint;
+typedef long int lint;
+typedef short unsigned int suint;
+typedef short int sint;

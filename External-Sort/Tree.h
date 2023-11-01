@@ -1,11 +1,7 @@
 #pragma once
 
-#include <iostream>
-#include <vector>
-#include <limits>
+#include "defs.h"
 #include "DataRecord.h"
-
-using namespace std;
 
 /*
  * @struct RecordList
@@ -14,7 +10,7 @@ using namespace std;
  */
 typedef struct RecordList {
     DataRecord* data = NULL;
-    long record_count = 0;
+    lluint record_count = 0;
 } RecordList;
 
 
@@ -49,8 +45,8 @@ class Tree
 private:
     std::vector <struct Node> heap;
     std::vector <struct DataRecord*> generated_run;
-    int total_leaves, total_nodes, tree_depth;
-    unsigned long long total_record_count;
+    lluint total_leaves, total_nodes, tree_depth;
+    lluint total_record_count;
 public:
     Tree();
     Tree(DataRecord *, int, int);

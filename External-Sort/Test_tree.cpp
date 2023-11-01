@@ -2,8 +2,6 @@
 
 #include "DataRecord.h"
 #include "Tree.h"
-#include <iostream>
-#include <vector>
 
 using namespace std;
 

@@ -2,44 +2,59 @@
 
 OffsetValueCode::OffsetValueCode()
 {
-    this->offset = -1;
-    this->value = '\0';
+    this->ovc = 0;
+    this->rel = "\0";
 }
 
 OffsetValueCode::~OffsetValueCode()
 {
-    this->offset = INT_MIN;
-    this->value = '\0';
+    this->ovc = 0;
+    this->rel = "\0";
 }
 
 // It is called only when the current record loses to the incoming
 // (incoming record will be shorter/have lower value)
-void OffsetValueCode::create_or_update_OVC_int(int current, int winner_key)
+void OffsetValueCode::populate_ovc_int(int current, int winner)
 {
-    std::string current_record = std::to_string(current);
-    std::string winner_record = std::to_string(winner_key);
+    string current_record = to_string(current);
+    string winner_record = to_string(winner);
 
-    // Traverse over winner record length (it will be shorter/lower value)
-    for (long unsigned ii = 0 ; ii < winner_record.length(); ii++) {
-        if (current_record[ii] == winner_record[ii]) {
-            continue;
-        } else {
-            this->offset = ii;
-            this->value = current_record[ii];
-            break;
-        }
-    }
+    this->populate_ovc_str(current_record, winner_record);
 }
 
-void OffsetValueCode::create_or_update_OVC_str(std::string current, std::string winner_key)
+void OffsetValueCode::populate_ovc_str(std::string current, std::string winner)
 {
+    int current_length = current.length();
+    int winner_length = winner.length();
+    int arity = 0;
+
+    if (current_length > winner_length) {
+        int num_of_zeroes = current_length - winner_length;
+        string zeroes = "";
+
+        for (int ii = 0; ii < num_of_zeroes; ii++) {
+            zeroes += "0";
+        }
+        winner = zeroes + winner;
+    } else {
+        int num_of_zeroes = winner_length - current_length;
+        string zeroes = "";
+
+        for (int ii = 0; ii < num_of_zeroes; ii++) {
+            zeroes += "0";
+        }
+        current = zeroes + current;
+    }
+
+    arity = winner.length();
+
     // Traverse over winner record length (it will be shorter/lower value)
-    for (unsigned long ii = 0 ; ii < winner_key.length(); ii++) {
-        if (current[ii] == winner_key[ii]) {
+    for (lluint ii = 0; ii < winner.length(); ii++) {
+        if (current[ii] == winner[ii]) {
             continue;
         } else {
-            this->offset = ii;
-            this->value = current[ii];
+            this->ovc = (arity - ii) * OVC_DOMAIN + (current[ii] - '0');
+            this->rel = winner;
             break;
         }
     }
