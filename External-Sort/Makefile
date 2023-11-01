@@ -12,15 +12,15 @@ SCRS=
 # headers and code sources
 HDRS=	defs.h setupConfig.h\
 		Iterator.h Scan.h Filter.h Sort.h DataRecord.h\
-		OffsetValueCode.h
+		OffsetValueCode.h Tree.h
 SRCS=	defs.cpp Assert.cpp Test.cpp \
 		Iterator.cpp Scan.cpp Filter.cpp Sort.cpp DataRecord.cpp\
-		OffsetValueCode.cpp
+		OffsetValueCode.cpp Tree.cpp
 
 # compilation targets
 OBJS=	defs.o Assert.o Test.o \
 		Iterator.o Scan.o Filter.o Sort.o DataRecord.o\
-		OffsetValueCode.o
+		OffsetValueCode.o Tree.o
 
 # RCS assists
 REV=-q -f
@@ -43,6 +43,7 @@ Scan.o : Scan.h
 Filter.o : Filter.h
 Sort.o : Sort.h
 DataRecord.o : DataRecord.h
+Tree.o : Tree.h
 
 list : Makefile
 	echo Makefile $(HDRS) $(SRCS) $(DOCS) $(SCRS) > list

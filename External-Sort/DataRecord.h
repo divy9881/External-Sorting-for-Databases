@@ -8,6 +8,7 @@ class DataRecord
 public:
     DataRecord (int col1, int col2, int col3);
     DataRecord (const DataRecord& record);
+    DataRecord ();
     ~DataRecord ();
     friend class OffsetValueCode;
     void print();
@@ -26,8 +27,10 @@ public:
      * @return void
      */
     void update_or_create_ov_code(DataRecord winner);
+    bool operator<(const DataRecord& other) const;
+    bool operator==(const DataRecord& other) const;
 
-private:
+// private:
     int _record[3];
     OffsetValueCode ov_code;
     int index; // index of the DataRecord in the list (required to maintain the ordering)
