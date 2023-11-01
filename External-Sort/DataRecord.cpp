@@ -1,11 +1,16 @@
 #include "DataRecord.h"
+#include <algorithm>
+#include <iterator>
+#include <iostream>
+
+DataRecord::DataRecord() {}
 
 DataRecord::DataRecord (int col1, int col2, int col3)
 {
     this->_record[0] = col1;
     this->_record[1] = col2;
     this->_record[2] = col3;
-    TRACE (true);
+    TRACE (false);
 } // DataRecord::DataRecord (int col1, int col2, int col3)
 
 DataRecord::DataRecord (const DataRecord& record)
@@ -13,7 +18,7 @@ DataRecord::DataRecord (const DataRecord& record)
     this->_record[0] = record._record[0];
     this->_record[1] = record._record[1];
     this->_record[2] = record._record[2];
-    TRACE (true);
+    TRACE (false);
 } // DataRecord::DataRecord (const DataRecord& record)
 
 DataRecord::~DataRecord ()
@@ -21,15 +26,14 @@ DataRecord::~DataRecord ()
     this->_record[0] = INT_MIN;
     this->_record[1] = INT_MIN;
     this->_record[2] = INT_MIN;
-    TRACE (true);
+    TRACE (false);
 } // DataRecord::~DataRecord
 
 void DataRecord::print ()
 {
-    printf("%d %d %d (OVC: %d@%c)\n", this->_record[0], this->_record[1],
-        this->_record[2], this->ov_code.offset, this->ov_code.value);
-    TRACE (true);
-}
+    printf("%d %d %d\n", this->_record[0], this->_record[1], this->_record[2]);
+    TRACE (false);a
+} // DataRecord::print
 
 // For integers, OVC would not matter too much (it is faster than string comparison)
 bool DataRecord::is_smaller_int(DataRecord incoming_record)
@@ -87,4 +91,14 @@ void DataRecord::update_or_create_ov_code(DataRecord winner)
 {
     // TODO: Update this when we shift to strings
     this->ov_code.create_or_update_OVC_int(this->_record[0], winner._record[0]);
+}
+
+bool DataRecord::operator<(const DataRecord& other) const
+{
+    return _record[0] < other._record[0];
+}
+
+bool DataRecord::operator==(const DataRecord& other) const 
+{
+    return std::equal(std::begin(_record), std::end(_record), std::begin(other._record));
 }
