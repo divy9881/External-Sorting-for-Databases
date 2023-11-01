@@ -1,15 +1,14 @@
 #pragma once
 
-#include <string>
 #include "defs.h"
 
 class OffsetValueCode {
     public:
-        int offset;
-        char value;
+        suint ovc;
+        string rel;
 
         OffsetValueCode();
         ~OffsetValueCode();
-        void create_or_update_OVC_int(int current, int winner_key);
-        void create_or_update_OVC_str(std::string current, std::string winner_key);
+        void populate_ovc_int(int current, int winner_key);
+        void populate_ovc_str(string current, string winner_key);
 };

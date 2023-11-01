@@ -2,9 +2,6 @@
 
 #include "DataRecord.h"
 
-#include <iostream>
-#include <vector>
-
 int main() {
     DataRecord rec1 = DataRecord(1234, 1234, 1234);
     DataRecord rec2 = DataRecord(5678, 5678, 5678);

@@ -1,7 +1,5 @@
 #include "Tree.h"
 
-#include <cmath>
-
 #define HEAP_RECORD_LIST_AT(ii) this->heap[ii].list.data
 #define NODE_RECORD_EMPTY(node) node->is_empty
 #define IS_LEAF_NODE(node) node->is_leaf
@@ -10,7 +8,6 @@
 #define NODE_RECORD_LIST(node) node->list->data
 #define NODE_RECORD_LIST_AT(node, idx) node->list->data[idx]
 #define NODE_RECORD_LIST_LENGTH(node) node->list->record_count
-
 
 DataRecord* pop_record(RecordList *list) {
     DataRecord* top = NULL;
@@ -28,7 +25,6 @@ DataRecord* pop_record(RecordList *list) {
 DataRecord* top_record(RecordList *list) {
     return list->data;
 }
-
 
 /**
  * Generates a tournament tree
@@ -48,6 +44,7 @@ Tree::Tree(DataRecord *records, int record_ct, int initial_run)
     this->total_leaves = ceil(log2(record_ct));
     DataRecord *current_ptr = records;
     int count_of_cols_per_row = ceil(record_ct/this->total_leaves);
+
     if (initial_run) {
         count_of_cols_per_row = 1;
         this->total_leaves = record_ct;
@@ -60,11 +57,11 @@ Tree::Tree(DataRecord *records, int record_ct, int initial_run)
 
     int first_leaf_node = this->total_nodes - ((this->total_nodes - 1)/2) - 1;
 
-    int record_iterator = 0, current_ct = record_ct;
+    int current_ct = record_ct;
 
     // We always try to generate full binary tree at the beginning
     // (last leaf may not be balanced)
-    for (int ii = first_leaf_node ; ii < (this->total_leaves*2) - 1 ; ii++) {
+    for (lluint ii = first_leaf_node ; ii < (this->total_leaves*2) - 1 ; ii++) {
         // Leaf nodes has no current record
         this->heap[ii].current_record = NULL;
         this->heap[ii].is_empty = false;
@@ -107,8 +104,8 @@ int Tree::capacity(int level) {
  */
 void Tree::compare_and_swap(int parent, int unused_leaves_idx) {
     int child_left = parent*2+1, child_right=parent*2+2;
-    DataRecord* winner_record = NULL;
     struct Node *parent_node = &this->heap[parent];
+
     // None of the children are valid == not being used as runs
     if (child_left >= unused_leaves_idx) {
         return;
@@ -134,8 +131,8 @@ void Tree::compare_and_swap(int parent, int unused_leaves_idx) {
             DataRecord *left_data = NULL, *right_data = NULL;
             if (IS_LEAF_NODE(left_child_node)) {
                 // Both will be a leaf node
-                DataRecord *left_data = top_record(left_child_node->list);
-                DataRecord *right_data = top_record(right_child_node->list);
+                left_data = top_record(left_child_node->list);
+                right_data = top_record(right_child_node->list);
                 if (left_data && right_data) {
                     // Compare
                     if (left_data->_record[0] <= right_data->_record[0]) {
@@ -152,8 +149,8 @@ void Tree::compare_and_swap(int parent, int unused_leaves_idx) {
                 }
             } else {
                 // It is an internal node
-                DataRecord *left_data = NODE_CURRENT_RECORD(left_child_node);
-                DataRecord *right_data = NODE_CURRENT_RECORD(right_child_node);
+                left_data = NODE_CURRENT_RECORD(left_child_node);
+                right_data = NODE_CURRENT_RECORD(right_child_node);
                 if (left_data && right_data) {
                     // Compare
                     if (left_data->_record[0] <= right_data->_record[0]) {
@@ -191,12 +188,10 @@ struct Node Tree::parent(int current_slot) {
  */
 void Tree::run_tree() {
     int unused_leaves_idx = (this->total_nodes + 1) / 2 - 1 + this->total_leaves;
-    // At the end of the loop, the 0th position will have the smallest element
-    // For each inner node (parents), check the leaves level-wise
-    int current_level = this->total_leaves - 1;
 
     // Run tree will complete one merge for all records. If we want a partial one, should update this.
-    for (int iteration = 0 ; iteration < this->total_record_count; iteration++) {
+    // Run tree will complete one merge for all records. If we want a partial one, should update this.
+    for (lluint iteration = 0 ; iteration < this->total_record_count; iteration++) {
         // Each iteration will give one of the priority queue elements,
         // run for each of the inner nodes
         for (int inner_node_idx = this->total_nodes - pow(2, this->tree_depth) - 1;
@@ -224,19 +219,20 @@ void Tree::run_tree() {
  * Count: 3 -> [6 @ 0 :: (7, 7, 7)] [6 @ 1 :: (8, 8, 8)] [6 @ 2 :: (9, 9, 9)]
  */
 void Tree::print_heap() {
-    for (int ii = 0 ; ii < this->total_nodes; ii++) {
+    for (lluint ii = 0 ; ii < this->total_nodes; ii++) {
         if (!this->heap[ii].is_empty) {
             if (this->heap[ii].current_record) {
-                printf("%d :: (%d, %d, %d)\n",
+                printf("%lld :: (%d, %d, %d)\n",
                         ii, this->heap[ii].current_record->_record[0],
                         this->heap[ii].current_record->_record[1],
                         this->heap[ii].current_record->_record[2]);
             } else {
                 RecordList *heap_list = this->heap[ii].list;
                 DataRecord *current_record = heap_list->data;
-                printf("Count: %d -> ", heap_list->record_count);
-                for (int jj = 0; jj < this->heap[ii].list->record_count; jj++) {
-                    printf("[%d @ %d :: (%d, %d, %d)] ",
+
+                printf("Count: %lld -> ", heap_list->record_count);
+                for (lluint jj = 0; jj < this->heap[ii].list->record_count; jj++) {
+                    printf("[%lld @ %lld :: (%d, %d, %d)] ",
                         ii, jj, current_record->_record[0],
                         current_record->_record[1],
                         current_record->_record[0]);
@@ -245,7 +241,7 @@ void Tree::print_heap() {
                 printf("\n");
             }
         } else {
-            printf("\n(%d Empty )\n", ii);
+            printf("\n(%lld Empty )\n", ii);
         }
     }
 }
