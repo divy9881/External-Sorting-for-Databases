@@ -1,7 +1,7 @@
 CPPOPT=-g -Og -D_DEBUG
 # -O2 -Os -Ofast
 # -fprofile-generate -fprofile-use
-CPPFLAGS=$(CPPOPT) -Wall -ansi -pedantic
+CPPFLAGS=$(CPPOPT) -Wall -ansi -pedantic -std=c++11
 # -Wparentheses -Wno-unused-parameter -Wformat-security
 # -fno-rtti -std=c++11 -std=c++98
 
@@ -11,13 +11,16 @@ SCRS=
 
 # headers and code sources
 HDRS=	defs.h setupConfig.h\
-		Iterator.h Scan.h Filter.h Sort.h DataRecord.h
+		Iterator.h Scan.h Filter.h Sort.h DataRecord.h\
+		OffsetValueCode.h
 SRCS=	defs.cpp Assert.cpp Test.cpp \
-		Iterator.cpp Scan.cpp Filter.cpp Sort.cpp DataRecord.cpp
+		Iterator.cpp Scan.cpp Filter.cpp Sort.cpp DataRecord.cpp\
+		OffsetValueCode.cpp
 
 # compilation targets
 OBJS=	defs.o Assert.o Test.o \
-		Iterator.o Scan.o Filter.o Sort.o DataRecord.o
+		Iterator.o Scan.o Filter.o Sort.o DataRecord.o\
+		OffsetValueCode.o
 
 # RCS assists
 REV=-q -f

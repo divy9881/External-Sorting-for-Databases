@@ -26,6 +26,65 @@ DataRecord::~DataRecord ()
 
 void DataRecord::print ()
 {
-    printf("%d %d %d\n", this->_record[0], this->_record[1], this->_record[2]);
+    printf("%d %d %d (OVC: %d@%c)\n", this->_record[0], this->_record[1],
+        this->_record[2], this->ov_code.offset, this->ov_code.value);
     TRACE (true);
-} // DataRecord::~DataRecord
+}
+
+// For integers, OVC would not matter too much (it is faster than string comparison)
+bool DataRecord::is_smaller_int(DataRecord incoming_record)
+{
+    // TODO How to preserve order here?
+    // TODO Add a way to sort as per the other two columns as well
+    if (incoming_record._record[0] >= this->_record[0]) {
+        return true;
+    }
+    return false;
+}
+
+/*
+bool DataRecord::is_smaller_str(DataRecord incoming_record)
+{
+    // If the offsets are not there (first pass)
+    if ((this->ov_code.offset == (-1)) || (incoming_record.ov_code.offset == (-1))) {
+        // Compare character by character, for the first pass, we will generate the OVC after this.
+        int min_size = incoming_record._record[0].length() < this->_record[0].length() ? incoming_record._record[0].length(): this._record[0].length();
+        int ii = 0;
+        while (++ii < min_size) {
+            if (this->_record[0][ii] != incoming_record._record[0][ii]) {
+                return this->_record[0][ii] < incoming_record._record[0][ii];
+            }
+        }
+        return false;
+    } else if (this->ov_code.offset != incoming_record.ov_code.offset) {
+        // Larger offset == smaller data record
+        return this->ov_code.offset > incoming_record.ov_code.offset;
+    } else {
+        // If the offsets are same, check with the values
+        if (this->ov_code.value != incoming_record.ov_code.value) {
+            // Smaller value at same offset == smaller data record
+            return this->ov_code.value < incoming_record.ov_code.value;
+        } else {
+            // Offset and value both are same, check for the next set of
+            // characters to determine which record is smaller
+            // (the values will be in relation with the previous winner)
+            int incoming_record_offset = incoming_record.ov_code.offset;
+            // Since the offsets are same for both the records,
+            // check from the next offset value for both
+            while (++incoming_record_offset < incoming_record._record[0].length()) {
+                if (this->_record[0][incoming_record_offset] != incoming_record._record[0][incoming_record_offset]) {
+                    return this->_record[0][incoming_record_offset] < incoming_record._record[0][incoming_record_offset];
+                }
+            }
+            return false;
+        }
+    }
+    return false;
+}
+*/
+
+void DataRecord::update_or_create_ov_code(DataRecord winner)
+{
+    // TODO: Update this when we shift to strings
+    this->ov_code.create_or_update_OVC_int(this->_record[0], winner._record[0]);
+}
