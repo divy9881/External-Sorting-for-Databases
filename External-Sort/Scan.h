@@ -7,6 +7,7 @@ public:
 	ScanPlan (RowCount const count);
 	~ScanPlan ();
 	Iterator * init () const;
+	DataRecord GetRecord(RowCount const rowid) const;
 private:
 	RowCount const _count;
 	DataRecord *_rows;
