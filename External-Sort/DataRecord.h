@@ -10,6 +10,7 @@ public:
     DataRecord (const DataRecord& record);
     DataRecord ();
     ~DataRecord ();
+    void SetRecord(int col1, int col2, int col3);
     friend class OffsetValueCode;
     void print();
     /**
@@ -26,7 +27,7 @@ public:
      * @param winner The datarecord that won at a position in the tree (We update the OVC for the loser)
      * @return void
      */
-    void update_or_create_ov_code(DataRecord winner);
+    void populate_ovc(DataRecord winner);
     bool operator<(const DataRecord& other) const;
     bool operator==(const DataRecord& other) const;
 

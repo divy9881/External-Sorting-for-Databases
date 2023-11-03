@@ -26,6 +26,13 @@ DataRecord::~DataRecord ()
     TRACE (false);
 } // DataRecord::~DataRecord
 
+void DataRecord::SetRecord(int col1, int col2, int col3)
+{
+    this->_record[0] = col1;
+    this->_record[1] = col2;
+    this->_record[2] = col3;
+} // DataRecord::SetRecord()
+
 void DataRecord::print ()
 {
     printf("%d %d %d\n", this->_record[0], this->_record[1], this->_record[2]);
@@ -84,7 +91,7 @@ bool DataRecord::is_smaller_str(DataRecord incoming_record)
 }
 */
 
-void DataRecord::update_or_create_ov_code(DataRecord winner)
+void DataRecord::populate_ovc(DataRecord winner)
 {
     // TODO: Update this when we shift to strings
     this->ov_code.populate_ovc_int(this->_record[0], winner._record[0]);
@@ -97,5 +104,5 @@ bool DataRecord::operator<(const DataRecord& other) const
 
 bool DataRecord::operator==(const DataRecord& other) const 
 {
-    return std::equal(std::begin(_record), std::end(_record), std::begin(other._record));
+    return equal(begin(_record), end(_record), begin(other._record));
 }
