@@ -21,7 +21,7 @@ int main (int argc, char * argv [])
 
 	delete it;
 	delete plan;
-	cout<<"hello"<<endl;
+
 	bool rec1_is_smaller_than_2 = rec1.is_smaller_int(rec2);
 	if (rec1_is_smaller_than_2) {
 		cout<<"Data record 1 is smaller than record 2"<<endl;
