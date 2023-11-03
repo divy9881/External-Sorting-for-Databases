@@ -8,6 +8,9 @@
 #define NODE_RECORD_LIST(node) node->list->data
 #define NODE_RECORD_LIST_AT(node, idx) node->list->data[idx]
 #define NODE_RECORD_LIST_LENGTH(node) node->list->record_count
+#define CHECK_SET_EMPTY(node, node_idx) if (node->list->record_count == 0) {\
+                            node->is_empty = true;\
+                        }
 
 DataRecord* pop_record(RecordList *list) {
     DataRecord* top = NULL;
@@ -41,7 +44,7 @@ DataRecord* top_record(RecordList *list) {
 Tree::Tree(DataRecord *records, int record_ct, int initial_run)
 {
     // TODO See if this is optimal division for fanning
-    this->total_leaves = ceil(log2(record_ct));
+    this->total_leaves = record_ct/2;
     DataRecord *current_ptr = records;
     int count_of_cols_per_row = ceil(record_ct/this->total_leaves);
 
@@ -137,15 +140,20 @@ void Tree::compare_and_swap(int parent, int unused_leaves_idx) {
                     // Compare
                     if (left_data->_record[0] <= right_data->_record[0]) {
                         parent_node->current_record = pop_record(left_child_node->list);
+                        CHECK_SET_EMPTY(left_child_node, child_left);
                     } else {
                         parent_node->current_record = pop_record(right_child_node->list);
+                        CHECK_SET_EMPTY(right_child_node, child_right);
                     }
                 } else if (left_data) {
                     parent_node->current_record = pop_record(left_child_node->list);
+                    CHECK_SET_EMPTY(left_child_node, child_left);
                 } else if (right_data) {
                     parent_node->current_record = pop_record(right_child_node->list);
+                    CHECK_SET_EMPTY(right_child_node, child_right);
                 } else {
                     parent_node->current_record = NULL;
+                    // At this point, both of the left and right should have been reported as empty, so no need to update.
                 }
             } else {
                 // It is an internal node
@@ -190,7 +198,6 @@ void Tree::run_tree() {
     int unused_leaves_idx = (this->total_nodes + 1) / 2 - 1 + this->total_leaves;
 
     // Run tree will complete one merge for all records. If we want a partial one, should update this.
-    // Run tree will complete one merge for all records. If we want a partial one, should update this.
     for (lluint iteration = 0 ; iteration < this->total_record_count; iteration++) {
         // Each iteration will give one of the priority queue elements,
         // run for each of the inner nodes
@@ -199,9 +206,13 @@ void Tree::run_tree() {
                 inner_node_idx--) {
             this->compare_and_swap(inner_node_idx, unused_leaves_idx);
         }
-        // printf("\nAfter iteration %d ", iteration); this->print_heap();
-        // printf("Winner is :: "); 
-        // this->heap[0].current_record->print(); printf("\n");
+
+        // TODO Can use this to replace the records at empty leaves
+        // printf("\nAfter iteration %lld : The empty leaves are: ", iteration); 
+        // vector <int> empty_leaves = this->get_empty_leaves();
+        // for (auto a: empty_leaves) {
+        //     cout<<a<<"; ";
+        // }
         this->generated_run.push_back(this->heap[0].current_record);
         this->heap[0].current_record = NULL;
     }
@@ -244,6 +255,33 @@ void Tree::print_heap() {
             printf("\n(%lld Empty )\n", ii);
         }
     }
+}
+
+vector<int> Tree::get_empty_leaves() {
+    vector<int> empty_leaf_idx_list;
+    int first_leaf_idx = pow(2, this->tree_depth) - 1;
+    for (lluint ii = first_leaf_idx; ii < this->total_nodes; ii++) {
+        if ((this->heap[ii].is_empty) &&
+            (this->heap[ii].list->data == NULL)) {
+                empty_leaf_idx_list.push_back(ii);
+        }
+    }
+    return empty_leaf_idx_list;
+}
+
+/*
+ * Add new records at a leaf node (only if the existing list is exhausted)
+ */
+
+int Tree::add_records_at_leaf(int leaf_node_index, DataRecord *record_list, int record_ct) {
+    if (!this->heap[leaf_node_index].is_empty) {
+        cout<<"The leaf node "<<leaf_node_index<<" is not empty. Cannot add new records!";
+        return 1;
+    } else {
+        this->heap[leaf_node_index].list->data = record_list;
+        this->heap[leaf_node_index].list->record_count = record_ct;
+    }
+    return 0;
 }
 
 /*

@@ -49,6 +49,7 @@ private:
     lluint total_record_count;
 public:
     Tree();
+    Tree(int);
     Tree(DataRecord *, int, int);
     Node* getRoot();
     void run_tree();
@@ -56,6 +57,8 @@ public:
     struct Node leaf(int index, int slot);
     struct Node parent(int slot);
     void compare_and_swap(int, int);
+    vector<int> get_empty_leaves();
+    int add_records_at_leaf(int, DataRecord *, int);
     void print_heap();
     void print_run();
     ~Tree();
