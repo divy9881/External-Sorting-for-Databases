@@ -60,3 +60,7 @@ void OffsetValueCode::populate_ovc_str(std::string current, std::string winner)
     }
 }
 
+void OffsetValueCode::print()
+{
+    cout<<"OVC: "<<this->ovc<<" Rel: "<<this->rel<<endl;
+}
