@@ -31,9 +31,9 @@ int main (int argc, char * argv [])
 
 	bool rec3_is_smaller_than_2 = rec3.is_smaller_int(rec2);
 	if (rec3_is_smaller_than_2) {
-		std::cout<<"Data record 3 is smaller than record 2"<<endl;
+		cout<<"Data record 3 is smaller than record 2"<<endl;
 	} else {
-		std::cout<<"Data record 3 is larger than record 2"<<endl;
+		cout<<"Data record 3 is larger than record 2"<<endl;
 	}
 
 	rec2.populate_ovc(rec1);
