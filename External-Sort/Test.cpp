@@ -5,9 +5,9 @@
 #include "DataRecord.h"
 #include "Tree.h"
 
-#define TEST_1 false
+#define TEST_1 true
 #define TEST_2 true
-#define TEST_3 false
+#define TEST_3 true
 #define TEST_4 true
 
 int main (int argc, char * argv [])

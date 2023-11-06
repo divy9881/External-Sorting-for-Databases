@@ -1,10 +1,11 @@
 #include "Scan.h"
+#include "databaseConfig.h"
 
 ScanPlan::ScanPlan (RowCount const count) : _count (count)
 {
 	this->_rows = (DataRecord *)malloc(this->_count * sizeof(DataRecord));
 	for (RowCount ii = 0; ii < _count; ii++) {
-		this->_rows[ii].SetRecord(Random(RANDOM_INTEGER_RANGE), Random(RANDOM_INTEGER_RANGE), Random(RANDOM_INTEGER_RANGE));
+		this->_rows[ii].SetRecord(Random(DOMAIN_COL_VALUE), Random(DOMAIN_COL_VALUE), Random(DOMAIN_COL_VALUE));
 	}
 	TRACE (true);
 } // ScanPlan::ScanPlan
