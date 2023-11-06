@@ -1,4 +1,5 @@
 #include "OffsetValueCode.h"
+#include "sortParams.h"
 
 OffsetValueCode::OffsetValueCode()
 {
@@ -15,7 +16,7 @@ OffsetValueCode::~OffsetValueCode()
 
 // It is called only when the current record loses to the incoming
 // (incoming record will be shorter/have lower value)
-void OffsetValueCode::populate_ovc_int(int current, int winner)
+void OffsetValueCode::populate_ovc_int(lluint current, lluint winner)
 {
 	return;	
 }

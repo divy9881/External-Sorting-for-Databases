@@ -8,7 +8,7 @@
 #define TEST_0 false
 #define TEST_1 false
 #define TEST_2 true
-#define TEST_3 false
+#define TEST_3 true
 #define TEST_4 true
 
 int main (int argc, char * argv [])
