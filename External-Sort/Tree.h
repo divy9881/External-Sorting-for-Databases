@@ -9,8 +9,8 @@
 * Has two associated functions, pop_record and top_record
 */
 typedef struct RecordList {
-	DataRecord* data = NULL;
-	lluint record_count = 0;
+    DataRecord* record_ptr = NULL;
+    lluint record_count = 0;
 } RecordList;
 
 
@@ -48,15 +48,26 @@ private:
 	lluint total_leaves, total_nodes, tree_depth;
 	lluint total_record_count;
 public:
-	Tree();
-	Tree(DataRecord *, int, int);
-	Node* getRoot();
-	void run_tree();
-	int capacity(int level);
-	struct Node leaf(int index, int slot);
-	struct Node parent(int slot);
-	void compare_and_swap(int, int);
-	void print_heap();
-	void print_run();
-	~Tree();
+    // Constructor
+    Tree();
+    Tree(DataRecord *, int, int); // Used for sorting of individual records
+    Tree(RecordList *, int); // Used to generate tree with sorted runs
+
+    // Utility functions
+    Node* getRoot();
+    int capacity(int level);
+    struct Node leaf(int index, int slot);
+    struct Node parent(int slot);
+    void print_heap();
+    void print_run();
+
+    // Tournament tree functions
+    void run_tree();
+    void compare_and_swap(int parent, int unused_leaf_idx);
+    vector<int> get_empty_leaves();
+    int add_run_at_leaf(int leaf_node_idx, DataRecord *sorted_run, int number_of_records);
+    void spillover_run();
+    
+    // Deconstructor
+    ~Tree();
 };

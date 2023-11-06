@@ -35,9 +35,9 @@ void DataRecord::SetRecord(int col1, int col2, int col3)
 
 void DataRecord::print ()
 {
-	cout<<this->_record[0]<<this->_record[1]<<this->_record[2]<<endl;
-	this->ov_code.print();
-	TRACE (false);
+    cout<<this->_record[0]<<this->_record[1]<<this->_record[2]<<" ";
+    this->ov_code.print();
+    TRACE (false);
 } // DataRecord::print
 
 // For integers, OVC would not matter too much (it is faster than string comparison)
