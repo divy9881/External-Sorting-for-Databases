@@ -18,23 +18,23 @@ int main (int argc, char * argv [])
 	Plan * const plan = new ScanPlan (7);
 	// new SortPlan(new FilterPlan(newScanPlan(7)));
 	Iterator * const it = plan->init ();
-	DataRecord rec1 = DataRecord(1234, 1234, 1234);
-	DataRecord rec2 = DataRecord(5678, 5678, 5678);
-	DataRecord rec3 = DataRecord(9876, 9886, 9876);
+	DataRecord rec1 = DataRecord("1234", "1234", "1234");
+	DataRecord rec2 = DataRecord("5678", "5678", "5678");
+	DataRecord rec3 = DataRecord("9876", "9886", "9876");
 	
 	it->run ();
 
 	delete it;
 	delete plan;
 
-	bool rec1_is_smaller_than_2 = rec1.is_smaller_int(rec2);
+	bool rec1_is_smaller_than_2 = rec1.is_smaller_str(rec2);
 	if (rec1_is_smaller_than_2) {
 		cout<<"Data record 1 is smaller than record 2"<<endl;
 	} else {
 		cout<<"Data record 1 is smaller than record 2"<<endl;
 	}
 
-	bool rec3_is_smaller_than_2 = rec3.is_smaller_int(rec2);
+	bool rec3_is_smaller_than_2 = rec3.is_smaller_str(rec2); //is_smaller_str
 	if (rec3_is_smaller_than_2) {
 		cout<<"Data record 3 is smaller than record 2"<<endl;
 	} else {
@@ -63,7 +63,7 @@ int main (int argc, char * argv [])
 	cout<<"\n\n\n\t\t *********     TEST 2     *********"<<endl<<"\t\t\tTesting sorting of records\n\n\n";
 	DataRecord *list2 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
 	for(int ii = 0; ii < num_records; ii++) {
-		list2[ii].SetRecord(ii+1, ii+1, ii+1);
+		list2[ii].SetRecord(to_string(ii)+'1', to_string(ii)+'1', to_string(ii)+'1');//what logic to use here?
 	}
 
 	// Tree *test_tree2 = new Tree(list2, 8, 1);
@@ -76,9 +76,9 @@ int main (int argc, char * argv [])
 	DataRecord *list3 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
 	DataRecord *list4 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
 	for(int ii = 0; ii < num_records; ii++) {
-		list2[ii].SetRecord(ii+2, ii+2, ii+2);
-		list3[ii].SetRecord(ii+1, ii+1, ii+1);
-		list4[ii].SetRecord(ii+3, ii+3, ii+3);
+		list2[ii].SetRecord(to_string(ii)+'2', to_string(ii)+'2', to_string(ii)+'2');
+		list3[ii].SetRecord(to_string(ii)+'1', to_string(ii)+'1', to_string(ii)+'1');
+		list4[ii].SetRecord(to_string(ii)+'3', to_string(ii)+'3', to_string(ii)+'3');
 	}
 
 	Tree *test_tree3 = new Tree(list2, 8, 1);
@@ -120,12 +120,12 @@ int main (int argc, char * argv [])
 	DataRecord *sorted_run6 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
 
 	for (int jj = 0 ; jj < num_records ; jj++) {
-		sorted_run1[jj].SetRecord(jj+1, jj+1, jj+1);
-		sorted_run2[jj].SetRecord(jj+2, jj+2, jj+2);
-		sorted_run3[jj].SetRecord(jj+3, jj+3, jj+3);
-		sorted_run4[jj].SetRecord(jj+4, jj+4, jj+4);
-		sorted_run5[jj].SetRecord(jj+5, jj+5, jj+5);
-		sorted_run6[jj].SetRecord(jj+6, jj+6, jj+6);
+		sorted_run1[jj].SetRecord(to_string(jj) + '1', to_string(jj) + '1', to_string(jj) + '1');
+		sorted_run2[jj].SetRecord(to_string(jj) + '2', to_string(jj) + '2', to_string(jj) + '2');
+		sorted_run3[jj].SetRecord(to_string(jj) + '3', to_string(jj) + '3', to_string(jj) + '3');
+		sorted_run4[jj].SetRecord(to_string(jj) + '4', to_string(jj) + '4', to_string(jj) + '4');
+		sorted_run5[jj].SetRecord(to_string(jj) + '5', to_string(jj) + '5', to_string(jj) + '5');
+		sorted_run6[jj].SetRecord(to_string(jj) + '6', to_string(jj) + '6', to_string(jj) + '6');
 	}
 	RecordList *list_of_sorted_runs = (RecordList*) malloc(sizeof(RecordList)*count_of_sorted_runs);
 	list_of_sorted_runs[0].record_ptr = sorted_run1; list_of_sorted_runs[0].record_count = num_records;

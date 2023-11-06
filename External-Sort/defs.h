@@ -123,6 +123,7 @@ template <class Val> inline Val mask (int const from, int const to)
 } // Value mask (int from, int to)
 
 size_t Random (size_t const range);
+string pick (size_t const range);
 size_t Random (size_t const low_incl, size_t const high_incl);
 size_t RoundDown (size_t const x, size_t const y);
 size_t RoundUp (size_t const x, size_t const y);

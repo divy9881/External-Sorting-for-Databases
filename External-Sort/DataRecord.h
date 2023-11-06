@@ -6,11 +6,11 @@
 class DataRecord
 {
 public:
-	DataRecord (int col1, int col2, int col3);
+	DataRecord (string col1, string col2, string col3);
 	DataRecord (const DataRecord& record);
 	DataRecord ();
 	~DataRecord ();
-	void SetRecord(int col1, int col2, int col3);
+	void SetRecord(string col1, string col2, string col3);
 	friend class OffsetValueCode;
 	void print();
 	/**
@@ -32,7 +32,7 @@ public:
 	bool operator==(const DataRecord& other) const;
 
 // private:
-	int _record[3];
+	string _record[3];
 	OffsetValueCode ov_code;
 	int index; // index of the DataRecord in the list (required to maintain the ordering)
 }; // class DataRecord
