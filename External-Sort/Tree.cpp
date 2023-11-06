@@ -26,6 +26,9 @@ DataRecord* pop_record(RecordList *list) {
 }
 
 DataRecord* top_record(RecordList *list) {
+    if (list == NULL) {
+        return NULL;
+    }
     return list->record_ptr;
 }
 
@@ -43,7 +46,8 @@ Tree::Tree(RecordList *sorted_runs, int count_of_sorted_runs)
 
     RecordList *each_run = sorted_runs;
     int current_run = 0;
-    for (lluint ii = first_leaf_node ; ii < (this->total_leaves*2) - 1 ; ii++) {
+    lluint ii = first_leaf_node;
+    for ( ; ii < (this->total_leaves*2) - 1 ; ii++) {
         this->heap[ii].current_record = NULL;
         this->heap[ii].is_empty = false;
         this->heap[ii].is_leaf = true;
@@ -53,8 +57,15 @@ Tree::Tree(RecordList *sorted_runs, int count_of_sorted_runs)
             each_run+=1;
             // printf("%p\n", (void*)each_run);
         } else {
+            ii++;
             break;
         }
+    }
+    if (ii < ((this->total_leaves*2) - 1)) {
+        this->heap[ii].current_record = NULL;
+        this->heap[ii].is_empty = true;
+        this->heap[ii].is_leaf = true;
+        this->heap[ii].list = NULL;
     }
 }
 
@@ -165,7 +176,7 @@ void Tree::compare_and_swap(int parent, int unused_leaves_idx) {
                 // Both will be a leaf node
                 left_data = top_record(left_child_node->list);
                 right_data = top_record(right_child_node->list);
-                if (left_data && right_data) {
+                if ((right_data != NULL) & (left_data != NULL)) {
                     // Compare
                     if (left_data->_record[0] <= right_data->_record[0]) {
                         parent_node->current_record = pop_record(left_child_node->list);
@@ -299,6 +310,9 @@ int Tree::add_run_at_leaf(int leaf_node_index, DataRecord *record_list, int reco
         return 1;
     } else {
         this->heap[leaf_node_index].is_empty = false;
+        if (this->heap[leaf_node_index].list == NULL) {
+            this->heap[leaf_node_index].list = (RecordList*) malloc(sizeof(RecordList));
+        }
         this->heap[leaf_node_index].list->record_ptr = record_list;
         this->heap[leaf_node_index].list->record_count = record_ct;
     }
@@ -323,6 +337,12 @@ void Tree::print_run() {
 
 Tree::~Tree ()
 {
+    lluint first_leaf_node = this->total_nodes - ((this->total_nodes - 1)/2) - 1;
+    for (lluint ii = first_leaf_node ; ii < (this->total_leaves*2) - 1; ii++) {
+        if (this->heap[ii].list) {
+            free(&this->heap[ii].list);
+        }
+    }
 	TRACE (true);
 	// delete root;
 }

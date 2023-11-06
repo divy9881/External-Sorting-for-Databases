@@ -110,7 +110,7 @@ int main (int argc, char * argv [])
 #endif
 #if TEST_4
 	cout<<"\n\n\n\t\t*********     TEST 4     *********"<<endl<<"\tGenerate tree with sorted runs at leaf nodes, and dynamically add new records\n\n\n";
-	int count_of_sorted_runs = 4;
+	int count_of_sorted_runs = 3;
 	num_records = 8;
 	DataRecord *sorted_run1 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
 	DataRecord *sorted_run2 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
@@ -131,7 +131,7 @@ int main (int argc, char * argv [])
 	list_of_sorted_runs[0].record_ptr = sorted_run1; list_of_sorted_runs[0].record_count = num_records;
 	list_of_sorted_runs[1].record_ptr = sorted_run2; list_of_sorted_runs[1].record_count = num_records;
 	list_of_sorted_runs[2].record_ptr = sorted_run3; list_of_sorted_runs[2].record_count = num_records;
-	list_of_sorted_runs[3].record_ptr = sorted_run4; list_of_sorted_runs[3].record_count = num_records;
+	// list_of_sorted_runs[3].record_ptr = sorted_run4; list_of_sorted_runs[3].record_count = num_records;
 
 	Tree *test_tree4 = new Tree(list_of_sorted_runs, count_of_sorted_runs);
 	cout<<"Printing the heap:"<<endl;
