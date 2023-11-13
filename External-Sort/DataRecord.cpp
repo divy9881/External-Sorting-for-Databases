@@ -7,6 +7,7 @@ DataRecord::DataRecord (int col1, int col2, int col3)
 	this->_record[0] = col1;
 	this->_record[1] = col2;
 	this->_record[2] = col3;
+	this->next = NULL;
 	TRACE (false);
 } // DataRecord::DataRecord (int col1, int col2, int col3)
 
@@ -35,7 +36,7 @@ void DataRecord::SetRecord(int col1, int col2, int col3)
 
 void DataRecord::print ()
 {
-    cout<<this->_record[0]<<this->_record[1]<<this->_record[2]<<" ";
+    cout<<this->_record[0]<<" "<<this->_record[1]<<" "<<this->_record[2]<<" ";
     this->ov_code.print();
     TRACE (false);
 } // DataRecord::print
