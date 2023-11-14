@@ -1,6 +1,7 @@
 #pragma once
 
 #include <bits/stdc++.h>
+#include <sys/stat.h>
 
 #include "setupConfig.h"
 
