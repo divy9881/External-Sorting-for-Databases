@@ -43,7 +43,7 @@ DataRecord::~DataRecord ()
 	TRACE (false);
 } // DataRecord::~DataRecord
 
-void DataRecord::SetRecord(lluint col1, lluint col2, lluint col3)
+void DataRecord::SetRecord (lluint col1, lluint col2, lluint col3)
 {
 	this->_record[0] = col1;
 	this->_record[1] = col2;
@@ -51,6 +51,13 @@ void DataRecord::SetRecord(lluint col1, lluint col2, lluint col3)
 	this->ovc = 0;
 	this->rel = '\0';
 } // DataRecord::SetRecord()
+
+string DataRecord::GetRecord ()
+{
+	string record = "";
+	record = to_string(this->_record[0]) + " " + to_string(this->_record[1]) + " " + to_string(this->_record[2]);
+	return record;
+} // DataRecord::GetRecord()
 
 void DataRecord::print ()
 {
@@ -164,7 +171,7 @@ bool DataRecord::operator>(const DataRecord& other) const
 	return false;
 }
 
-bool DataRecord::operator==(const DataRecord& other) const 
+bool DataRecord::operator== (const DataRecord& other) const 
 {
 	return equal(begin(_record), end(_record), begin(other._record));
 }

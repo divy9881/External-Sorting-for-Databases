@@ -8,7 +8,7 @@ class StorageDevice
 {
 	public:
 		StorageDevice(string, lluint, uint);
-		pair<DataRecord *, uint> get_run_page(uint);
+		pair<DataRecord *, uint> get_run_page(uint, uint);
 		void spill_run(DataRecord *, uint);
 		void truncate_device();
 	protected:
