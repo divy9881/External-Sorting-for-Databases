@@ -55,7 +55,7 @@ void DataRecord::SetRecord (lluint col1, lluint col2, lluint col3)
 string DataRecord::GetRecord ()
 {
 	string record = "";
-	record = to_string(this->_record[0]) + " " + to_string(this->_record[1]) + " " + to_string(this->_record[2]);
+	record = to_string(this->_record[0]) + COLUMN_DELIMITER + to_string(this->_record[1]) + COLUMN_DELIMITER + to_string(this->_record[2]);
 	return record;
 } // DataRecord::GetRecord()
 

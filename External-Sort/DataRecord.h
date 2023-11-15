@@ -1,6 +1,7 @@
 #pragma once
 
 #include "defs.h"
+#include "databaseConfig.h"
 #include "OffsetValueCode.h"
 
 class DataRecord

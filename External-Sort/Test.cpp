@@ -243,10 +243,10 @@ int main (int argc, char * argv [])
 
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		records[ii].SetRecord(ii + 1, ii + 2, ii + 3);
+		records[ii].SetRecord(ii + 10, ii + 11, ii + 12);
 	}
 
-	ssd.spill_run(records, NUM_RECORDS);
+	ssd.spill_run('n', 0, records, NUM_RECORDS);
 
 	p = ssd.get_run_page(0, NUM_RECORDS / 2);
 	run_page_records = p.first;
