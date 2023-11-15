@@ -26,12 +26,19 @@ DataRecord::~DataRecord ()
 	TRACE (false);
 } // DataRecord::~DataRecord
 
-void DataRecord::SetRecord(lluint col1, lluint col2, lluint col3)
+void DataRecord::SetRecord (lluint col1, lluint col2, lluint col3)
 {
 	this->_record[0] = col1;
 	this->_record[1] = col2;
 	this->_record[2] = col3;
 } // DataRecord::SetRecord()
+
+string DataRecord::GetRecord ()
+{
+	string record = "";
+	record = to_string(this->_record[0]) + " " + to_string(this->_record[1]) + " " + to_string(this->_record[2]);
+	return record;
+} // DataRecord::GetRecord()
 
 void DataRecord::print ()
 {
@@ -41,7 +48,7 @@ void DataRecord::print ()
 } // DataRecord::print
 
 // For integers, OVC would not matter too much (it is faster than string comparison)
-bool DataRecord::is_smaller_int(DataRecord incoming_record)
+bool DataRecord::is_smaller_int (DataRecord incoming_record)
 {
 	// TODO How to preserve order here?
 	// TODO Add a way to sort as per the other two columns as well
@@ -92,18 +99,18 @@ bool DataRecord::is_smaller_str(DataRecord incoming_record)
 }
 */
 
-void DataRecord::populate_ovc(DataRecord winner)
+void DataRecord::populate_ovc (DataRecord winner)
 {
 	// TODO: Update this when we shift to strings
 	this->ov_code.populate_ovc_int(this->_record[0], winner._record[0]);
 }
 
-bool DataRecord::operator<(const DataRecord& other) const
+bool DataRecord::operator< (const DataRecord& other) const
 {
 	return _record[0] < other._record[0];
 }
 
-bool DataRecord::operator==(const DataRecord& other) const 
+bool DataRecord::operator== (const DataRecord& other) const 
 {
 	return equal(begin(_record), end(_record), begin(other._record));
 }

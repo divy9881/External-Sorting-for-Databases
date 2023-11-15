@@ -10,9 +10,10 @@ public:
 	DataRecord (const DataRecord& record);
 	DataRecord ();
 	~DataRecord ();
-	void SetRecord(lluint col1, lluint col2, lluint col3);
+	void SetRecord (lluint col1, lluint col2, lluint col3);
+	string GetRecord ();
 	friend class OffsetValueCode;
-	void print();
+	void print ();
 	/**
 	 * Check if the current DataRecord (in the tree) is a loser
 	 * @param incoming_record The DataRecord object which is trying upward traversal.
@@ -30,7 +31,6 @@ public:
 	void populate_ovc(DataRecord winner);
 	bool operator<(const DataRecord& other) const;
 	bool operator==(const DataRecord& other) const;
-
 // private:
 	lluint _record[3];
 	OffsetValueCode ov_code;
