@@ -1,0 +1,2 @@
+- Make sort generic for any number of columns
+- Support sort for column value types string and integer

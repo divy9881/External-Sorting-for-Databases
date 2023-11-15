@@ -7,10 +7,10 @@
 #include "StorageDevice.h"
 #include "sortParams.h"
 
-#define TEST_1 true
-#define TEST_2 true
-#define TEST_3 true
-#define TEST_4 true
+// #define TEST_1 true
+// #define TEST_2 true
+// #define TEST_3 true
+// #define TEST_4 true
 #define TEST_5 true
 
 /*
@@ -171,10 +171,10 @@ int main (int argc, char * argv [])
 
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		records[ii].SetRecord(ii + 1, ii + 2, ii + 3);
+		records[ii].SetRecord(ii + 10, ii + 11, ii + 12);
 	}
 
-	ssd.spill_run(records, NUM_RECORDS);
+	ssd.spill_run('n', 0, records, NUM_RECORDS);
 
 	p = ssd.get_run_page(0, NUM_RECORDS / 2);
 	run_page_records = p.first;
