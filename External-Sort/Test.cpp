@@ -5,10 +5,10 @@
 #include "DataRecord.h"
 #include "Tree.h"
 
-#define TEST_1 false
+#define TEST_1 true
 #define TEST_2 true
 #define TEST_3 false
-#define TEST_4 true
+#define TEST_4 false
 
 int main (int argc, char * argv [])
 {
@@ -34,7 +34,7 @@ int main (int argc, char * argv [])
 		cout<<"Data record 1 is smaller than record 2"<<endl;
 	}
 
-	bool rec3_is_smaller_than_2 = rec3.is_smaller_str(rec2); //is_smaller_str
+	bool rec3_is_smaller_than_2 = rec3.is_smaller_str(rec2);
 	if (rec3_is_smaller_than_2) {
 		cout<<"Data record 3 is smaller than record 2"<<endl;
 	} else {
@@ -50,7 +50,7 @@ int main (int argc, char * argv [])
 	DataRecord *list1 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
 
 	for(int ii = 0; ii < num_records; ii++) {
-		list1[ii].SetRecord(ii+1, ii+1, ii+1);
+		list1[ii].SetRecord(to_string(ii+1), to_string(ii+1), to_string(ii+1));
 	}
 
 	Tree *test_tree = new Tree(list1, 4, 1);
