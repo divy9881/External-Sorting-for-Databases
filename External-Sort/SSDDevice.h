@@ -4,5 +4,5 @@
 
 class SSDDevice : public StorageDevice
 {
-
+	using StorageDevice::StorageDevice;
 };
