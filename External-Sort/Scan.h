@@ -8,6 +8,7 @@ public:
 	~ScanPlan ();
 	Iterator * init () const;
 	DataRecord GetRecord(RowCount const rowid) const;
+	RecordList * GetRecords();
 private:
 	RowCount const _count;
 	DataRecord *_rows;

@@ -4,17 +4,6 @@
 #include "DataRecord.h"
 
 /*
-* @struct RecordList
-* Wrapper for the (list of) data records and the count of records in the list
-* Has two associated functions, pop_record and top_record
-*/
-typedef struct RecordList {
-    DataRecord* record_ptr = NULL;
-    lluint record_count = 0;
-} RecordList;
-
-
-/*
 * @struct Node
 * is_empty -> Indicates the node does not have any data
 * is_leaf -> Indicates that the node is a leaf node

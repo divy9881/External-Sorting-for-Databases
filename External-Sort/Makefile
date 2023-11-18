@@ -13,17 +13,20 @@ SCRS=
 HDRS=	defs.h setupConfig.h\
 		Iterator.h Scan.h Filter.h Sort.h DataRecord.h\
 		OffsetValueCode.h Tree.h\
-		StorageDevice.h SSDDevice.h HDDDevice.h
+		StorageDevice.h SSDDevice.h HDDDevice.h\
+		SortRecords.h\
 SRCS=	defs.cpp Assert.cpp Test.cpp\
 		Iterator.cpp Scan.cpp Filter.cpp Sort.cpp DataRecord.cpp\
 		OffsetValueCode.cpp Tree.cpp\
-		StorageDevice.cpp
+		StorageDevice.cpp\
+		SortRecords.cpp\
 
 # compilation targets
 OBJS=	defs.o Assert.o Test.o\
 		Iterator.o Scan.o Filter.o Sort.o DataRecord.o\
 		OffsetValueCode.o Tree.o\
-		StorageDevice.o
+		StorageDevice.o\
+		SortRecords.o\
 
 # RCS assists
 REV=-q -f

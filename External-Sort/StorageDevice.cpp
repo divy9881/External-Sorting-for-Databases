@@ -8,6 +8,8 @@ StorageDevice::StorageDevice(string device_path, lluint total_space, uint max_ru
 	this->total_space = total_space;
 	this->max_runs = max_runs;
 	this->run_offsets = new lluint[max_runs];
+	this->total_reads = 0;
+	this->total_writes = 0;
 
 	mkdir(this->device_path.c_str(), 0777);
 
@@ -29,6 +31,8 @@ void StorageDevice::spill_run(char run_bit, uint run, DataRecord *records, uint 
 	
 	this->spill_run_to_disk(run_path, records, num_records);
 	this->free_space -= num_records * ON_DISK_RECORD_SIZE;
+
+	this->total_writes += 1;
 }
 
 pair<DataRecord *, uint> StorageDevice::get_run_page(uint run, uint num_records)
@@ -37,6 +41,8 @@ pair<DataRecord *, uint> StorageDevice::get_run_page(uint run, uint num_records)
 	string run_path = this->device_path + "/run_" + to_string(run);
 
 	p = this->get_run_page_from_disk(run_path, &this->run_offsets[run], num_records);
+
+	this->total_reads += 1;
 
 	return p;
 }
@@ -138,6 +144,8 @@ pair<DataRecord *, uint> StorageDevice::get_run_page_from_disk(string run_path, 
 	p.second = count_records;
 
 	runfile.close();
+
+	delete[] run_page;
 
 	return p;
 }

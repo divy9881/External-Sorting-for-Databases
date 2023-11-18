@@ -1,2 +1,4 @@
 - Make sort generic for any number of columns
 - Support sort for column value types string and integer
+- Make sure that all the malloc'ed memory in TournamentTree is freed in its Deconstructor
+- Introduce use of vectors for list

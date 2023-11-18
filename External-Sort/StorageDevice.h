@@ -18,6 +18,8 @@ class StorageDevice
 		lluint free_space;
 		lluint total_space;
 		lluint *run_offsets;
+		lluint total_reads;
+		lluint total_writes;
 
 		void spill_run_to_disk(string, DataRecord *, uint);
 		pair<DataRecord *, uint> get_run_page_from_disk(string, lluint *, uint);
