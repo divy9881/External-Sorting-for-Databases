@@ -12,13 +12,14 @@
 #define TEST_2 true
 #define TEST_3 true
 #define TEST_4 true
-#define TEST_5 true
+#define TEST_5 true // Run Spilling on Disk and Reading Run Pages from Disk
+#define TEST_6 true // Internal sort on list of records
 
 /*
  * Test configuration
  */
 #define NUM_RECORDS 8
-#define COUNT_OF_SORTED_RUNS 3
+#define COUNT_OF_SORTED_RUNS 4
 
 int main (int argc, char * argv [])
 {
@@ -67,7 +68,7 @@ int main (int argc, char * argv [])
 	rec2.print();
 	rec3.print();
 
-	DataRecord *list1 = new DataRecord[num_records];
+	DataRecord list1[NUM_RECORDS];
 
 	for(int ii = 0; ii < NUM_RECORDS; ii++) {
 		list1[ii].SetRecord(ii+1, ii+1, ii+1);
@@ -148,24 +149,26 @@ int main (int argc, char * argv [])
 
 	Tree *test_tree4 = new Tree(list_of_sorted_runs, COUNT_OF_SORTED_RUNS);
 	cout<<"Printing the heap:"<<endl;
-	test_tree4->print_heap();
+	test_tree4.print_heap();
 	cout<<"Running the tree for "<<COUNT_OF_SORTED_RUNS * NUM_RECORDS<<"records\n";
 	for (int ii = 0 ; ii < COUNT_OF_SORTED_RUNS * NUM_RECORDS ; ii++) {
-		test_tree4->run_tree();
+		test_tree4.run_tree();
 	}
-	test_tree4->print_run();
-	test_tree4->spillover_run();
+	test_tree4.print_run();
+	test_tree4.spillover_run();
 	cout<<"\nAdding new sorted run at the position 3 and 6"<<endl;
 	for (int ii = 0 ; ii < NUM_RECORDS ; ii++) {
-		cout<<" | sorted_run5 @ "<<ii<<": ";sorted_run5[ii].print();
-		cout<<" | sorted_run6 @ "<<ii<<": "; sorted_run6[ii].print();
-		cout<<endl;
+		cout << " | sorted_run5 @ " << ii << ": ";
+		sorted_run[4][ii].print();
+		cout << " | sorted_run6 @ " << ii << ": ";
+		sorted_run[5][ii].print();
+		cout << endl;
 	}
 	test_tree4->add_run_at_leaf(3, sorted_run5, NUM_RECORDS);
 	test_tree4->add_run_at_leaf(6, sorted_run6, NUM_RECORDS);
 	test_tree4->print_heap();
 
-	test_tree4->add_run_at_leaf(3, sorted_run6, num_records);
+
 	total_recs += num_records;
 	cout<<"The heap after adding the new run :: "<<endl;
 	test_tree4->print_heap();
@@ -188,8 +191,6 @@ int main (int argc, char * argv [])
 	test_tree4->add_run_at_leaf(3, sorted_run5, NUM_RECORDS);
 	test_tree4->add_run_at_leaf(6, sorted_run6, NUM_RECORDS);
 	test_tree4->print_heap();
-
-	test_tree4->add_run_at_leaf(3, sorted_run6, num_records);
 	total_recs += num_records;
 	cout<<"The heap after adding the new run :: "<<endl;
 	test_tree4->print_heap();
@@ -215,8 +216,8 @@ int main (int argc, char * argv [])
 	for (int ii = 0 ; ii < 2*num_records; ii++) {
 		test_tree4->run_tree();
 	}
-	test_tree4->print_run();
-	test_tree4->spillover_run();
+	test_tree4.print_run();
+	test_tree4.spillover_run();
 #endif
 #if TEST_5
 	DataRecord *sorted_run = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
@@ -236,35 +237,52 @@ int main (int argc, char * argv [])
 #if NEW_TEST
 	lluint max_runs = (lluint)SSD_SIZE / (lluint)OPTIMAL_HDD_PAGE_SIZE;
 	StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE, max_runs);
-	pair<DataRecord *, uint> p;
-	DataRecord records[NUM_RECORDS];
-	DataRecord *run_page_records;
-	uint page_num_records;
+	vector<DataRecord> records;
 
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		records[ii].SetRecord(ii + 10, ii + 11, ii + 12);
+		DataRecord record = DataRecord(ii + 10, ii + 11, ii + 12);
+		records.push_back(record);
 	}
 
-	ssd.spill_run('n', 0, records, NUM_RECORDS);
+	ssd.spill_run('n', 0, records);
 
-	p = ssd.get_run_page(0, NUM_RECORDS / 2);
-	run_page_records = p.first;
-	page_num_records = p.second;
-	for (uint ii = 0; ii < page_num_records; ii++)
+	records = ssd.get_run_page(0, NUM_RECORDS / 2);
+	for (uint ii = 0; ii < records.size() ; ii++)
 	{
-		run_page_records[ii].print();
+		records[ii].print();
 	}
 
-	p = ssd.get_run_page(0, NUM_RECORDS / 2);
-	run_page_records = p.first;
-	page_num_records = p.second;
-	for (uint ii = 0; ii < page_num_records; ii++)
+	records = ssd.get_run_page(0, NUM_RECORDS / 2);
+	for (uint ii = 0; ii < records.size(); ii++)
 	{
-		run_page_records[ii].print();
+		records[ii].print();
 	}
 
 	ssd.truncate_device();
+#endif
+#if TEST_6
+	DataRecord *internal_sort_records = new DataRecord [NUM_RECORDS];
+	RecordList record_list;
+
+	cout << "Unsorted Data Records:" << endl;
+	for (int ii = 0; ii < NUM_RECORDS; ii++)
+	{
+		internal_sort_records[ii].SetRecord(10 - ii, ii + 11, ii + 12);
+		cout << internal_sort_records[ii].GetRecord() << endl;
+	}
+
+	record_list.record_ptr = internal_sort_records;
+	record_list.record_count = NUM_RECORDS;
+
+	InternalSort(&record_list);
+
+	cout << "Sorted Data Records:" << endl;
+	for (int ii = 0; ii < NUM_RECORDS; ii++)
+	{
+		cout << record_list.record_ptr[ii].GetRecord() << endl;
+	}
+	delete []internal_sort_records;
 #endif
 	return 0;
 } // main

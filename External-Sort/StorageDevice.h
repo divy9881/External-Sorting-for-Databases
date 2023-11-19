@@ -8,8 +8,8 @@ class StorageDevice
 {
 	public:
 		StorageDevice(string, lluint, uint);
-		pair<DataRecord *, uint> get_run_page(uint, uint);
-		void spill_run(char, uint, DataRecord *, uint);
+		vector<DataRecord> get_run_page(uint, uint);
+		void spill_run(char, uint, vector<DataRecord>);
 		void truncate_device();
 	protected:
 		uint num_runs;
@@ -21,7 +21,7 @@ class StorageDevice
 		lluint total_reads;
 		lluint total_writes;
 
-		void spill_run_to_disk(string, DataRecord *, uint);
-		pair<DataRecord *, uint> get_run_page_from_disk(string, lluint *, uint);
+		void spill_run_to_disk(string, vector<DataRecord>);
+		vector<DataRecord> get_run_page_from_disk(string, lluint *, uint);
 		int truncate_all_runs();
 };

@@ -9,8 +9,8 @@
 #define NODE_RECORD_LIST_AT(node, idx) node->list->record_ptr[idx]
 #define NODE_RECORD_LIST_LENGTH(node) node->list->record_count
 #define CHECK_SET_EMPTY(node, node_idx) if (node->list->record_count == 0) {\
-                            node->is_empty = true;\
-                        }
+							node->is_empty = true;\
+						}
 
 DataRecord* pop_record(RecordList *list) {
     DataRecord* top = NULL;
@@ -29,47 +29,47 @@ DataRecord* pop_record(RecordList *list) {
 }
 
 DataRecord* top_record(RecordList *list) {
-    if (list == NULL) {
-        return NULL;
-    }
-    return list->record_ptr;
+	if (list == NULL) {
+		return NULL;
+	}
+	return list->record_ptr;
 }
 
 /*
- * Pass the list of sorted runs as part of structure RecordList
- */
+* Pass the list of sorted runs as part of structure RecordList
+*/
 
-Tree::Tree(RecordList *sorted_runs, int count_of_sorted_runs)
+Tree::Tree(vector<RecordList *> sorted_runs)
 {
-    this->tree_depth = ceil(log2(count_of_sorted_runs));
-    this->total_nodes = 2 * pow(2, this->tree_depth) - 1;
-    this->heap = std::vector <struct Node>(this->total_nodes);
-    this->total_leaves = pow(2, this->tree_depth);
-    int first_leaf_node = this->total_nodes - ((this->total_nodes - 1)/2) - 1;
+	this->tree_depth = ceil(log2(sorted_runs.size()));
+	this->total_nodes = 2 * pow(2, this->tree_depth) - 1;
+	this->heap = vector <struct Node>(this->total_nodes);
+	this->total_leaves = pow(2, this->tree_depth);
+	int first_leaf_node = this->total_nodes - ((this->total_nodes - 1)/2) - 1;
+	uint jj = 0, current_run = 0;
+	lluint ii = first_leaf_node;
 
-    RecordList *each_run = sorted_runs;
-    int current_run = 0;
-    lluint ii = first_leaf_node;
-    for ( ; ii < (this->total_leaves*2) - 1 ; ii++) {
-        this->heap[ii].current_record = NULL;
-        this->heap[ii].is_empty = false;
-        this->heap[ii].is_leaf = true;
-        this->heap[ii].list = each_run;
-        current_run++;
-        if (current_run < count_of_sorted_runs) {
-            each_run+=1;
-            // printf("%p\n", (void*)each_run);
-        } else {
-            ii++;
-            break;
-        }
-    }
-    if (ii < ((this->total_leaves*2) - 1)) {
-        this->heap[ii].current_record = NULL;
-        this->heap[ii].is_empty = true;
-        this->heap[ii].is_leaf = true;
-        this->heap[ii].list = NULL;
-    }
+	for ( ; ii < (this->total_leaves*2) - 1 ; ii++) {
+		this->heap[ii].current_record = NULL;
+		this->heap[ii].is_empty = false;
+		this->heap[ii].is_leaf = true;
+		this->heap[ii].list = sorted_runs[jj];
+		current_run++;
+		if (current_run < sorted_runs.size()) {
+			jj += 1;
+			// printf("%p\n", (void*)each_run);
+		} else {
+			ii++;
+			break;
+		}
+	}
+
+	if (ii < ((this->total_leaves*2) - 1)) {
+		this->heap[ii].current_record = NULL;
+		this->heap[ii].is_empty = true;
+		this->heap[ii].is_leaf = true;
+		this->heap[ii].list = NULL;
+	}
 }
 
 /**
@@ -86,10 +86,10 @@ Tree::Tree(RecordList *sorted_runs, int count_of_sorted_runs)
  */
 Tree::Tree(DataRecord *records, int record_ct, int initial_run)
 {
-    // TODO See if this is optimal division for fanning
-    this->total_leaves = record_ct/2;
-    DataRecord *current_ptr = records;
-    int count_of_cols_per_row = ceil(record_ct/this->total_leaves);
+	// TODO: See if this is optimal division for fanning
+	this->total_leaves = record_ct/2;
+	DataRecord *current_ptr = records;
+	int count_of_cols_per_row = ceil(record_ct/this->total_leaves);
 
 	if (initial_run) {
 		count_of_cols_per_row = 1;
@@ -330,74 +330,87 @@ void Tree::run_tree() {
 * Count: 3 -> [6 @ 0 :: (7, 7, 7)@{ovc:rel}] [6 @ 1 :: (8, 8, 8)@{ovc:rel}] [6 @ 2 :: (9, 9, 9)@{ovc:rel}]
 */
 void Tree::print_heap() {
-    cout<<"Tree depth: "<<this->tree_depth+1<<", Total nodes: "<<this->total_nodes<<", Total leaves: "<<this->total_leaves<<endl;
-    for (lluint ii = 0 ; ii < this->total_nodes; ii++) {
-        if (this->heap[ii].current_record) {
-            printf("%lld :: (%lld, %lld, %lld)@(%d, %s)\n",
-                    ii, this->heap[ii].current_record->_record[0],
-                    this->heap[ii].current_record->_record[1],
-                    this->heap[ii].current_record->_record[2],
-                    this->heap[ii].current_record->ovc,
-                    this->heap[ii].current_record->rel.c_str());
-        } else {
-            RecordList *heap_list = this->heap[ii].list;
-            if (heap_list == NULL) {
-                printf("\n(%lld Empty )\n", ii);
-                continue;
-            }
+	cout<<"Tree depth: "<<this->tree_depth+1<<", Total nodes: "<<this->total_nodes<<", Total leaves: "<<this->total_leaves<<endl;
+	for (lluint ii = 0 ; ii < this->total_nodes; ii++) {
+		if (!this->heap[ii].is_empty) {
+			if (this->heap[ii].current_record) {
+				printf("%lld :: (%lld, %lld, %lld)\n",
+						ii, this->heap[ii].current_record->_record[0],
+						this->heap[ii].current_record->_record[1],
+						this->heap[ii].current_record->_record[2]);
+			} else {
+				RecordList *heap_list = this->heap[ii].list;
+				DataRecord *current_record = heap_list->record_ptr;
+				cout<<"Tree depth: "<<this->tree_depth+1<<", Total nodes: "<<this->total_nodes<<", Total leaves: "<<this->total_leaves<<endl;
+				for (lluint ii = 0 ; ii < this->total_nodes; ii++) {
+					if (this->heap[ii].current_record) {
+						printf("%lld :: (%lld, %lld, %lld)@(%d, %s)\n",
+								ii, this->heap[ii].current_record->_record[0],
+								this->heap[ii].current_record->_record[1],
+								this->heap[ii].current_record->_record[2],
+								this->heap[ii].current_record->ovc,
+								this->heap[ii].current_record->rel.c_str());
+					} else {
+						RecordList *heap_list = this->heap[ii].list;
+						if (heap_list == NULL) {
+							printf("\n(%lld Empty )\n", ii);
+							continue;
+						}
             DataRecord *current_record = heap_list->record_ptr;
 
-                printf("\n(%lld (Count: %lld) -> ", ii, heap_list->record_count);
-                for (lluint jj = 0; jj < this->heap[ii].list->record_count; jj++) {
-                    printf("[%lld @ %lld :: (%lld, %lld, %lld)] ",
-                        ii, jj, current_record->_record[0],
-                        current_record->_record[1],
-                        current_record->_record[0]);
-                    	current_record++;
-                }
-                printf(")\n");
-            }
-        } else {
-            printf("\n(%lld Empty )\n", ii);
-        }
-    }
+				printf("\n(%lld (Count: %lld) -> ", ii, heap_list->record_count);
+				for (lluint jj = 0; jj < this->heap[ii].list->record_count; jj++) {
+					printf("[%lld @ %lld :: (%lld, %lld, %lld)] ",
+						ii, jj, current_record->_record[0],
+						current_record->_record[1],
+						current_record->_record[0]);
+						current_record++;
+				}
+				printf(")\n");
+			}
+		} else {
+			printf("\n(%lld Empty )\n", ii);
+		}
+	}
 }
 
 vector<int> Tree::get_empty_leaves() {
-    vector<int> empty_leaf_idx_list;
-    int first_leaf_idx = pow(2, this->tree_depth) - 1;
-    for (lluint ii = first_leaf_idx; ii < this->total_nodes; ii++) {
-        if ((this->heap[ii].is_empty) &&
-            (this->heap[ii].list->record_ptr == NULL)) {
-                empty_leaf_idx_list.push_back(ii);
-        }
-    }
-    return empty_leaf_idx_list;
+	vector<int> empty_leaf_idx_list;
+	int first_leaf_idx = pow(2, this->tree_depth) - 1;
+	for (lluint ii = first_leaf_idx; ii < this->total_nodes; ii++) {
+		if ((this->heap[ii].is_empty) &&
+			(this->heap[ii].list->record_ptr == NULL)) {
+				empty_leaf_idx_list.push_back(ii);
+		}
+	}
+	return empty_leaf_idx_list;
 }
 
 /*
- * Add new records at a leaf node (only if the existing list is exhausted)
- */
+* Add new records at a leaf node (only if the existing list is exhausted)
+*/
 int Tree::add_run_at_leaf(int leaf_node_index, DataRecord *record_list, int record_ct) {
-    if (!this->heap[leaf_node_index].is_empty) {
-        cout<<"The leaf node "<<leaf_node_index<<" is not empty. Cannot add new records!";
-        return 1;
-    } else {
-        this->heap[leaf_node_index].is_empty = false;
-        if (this->heap[leaf_node_index].list == NULL) {
-            this->heap[leaf_node_index].list = (RecordList*) malloc(sizeof(RecordList));
-        }
-        this->heap[leaf_node_index].list->record_ptr = record_list;
-        this->heap[leaf_node_index].list->record_count = record_ct;
-    }
-    return 0;
+	if (!this->heap[leaf_node_index].is_empty) {
+		cout<<"The leaf node "<<leaf_node_index<<" is not empty. Cannot add new records!";
+		return 1;
+	} else {
+		this->heap[leaf_node_index].is_empty = false;
+		if (this->heap[leaf_node_index].list == NULL) {
+			this->heap[leaf_node_index].list = (RecordList*) malloc(sizeof(RecordList));
+		}
+		this->heap[leaf_node_index].list->record_ptr = record_list;
+		this->heap[leaf_node_index].list->record_count = record_ct;
+	}
+	return 0;
 }
 
 // TODO Can add spillover to HDD/SSD logic here
 // As of now, we will just empty the vector storing the merged run
     
 void Tree::spillover_run() {
-    this->generated_run.clear();
+	// TODO Can add spillover to HDD/SSD logic here
+	// As of now, we will just empty the vector storing the merged run
+	this->generated_run.clear();
 }
 
 /*
@@ -414,12 +427,12 @@ void Tree::print_run() {
 
 Tree::~Tree ()
 {
-    lluint first_leaf_node = this->total_nodes - ((this->total_nodes - 1)/2) - 1;
-    for (lluint ii = first_leaf_node ; ii < (this->total_leaves*2) - 1; ii++) {
-        if (this->heap[ii].list) {
-            free(&this->heap[ii].list);
-        }
-    }
+	lluint first_leaf_node = this->total_nodes - ((this->total_nodes - 1)/2) - 1;
+	for (lluint ii = first_leaf_node ; ii < (this->total_leaves*2) - 1; ii++) {
+		if (this->heap[ii].list) {
+			free(&this->heap[ii].list);
+		}
+	}
 	TRACE (true);
 	// delete root;
 }

@@ -2,7 +2,7 @@
 
 #include "defs.h"
 #include "databaseConfig.h"
-#include "OffsetValueCode.h"
+#include "sortParams.h"
 
 class DataRecord
 {
@@ -34,7 +34,9 @@ public:
 	bool operator<(const DataRecord& other) const;
 	bool operator>(const DataRecord& other) const;
 	bool operator==(const DataRecord& other) const;
-// private:
+	void populate_ovc_int(lluint current, lluint winner_key);
+	void populate_ovc_str(string current, string winner_key);
+	// private:
 	lluint _record[3];
 	suint ovc;
 	string rel;
@@ -51,3 +53,6 @@ typedef struct RecordList
 	DataRecord *record_ptr = NULL;
 	lluint record_count = 0;
 } RecordList;
+
+int comparator(const void *arg1, const void *arg2);
+void InternalSort(RecordList *records);

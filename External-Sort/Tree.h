@@ -31,32 +31,32 @@ struct Node {
 
 class Tree
 {
-private:
-	std::vector <struct Node> heap;
-	std::vector <struct DataRecord*> generated_run;
-	lluint total_leaves, total_nodes, tree_depth;
-	lluint total_record_count;
-public:
-    // Constructor
-    Tree();
-    Tree(DataRecord *, int, int); // Used for sorting of individual records
-    Tree(RecordList *, int); // Used to generate tree with sorted runs
+	private:
+		vector<struct Node> heap;
+		vector<struct DataRecord*> generated_run;
+		lluint total_leaves, total_nodes, tree_depth;
+		lluint total_record_count;
+	public:
+		// Constructor
+		Tree();
+		Tree(DataRecord *, int, int); // Used for sorting of individual records
+		Tree(vector<RecordList *>); // Used to generate tree with sorted runs
 
-    // Utility functions
-    Node* getRoot();
-    int capacity(int level);
-    struct Node leaf(int index, int slot);
-    struct Node parent(int slot);
-    void print_heap();
-    void print_run();
+		// Utility functions
+		Node* getRoot();
+		int capacity(int level);
+		struct Node leaf(int index, int slot);
+		struct Node parent(int slot);
+		void print_heap();
+		void print_run();
 
-    // Tournament tree functions
-    void run_tree();
-    void compare_and_swap(int parent, int unused_leaf_idx);
-    vector<int> get_empty_leaves();
-    int add_run_at_leaf(int leaf_node_idx, DataRecord *sorted_run, int number_of_records);
-    void spillover_run();
-    
-    // Deconstructor
-    ~Tree();
+		// Tournament tree functions
+		void run_tree();
+		void compare_and_swap(int parent, int unused_leaf_idx);
+		vector<int> get_empty_leaves();
+		int add_run_at_leaf(int leaf_node_idx, DataRecord *sorted_run, int number_of_records);
+		void spillover_run();
+		
+		// Deconstructor
+		~Tree();
 };
