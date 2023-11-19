@@ -180,20 +180,20 @@ int main (int argc, char * argv [])
 	// test_tree4->print_run();
 	// test_tree4->spillover_run();
 #endif
-#ifdef TEST_5
-	// DataRecord *sorted_run = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
-	// for (lluint ii = 0; ii < num_records; ii++) {
-	// 	sorted_run[ii].SetRecord(ii+1, ii+1, ii+1);
+#if TEST_5
+	DataRecord *sorted_run = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
+	for (lluint ii = 0; ii < num_records; ii++) {
+		sorted_run[ii].SetRecord(ii+1, ii+1, ii+1);
+	}
+	RecordList *record_list = (RecordList*) malloc(sizeof(RecordList));
+	append_to_record_list(&record_list, sorted_run, num_records);
+	// DataRecord* temp = record_list->record_ptr;
+	// while(temp->next != NULL) {
+	// 	temp->print();
+	// 	temp = temp->next;
 	// }
-	// RecordList *record_list = (RecordList*) malloc(sizeof(RecordList));
-	// append_to_record_list(&record_list, sorted_run, num_records);
-	// // DataRecord* temp = record_list->record_ptr;
-	// // while(temp->next != NULL) {
-	// // 	temp->print();
-	// // 	temp = temp->next;
-	// // }
-	// Tree test_tree1 = Tree(record_list, 1);
-	// test_tree1.print_heap();
+	Tree test_tree1 = Tree(record_list, 1);
+	test_tree1.print_heap();
 #endif
 	return 0;
 } // main
