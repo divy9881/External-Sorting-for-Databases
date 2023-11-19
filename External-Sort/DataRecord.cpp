@@ -7,6 +7,8 @@ DataRecord::DataRecord (lluint col1, lluint col2, lluint col3)
 	this->_record[0] = col1;
 	this->_record[1] = col2;
 	this->_record[2] = col3;
+	this->ovc = 0;
+	this->rel = "";
 	TRACE (false);
 } // DataRecord::DataRecord (lluint col1, lluint col2, lluint col3)
 
@@ -15,14 +17,13 @@ DataRecord::DataRecord (const DataRecord& record)
 	this->_record[0] = record._record[0];
 	this->_record[1] = record._record[1];
 	this->_record[2] = record._record[2];
+	this->ovc = record.ovc;
+	this->rel = record.rel;
 	TRACE (false);
 } // DataRecord::DataRecord (const DataRecord& record)
 
 DataRecord::~DataRecord ()
 {
-	this->_record[0] = INT_MIN;
-	this->_record[1] = INT_MIN;
-	this->_record[2] = INT_MIN;
 	TRACE (false);
 } // DataRecord::~DataRecord
 
@@ -31,6 +32,8 @@ void DataRecord::SetRecord (lluint col1, lluint col2, lluint col3)
 	this->_record[0] = col1;
 	this->_record[1] = col2;
 	this->_record[2] = col3;
+	this->ovc = 0;
+	this->rel = "";
 } // DataRecord::SetRecord()
 
 string DataRecord::GetRecord ()
@@ -43,8 +46,9 @@ string DataRecord::GetRecord ()
 void DataRecord::print ()
 {
     cout<<this->_record[0]<<" "<<this->_record[1]<<" "<<this->_record[2]<<" ";
-    this->ov_code.print();
-    TRACE (false);
+	cout << "OVC: " << this->ovc;
+	cout << " Rel: " << this->rel << endl;
+	TRACE (false);
 } // DataRecord::print
 
 // For integers, OVC would not matter too much (it is faster than string comparison)
@@ -102,7 +106,7 @@ bool DataRecord::is_smaller_str(DataRecord incoming_record)
 void DataRecord::populate_ovc (DataRecord winner)
 {
 	// TODO: Update this when we shift to strings
-	this->ov_code.populate_ovc_int(this->_record[0], winner._record[0]);
+	this->populate_ovc_int(this->_record[0], winner._record[0]);
 }
 
 bool DataRecord::operator< (const DataRecord& other) const
@@ -113,4 +117,82 @@ bool DataRecord::operator< (const DataRecord& other) const
 bool DataRecord::operator== (const DataRecord& other) const 
 {
 	return equal(begin(_record), end(_record), begin(other._record));
+}
+
+// It is called only when the current record loses to the incoming
+// (incoming record will be shorter/have lower value)
+void DataRecord::populate_ovc_int(lluint current, lluint winner)
+{
+	string current_record = to_string(current);
+	string winner_record = to_string(winner);
+
+	this->populate_ovc_str(current_record, winner_record);
+}
+
+void DataRecord::populate_ovc_str(string current, string winner)
+{
+	int current_length = current.length();
+	int winner_length = winner.length();
+	int arity = 0;
+
+	if (current_length > winner_length)
+	{
+		int num_of_zeroes = current_length - winner_length;
+		string zeroes = "";
+
+		for (int ii = 0; ii < num_of_zeroes; ii++)
+		{
+			zeroes += "0";
+		}
+		winner = zeroes + winner;
+	}
+	else
+	{
+		int num_of_zeroes = winner_length - current_length;
+		string zeroes = "";
+
+		for (int ii = 0; ii < num_of_zeroes; ii++)
+		{
+			zeroes += "0";
+		}
+		current = zeroes + current;
+	}
+
+	arity = winner.length();
+
+	// Traverse over winner record length (it will be shorter/lower value)
+	for (lluint ii = 0; ii < winner.length(); ii++)
+	{
+		if (current[ii] == winner[ii])
+		{
+			continue;
+		}
+		else
+		{
+			this->ovc = (arity - ii) * OVC_DOMAIN + (current[ii] - '0');
+			this->rel = winner;
+			break;
+		}
+	}
+}
+
+int comparator(const void *arg1, const void *arg2)
+{
+	if (*(DataRecord *)arg1 < *(DataRecord *)arg2)
+	{
+		return -1;
+	}
+	else if (*(DataRecord *)arg1 == *(DataRecord *)arg2)
+	{
+		return -1;
+	}
+	else
+	{
+		return 1;
+	}
+}
+
+void InternalSort(RecordList* records)
+{
+	qsort((void *)records->record_ptr, (size_t)records->record_count, sizeof(DataRecord), comparator);
 }

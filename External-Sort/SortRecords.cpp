@@ -37,6 +37,8 @@ void SortRecords::run()
 			* DataRecord's using delete operator
 			*/
 			RecordList *records = p.GetRecords();
+			InternalSort(records);
+			runs.push_back(records);
 		}
 	}
 }

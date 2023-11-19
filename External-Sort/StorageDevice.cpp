@@ -19,7 +19,7 @@ StorageDevice::StorageDevice(string device_path, lluint total_space, uint max_ru
 	}
 }
 
-void StorageDevice::spill_run(char run_bit, uint run, DataRecord *records, uint num_records)
+void StorageDevice::spill_run(char run_bit, uint run, vector<DataRecord> records)
 {
 	string run_path;
 	if (run_bit == 'n') {
@@ -29,22 +29,22 @@ void StorageDevice::spill_run(char run_bit, uint run, DataRecord *records, uint 
 		run_path = this->device_path + "/run_" + to_string(run);
 	}
 	
-	this->spill_run_to_disk(run_path, records, num_records);
-	this->free_space -= num_records * ON_DISK_RECORD_SIZE;
+	this->spill_run_to_disk(run_path, records);
+	this->free_space -= records.size() * ON_DISK_RECORD_SIZE;
 
 	this->total_writes += 1;
 }
 
-pair<DataRecord *, uint> StorageDevice::get_run_page(uint run, uint num_records)
+vector<DataRecord> StorageDevice::get_run_page(uint run, uint num_records)
 {
-	pair<DataRecord *, uint> p;
+	vector<DataRecord> records;
 	string run_path = this->device_path + "/run_" + to_string(run);
 
-	p = this->get_run_page_from_disk(run_path, &this->run_offsets[run], num_records);
+	records = this->get_run_page_from_disk(run_path, &this->run_offsets[run], num_records);
 
 	this->total_reads += 1;
 
-	return p;
+	return records;
 }
 
 void StorageDevice::truncate_device()
@@ -60,7 +60,7 @@ void StorageDevice::truncate_device()
 	}
 }
 
-void StorageDevice::spill_run_to_disk(string run_path, DataRecord *records, uint num_records)
+void StorageDevice::spill_run_to_disk(string run_path, vector<DataRecord> records)
 {
 	fstream runfile;
 	string str_records;
@@ -69,7 +69,7 @@ void StorageDevice::spill_run_to_disk(string run_path, DataRecord *records, uint
 	if (!runfile.is_open())
 		return;
 
-	for (uint ii = 0 ; ii < num_records ; ii++) {
+	for (uint ii = 0 ; ii < records.size() ; ii++) {
 		DataRecord record = records[ii];
 		string str_record = record.GetRecord();
 		str_records += str_record + RECORD_DELIMITER;
@@ -80,12 +80,10 @@ void StorageDevice::spill_run_to_disk(string run_path, DataRecord *records, uint
 	return;
 }
 
-pair<DataRecord *, uint> StorageDevice::get_run_page_from_disk(string run_path, lluint *offset, uint num_records)
+vector<DataRecord> StorageDevice::get_run_page_from_disk(string run_path, lluint *offset, uint num_records)
 {
 	fstream runfile;	
-	DataRecord *records = new DataRecord[num_records];
-	uint count_records = 0, ii = 0;
-	pair<DataRecord *, uint> p;
+	vector<DataRecord> records;
 	lluint col_value1, col_value2, col_value3, pos = 0;
 	string record_delimiter(RECORD_DELIMITER);
 	string column_delimiter(COLUMN_DELIMITER);
@@ -94,12 +92,11 @@ pair<DataRecord *, uint> StorageDevice::get_run_page_from_disk(string run_path, 
 
 	runfile.open(run_path, ios::in);
 	if (!runfile.is_open())
-		return p;
+		return records;
 
 	runfile.seekg(*offset, ios::beg);
 
 	runfile.get(run_page, num_records * ON_DISK_RECORD_SIZE + 1);
-	count_records = strlen(run_page) / ON_DISK_RECORD_SIZE;
 	*offset += strlen(run_page);
 
 	string s(run_page);
@@ -136,18 +133,15 @@ pair<DataRecord *, uint> StorageDevice::get_run_page_from_disk(string run_path, 
 		col_value = token;
 		ss3 << col_value;
 		ss3 >> col_value3;
-
-		records[ii++].SetRecord(col_value1, col_value2, col_value3);
+		DataRecord record = DataRecord(col_value1, col_value2, col_value3);
+		records.push_back(record);
 	}
-
-	p.first = records;
-	p.second = count_records;
 
 	runfile.close();
 
 	delete[] run_page;
 
-	return p;
+	return records;
 }
 
 int StorageDevice::truncate_all_runs()

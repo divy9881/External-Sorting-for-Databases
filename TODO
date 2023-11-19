@@ -2,3 +2,4 @@
 - Support sort for column value types string and integer
 - Make sure that all the malloc'ed memory in TournamentTree is freed in its Deconstructor
 - Introduce use of vectors for list
+- Run valgrind on the final implementation of External Sort

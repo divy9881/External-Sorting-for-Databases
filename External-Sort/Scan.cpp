@@ -3,7 +3,7 @@
 
 ScanPlan::ScanPlan (RowCount const count) : _count (count)
 {
-	this->_rows = (DataRecord *)malloc(this->_count * sizeof(DataRecord));
+	this->_rows = new DataRecord[this->_count];
 	for (RowCount ii = 0; ii < _count; ii++) {
 		this->_rows[ii].SetRecord(Random(DOMAIN_COL_VALUE), Random(DOMAIN_COL_VALUE), Random(DOMAIN_COL_VALUE));
 	}
@@ -12,7 +12,7 @@ ScanPlan::ScanPlan (RowCount const count) : _count (count)
 
 ScanPlan::~ScanPlan ()
 {
-	free(this->_rows);
+	delete []this->_rows;
 	TRACE (true);
 } // ScanPlan::~ScanPlan
 
@@ -31,6 +31,7 @@ RecordList * ScanPlan::GetRecords ()
 {
 	RecordList *record_list = new RecordList;
 	DataRecord *records = new DataRecord[this->_count];
+
 	for (lluint ii = 0 ; ii < this->_count ; ii++) {
 		records[ii] = this->GetRecord(ii);
 	}
