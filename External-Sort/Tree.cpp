@@ -366,10 +366,15 @@ void Tree::run_tree() {
             inner_node_idx >= 0;
             inner_node_idx--) {
         this->compare_and_swap(inner_node_idx, unused_leaves_idx);
-        // cout<<"The heap in iteration "<<endl;
-        // this->print_heap();
+#if DEBUG_PRINT
+        cout<<"The heap when running inner node "<<inner_node_idx<<endl;
+        this->print_heap();
+#endif
     }
-    // printf("pushing %p into the generated_run, with values ", (void*) this->heap[0].current_record); //this->heap[0].current_record->print(); cout<<endl; 
+#if DEBUG_PRINT
+    printf("Pushing %p into the generated_run, with values ", (void*) this->heap[0].current_record);
+    this->heap[0].current_record->print(); printf("\n");
+#endif
     this->generated_run.push_back(this->heap[0].current_record);
     this->heap[0].current_record = NULL;
 }
@@ -388,42 +393,38 @@ void Tree::run_tree() {
 void Tree::print_heap() {
     cout<<"Tree depth: "<<this->tree_depth+1<<", Total nodes: "<<this->total_nodes<<", Total leaves: "<<this->total_leaves<<endl;
     for (lluint ii = 0 ; ii < this->total_nodes; ii++) {
-        // if (!this->heap[ii].is_empty) {
-            if (this->heap[ii].current_record) {
-                printf("%lld :: (%d, %d, %d)@(%d, %s)\n",
-                        ii, this->heap[ii].current_record->_record[0],
-                        this->heap[ii].current_record->_record[1],
-                        this->heap[ii].current_record->_record[2],
-                        this->heap[ii].current_record->ovc,
-                        this->heap[ii].current_record->rel.c_str());
-            } else {
-                RecordList *heap_list = this->heap[ii].list;
-                if (heap_list == NULL) {
-                    printf("\n(%lld Empty )\n", ii);
-                    continue;    
-                }
-                DataRecord *current_record = heap_list->record_ptr;
-
-                printf("\n(%lld (Count: %lld) -> ", ii, heap_list->record_count);
-                lluint jj = 0;
-                while(current_record != NULL) {
-                    printf("[%lld @ %lld :: (%d, %d, %d)",
-                        ii, jj, current_record->_record[0],
-                        current_record->_record[1],
-                        current_record->_record[2]);
-                    if (current_record->ovc == 0) {
-                        printf("@{:}] ");
-                    } else {
-                        printf("@{%d:%s}] ",current_record->ovc, current_record->rel.c_str());
-                    }
-                    current_record = current_record->next;
-                    jj++;
-                }
-                printf(")\n");
+        if (this->heap[ii].current_record) {
+            printf("%lld :: (%d, %d, %d)@(%d, %s)\n",
+                    ii, this->heap[ii].current_record->_record[0],
+                    this->heap[ii].current_record->_record[1],
+                    this->heap[ii].current_record->_record[2],
+                    this->heap[ii].current_record->ovc,
+                    this->heap[ii].current_record->rel.c_str());
+        } else {
+            RecordList *heap_list = this->heap[ii].list;
+            if (heap_list == NULL) {
+                printf("\n(%lld Empty )\n", ii);
+                continue;
             }
-        // } else {
-            // printf("\n(%lld Empty )\n", ii);
-        // }
+            DataRecord *current_record = heap_list->record_ptr;
+
+            printf("\n(%lld (Count: %lld) -> ", ii, heap_list->record_count);
+            lluint jj = 0;
+            while(current_record != NULL) {
+                printf("[%lld @ %lld :: (%d, %d, %d)",
+                    ii, jj, current_record->_record[0],
+                    current_record->_record[1],
+                    current_record->_record[2]);
+                if (current_record->ovc == 0) {
+                    printf("@{:}] ");
+                } else {
+                    printf("@{%d:%s}] ",current_record->ovc, current_record->rel.c_str());
+                }
+                current_record = current_record->next;
+                jj++;
+            }
+            printf(")\n");
+        }
     }
 }
 

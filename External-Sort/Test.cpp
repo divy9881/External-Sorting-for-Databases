@@ -76,20 +76,10 @@ int main (int argc, char * argv [])
 #if TEST_2
 	// Test 2, only to be used for merging - replace when a record list is empty
 	cout<<"\n\n\n\t\t *********     TEST 2     *********"<<endl<<"\t\t\tTesting sorting of records\n\n\n";
-	DataRecord *list2 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
-	// for(luint ii = 0; ii < num_records; ii++) {
-	// 	list2[ii].SetRecord(ii+1, ii+1, ii+1);
-	// }
+	DataRecord list2[8];
+	DataRecord list3[8];
+	DataRecord list4[8];
 
-	// Tree *test_tree2 = new Tree(list2, 8, 1);
-	// test_tree2->print_heap();
-	// test_tree2->run_tree();
-	// test_tree2->print_run();
-	// test_tree2->print_heap();
-
-	// num_records = 8;
-	DataRecord *list3 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
-	DataRecord *list4 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
 	for(luint ii = 0; ii < num_records; ii++) {
 		list2[ii].SetRecord(ii+2, ii+2, ii+2);
 		list3[ii].SetRecord(ii+1, ii+1, ii+1);
@@ -128,13 +118,6 @@ int main (int argc, char * argv [])
 	int count_of_sorted_runs = 3;
 	num_records = 8;
 	DataRecord sorted_run1[8], sorted_run2[8], sorted_run3[8], sorted_run4[8], sorted_run5[8], sorted_run6[8];
-	// DataRecord *sorted_run1 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
-	// DataRecord *sorted_run2 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
-	// DataRecord *sorted_run3 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
-	// DataRecord *sorted_run4 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
-	// DataRecord *sorted_run5 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
-	// DataRecord *sorted_run6 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
-
 	for (int jj = 0 ; jj < num_records ; jj++) {
 		sorted_run1[jj].SetRecord(jj+1, jj+1, jj+1);
 		sorted_run2[jj].SetRecord(jj+2, jj+2, jj+2);
