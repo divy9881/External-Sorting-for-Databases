@@ -2,8 +2,9 @@
 
 OffsetValueCode::OffsetValueCode()
 {
-	this->ovc = 0;
+	this->ovc = -1;
 	this->rel = "\0";
+	this->isempty = true;
 }
 
 OffsetValueCode::~OffsetValueCode()
@@ -16,10 +17,7 @@ OffsetValueCode::~OffsetValueCode()
 // (incoming record will be shorter/have lower value)
 void OffsetValueCode::populate_ovc_int(int current, int winner)
 {
-	string current_record = to_string(current);
-	string winner_record = to_string(winner);
-
-	this->populate_ovc_str(current_record, winner_record);
+	return;	
 }
 
 void OffsetValueCode::populate_ovc_str(std::string current, std::string winner)
@@ -58,9 +56,26 @@ void OffsetValueCode::populate_ovc_str(std::string current, std::string winner)
 			break;
 		}
 	}
+	this->isempty = false;
 }
 
 void OffsetValueCode::print()
 {
+	if (this->isempty) {
+		cout<<"OVC Empty"<<endl;
+		return;
+	}
 	cout<<"OVC: "<<this->ovc<<" Rel: "<<this->rel<<endl;
+}
+
+bool OffsetValueCode::operator<(OffsetValueCode const& obj) {
+	return this->ovc < obj.ovc;
+}
+
+bool OffsetValueCode::operator>(OffsetValueCode const& obj) {
+	return this->ovc > obj.ovc;
+}
+
+bool OffsetValueCode::operator==(OffsetValueCode const& obj) {
+	return this->ovc == obj.ovc;
 }

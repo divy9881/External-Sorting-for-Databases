@@ -5,6 +5,7 @@
 #include "DataRecord.h"
 #include "Tree.h"
 
+#define TEST_0 false
 #define TEST_1 false
 #define TEST_2 false
 #define TEST_3 false
@@ -14,19 +15,29 @@
 int main (int argc, char * argv [])
 {
 	// TRACE (true);
-	lluint num_records = 8;
+	int num_records = 8;
+#if TEST_0
+	DataRecord d1;
+	d1.SetRecord(1, 2, 3);
+	d1.print();
+	DataRecord d2;
+	d2.SetRecord(2,3,4);
+	d2.print();
+	d2.populate_ovc(d1);
+	d2.print();
+#endif
 #if TEST_1
-	Plan * const plan = new ScanPlan (7);
+	// Plan * const plan = new ScanPlan (7);
 	// new SortPlan(new FilterPlan(newScanPlan(7)));
-	Iterator * const it = plan->init ();
+	// Iterator * const it = plan->init ();
 	DataRecord rec1 = DataRecord(1234, 1234, 1234);
 	DataRecord rec2 = DataRecord(5678, 5678, 5678);
 	DataRecord rec3 = DataRecord(9876, 9886, 9876);
 	
-	it->run ();
+	// it->run ();
 
-	delete it;
-	delete plan;
+	// delete it;
+	// delete plan;
 
 	bool rec1_is_smaller_than_2 = rec1.is_smaller_int(rec2);
 	if (rec1_is_smaller_than_2) {
@@ -48,15 +59,18 @@ int main (int argc, char * argv [])
 	rec2.print();
 	rec3.print();
 
-	DataRecord *list1 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
+	DataRecord *list1 = new DataRecord[num_records];
 
 	for(int ii = 0; ii < num_records; ii++) {
 		list1[ii].SetRecord(ii+1, ii+1, ii+1);
+		list1[ii].print();
 	}
 
-	Tree *test_tree = new Tree(list1, 4, 1);
+	Tree *test_tree = new Tree(list1, 8, 1);
 	test_tree->print_heap();
-	test_tree->run_tree();
+	for (int i = 0; i < 4; i++) {
+		test_tree->run_tree();
+	}
 	test_tree->print_run();
 #endif
 #if TEST_2
@@ -113,14 +127,15 @@ int main (int argc, char * argv [])
 	cout<<"\n\n\n\t\t*********     TEST 4     *********"<<endl<<"\tGenerate tree with sorted runs at leaf nodes, and dynamically add new records\n\n\n";
 	int count_of_sorted_runs = 3;
 	num_records = 8;
-	DataRecord *sorted_run1 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
-	DataRecord *sorted_run2 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
-	DataRecord *sorted_run3 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
-	DataRecord *sorted_run4 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
-	DataRecord *sorted_run5 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
-	DataRecord *sorted_run6 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
+	DataRecord sorted_run1[8], sorted_run2[8], sorted_run3[8], sorted_run4[8], sorted_run5[8], sorted_run6[8];
+	// DataRecord *sorted_run1 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
+	// DataRecord *sorted_run2 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
+	// DataRecord *sorted_run3 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
+	// DataRecord *sorted_run4 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
+	// DataRecord *sorted_run5 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
+	// DataRecord *sorted_run6 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
 
-	for (lluint jj = 0 ; jj < num_records ; jj++) {
+	for (int jj = 0 ; jj < num_records ; jj++) {
 		sorted_run1[jj].SetRecord(jj+1, jj+1, jj+1);
 		sorted_run2[jj].SetRecord(jj+2, jj+2, jj+2);
 		sorted_run3[jj].SetRecord(jj+3, jj+3, jj+3);
@@ -139,13 +154,13 @@ int main (int argc, char * argv [])
 	// printf("%p\n", (void*)setter);
 	append_to_record_list(&setter, sorted_run4, num_records);
 
-	lluint total_recs = 4 * num_records; 
+	int total_recs = 4 * num_records; 
 
 	Tree *test_tree4 = new Tree(list_of_sorted_runs, 4);
 	cout<<"Printing the heap:"<<endl;
 	test_tree4->print_heap();
 	cout<<"Running the tree for "<<4*4<<" records\n";
-	for (lluint ii = 0 ; ii < 4*4 ; ii++) {
+	for (int ii = 0 ; ii < 4*4 ; ii++) {
 		test_tree4->run_tree();
 	}
 	total_recs -= 4*4;
@@ -158,7 +173,7 @@ int main (int argc, char * argv [])
 	cout<<"The heap after adding the new run :: "<<endl;
 	test_tree4->print_heap();
 
-	for (lluint ii = 0 ; ii < total_recs ; ii++) {
+	for (int ii = 0 ; ii < total_recs ; ii++) {
 		test_tree4->run_tree();
 	}
 
@@ -182,20 +197,20 @@ int main (int argc, char * argv [])
 	// test_tree4->print_run();
 	// test_tree4->spillover_run();
 #endif
-// #ifdef TEST_5
-// 	DataRecord *sorted_run = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
-// 	for (lluint ii = 0; ii < num_records; ii++) {
-// 		sorted_run[ii].SetRecord(ii+1, ii+1, ii+1);
-// 	}
-// 	RecordList *record_list = (RecordList*) malloc(sizeof(RecordList));
-// 	append_to_record_list(&record_list, sorted_run, num_records);
-// 	// DataRecord* temp = record_list->record_ptr;
-// 	// while(temp->next != NULL) {
-// 	// 	temp->print();
-// 	// 	temp = temp->next;
-// 	// }
-// 	Tree test_tree1 = Tree(record_list, 1);
-// 	test_tree1.print_heap();
-// #endif
+#ifdef TEST_5
+	// DataRecord *sorted_run = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
+	// for (lluint ii = 0; ii < num_records; ii++) {
+	// 	sorted_run[ii].SetRecord(ii+1, ii+1, ii+1);
+	// }
+	// RecordList *record_list = (RecordList*) malloc(sizeof(RecordList));
+	// append_to_record_list(&record_list, sorted_run, num_records);
+	// // DataRecord* temp = record_list->record_ptr;
+	// // while(temp->next != NULL) {
+	// // 	temp->print();
+	// // 	temp = temp->next;
+	// // }
+	// Tree test_tree1 = Tree(record_list, 1);
+	// test_tree1.print_heap();
+#endif
 	return 0;
 } // main

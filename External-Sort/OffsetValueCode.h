@@ -12,4 +12,10 @@ class OffsetValueCode {
 	// private:
 		suint ovc;
 		string rel;
+		bool isempty;
+		friend class Tree;
+		friend class DataRecord;
+		bool operator<(OffsetValueCode const&obj);
+		bool operator>(OffsetValueCode const&obj);
+		bool operator==(OffsetValueCode const&obj);
 };
