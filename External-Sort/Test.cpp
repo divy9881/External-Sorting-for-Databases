@@ -19,6 +19,7 @@
 // #define TEST_8 true // Test merging sorted runs on SSD
 // #define TEST_9 true // Test merging sorted runs on HDD
 #define TEST_10 true // Test External Merge sort of 20 records
+#define TEST_11 true
 
 /*
  * Test configuration
@@ -471,5 +472,20 @@ int main (int argc, char * argv [])
 	hdd.get_device_access_stats();
 }
 #endif
-return 0;
+#ifdef TEST_11
+	// DataRecord *sorted_run = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
+	// for (lluint ii = 0; ii < num_records; ii++) {
+	// 	sorted_run[ii].SetRecord(ii+1, ii+1, ii+1);
+	// }
+	// RecordList *record_list = (RecordList*) malloc(sizeof(RecordList));
+	// append_to_record_list(&record_list, sorted_run, num_records);
+	// // DataRecord* temp = record_list->record_ptr;
+	// // while(temp->next != NULL) {
+	// // 	temp->print();
+	// // 	temp = temp->next;
+	// // }
+	// Tree test_tree1 = Tree(record_list, 1);
+	// test_tree1.print_heap();
+#endif
+	return 0;
 } // main
