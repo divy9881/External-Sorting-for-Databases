@@ -215,8 +215,8 @@ int Tree::capacity(int level) {
 }
 
 /*
- * Compares the record in children nodes in the tree, and pulls up the winner record.
- * Runs only for the internal nodes.
+ * For each internal node, compare the record in their children nodes (in the tree)
+ * and populates the current internal node with the winner record.
  * @param parent Index (in heap) of the parent record
  */
 void Tree::compare_and_swap(int parent, int unused_leaves_idx) {
@@ -239,7 +239,8 @@ void Tree::compare_and_swap(int parent, int unused_leaves_idx) {
                     parent_node->current_record = pop_record(left_child_node->list);
                 }
             }
-    } else { /* Both the children are valid. So add the popped record at parent (if empty) */
+    } else {
+        /* Both the children are valid. So add the popped record at parent (if empty) */
         if (parent_node->current_record) {
             return;
         } else {
@@ -346,6 +347,10 @@ void Tree::compare_and_swap(int parent, int unused_leaves_idx) {
     }
 }
 
+/*
+ * returns the leaf node of the current_slot.
+ * Index values should be 1 or 2 
+ */
 struct Node Tree::leaf(int index, int current_slot) {
 	return this->heap[current_slot*2 + index];
 }
@@ -355,7 +360,7 @@ struct Node Tree::parent(int current_slot) {
 }
 
 /*
- * Each call runs the tree once, to generate one entry of merged run
+ * Each call runs the entire tree once (generates one entry in the merged run)
  */
 void Tree::run_tree() {
 	int unused_leaves_idx = (this->total_nodes + 1) / 2 - 1 + this->total_leaves;
@@ -387,8 +392,8 @@ void Tree::run_tree() {
 * (1 Empty )
 * (2 Empty )
 * Count: 0 ->
-* Count: 1 -> [5 @ 0 :: (6, 6, 6)]
-* Count: 3 -> [6 @ 0 :: (7, 7, 7)] [6 @ 1 :: (8, 8, 8)] [6 @ 2 :: (9, 9, 9)]
+* Count: 1 -> [5 @ 0 :: (6, 6, 6)@{ovc:rel}]
+* Count: 3 -> [6 @ 0 :: (7, 7, 7)@{ovc:rel}] [6 @ 1 :: (8, 8, 8)@{ovc:rel}] [6 @ 2 :: (9, 9, 9)@{ovc:rel}]
 */
 void Tree::print_heap() {
     cout<<"Tree depth: "<<this->tree_depth+1<<", Total nodes: "<<this->total_nodes<<", Total leaves: "<<this->total_leaves<<endl;
@@ -452,9 +457,10 @@ int Tree::add_run_at_leaf(int leaf_node_index, DataRecord *record_list, lluint r
     return 0;
 }
 
+// TODO Can add spillover to HDD/SSD logic here
+// As of now, we will just empty the vector storing the merged run
+    
 void Tree::spillover_run() {
-    // TODO Can add spillover to HDD/SSD logic here
-    // As of now, we will just empty the vector storing the merged run
     this->generated_run.clear();
 }
 
