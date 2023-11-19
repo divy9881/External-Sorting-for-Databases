@@ -164,21 +164,21 @@ int main (int argc, char * argv [])
 	test_tree4->print_heap();
 	cout<<"The run after running the whole tree :: "<<endl;
 	test_tree4->print_run();
-	// test_tree4->spillover_run();
-	// cout<<"\nAdding new sorted run at the position 3 and 6"<<endl;
-	// for (lluint ii = 0 ; ii < num_records; ii++) {
-	// 	cout<<" | sorted_run5 @ "<<ii<<": ";sorted_run5[ii].print();
-	// 	cout<<" | sorted_run6 @ "<<ii<<": "; sorted_run6[ii].print();
-	// 	cout<<endl;
-	// }
-	// test_tree4->add_run_at_leaf(3, sorted_run5, num_records);
-	// test_tree4->add_run_at_leaf(6, sorted_run6, num_records);
-	// test_tree4->print_heap();
-	// for (lluint ii = 0 ; ii < 2*num_records; ii++) {
-	// 	test_tree4->run_tree();
-	// }
-	// test_tree4->print_run();
-	// test_tree4->spillover_run();
+	test_tree4->spillover_run();
+	cout<<"\nAdding new sorted run at the position 3 and 6"<<endl;
+	for (int ii = 0 ; ii < num_records; ii++) {
+		cout<<" | sorted_run5 @ "<<ii<<": ";sorted_run5[ii].print();
+		cout<<" | sorted_run6 @ "<<ii<<": "; sorted_run6[ii].print();
+		cout<<endl;
+	}
+	test_tree4->add_run_at_leaf(3, sorted_run5, num_records);
+	test_tree4->add_run_at_leaf(6, sorted_run6, num_records);
+	test_tree4->print_heap();
+	for (int ii = 0 ; ii < 2*num_records; ii++) {
+		test_tree4->run_tree();
+	}
+	test_tree4->print_run();
+	test_tree4->spillover_run();
 #endif
 #if TEST_5
 	DataRecord *sorted_run = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
