@@ -13,6 +13,7 @@ class StorageDevice
 		vector<DataRecord> get_run_page(uint, uint);
 		vector<RecordList *> get_run_pages(uint);
 		void spill_run(char, uint, vector<DataRecord>);
+		void spill_runs(vector<RecordList *> record_lists);
 		void truncate_device();
 
 	protected:

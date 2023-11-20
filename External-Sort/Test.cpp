@@ -14,7 +14,8 @@
 // #define TEST_5 true // Run Spilling on Disk and Reading Run Pages from Disk
 // #define TEST_6 true // Internal sort on list of records
 // #define TEST_7 true // Test get_last_run
-#define TEST_8 true // Test External Merge Sort
+// #define TEST_8 true // Test merging sorted runs on SSD
+// #define TEST_9 true // Test merging sorted runs on HDD
 
 /*
  * Test configuration
@@ -248,7 +249,6 @@ int main (int argc, char * argv [])
 		records.push_back(record);
 	}
 	ssd.spill_run('n', 0, records);
-
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
 		DataRecord record = DataRecord(ii + 10, ii + 11, ii + 12);
@@ -257,6 +257,29 @@ int main (int argc, char * argv [])
 	ssd.spill_run('n', 0, records);
 
 	sort.merge_runs_ssd();
+}
+#endif
+#if TEST_9
+{
+	StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE);
+	StorageDevice hdd = StorageDevice("./HDD", (lluint)HDD_SIZE);
+	vector<DataRecord> records;
+	SortRecords sort = SortRecords(0, &ssd, &hdd);
+
+	for (int ii = 0; ii < NUM_RECORDS; ii++)
+	{
+		DataRecord record = DataRecord(ii + 10, ii + 11, ii + 12);
+		records.push_back(record);
+	}
+	hdd.spill_run('n', 0, records);
+	for (int ii = 0; ii < NUM_RECORDS; ii++)
+	{
+		DataRecord record = DataRecord(ii + 10, ii + 11, ii + 12);
+		records.push_back(record);
+	}
+	hdd.spill_run('n', 0, records);
+
+	sort.merge_runs_hdd();
 }
 #endif
 return 0;

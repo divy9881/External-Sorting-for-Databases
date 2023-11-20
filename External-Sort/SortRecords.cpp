@@ -77,5 +77,17 @@ void SortRecords::merge_runs_ssd()
 
 void SortRecords::merge_runs_hdd()
 {
+	uint hdd_page_num_records = OPTIMAL_HDD_PAGE_SIZE / ON_DISK_RECORD_SIZE;
 
+	while (this->hdd_device->get_num_runs())
+	{
+		vector<RecordList *> record_lists;
+		vector<DataRecord> records;
+		record_lists = this->hdd_device->get_run_pages(hdd_page_num_records);
+
+		this->ssd_device->spill_runs(record_lists);
+		this->merge_runs_ssd();
+	}
+
+	return;
 }
