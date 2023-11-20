@@ -57,6 +57,21 @@ void StorageDevice::spill_run(char run_bit, uint run, vector<DataRecord> records
 	this->total_writes += 1;
 }
 
+void StorageDevice::spill_runs(vector<RecordList *> record_lists)
+{
+	for (uint ii = 0 ; ii < record_lists.size() ; ii++) {
+		vector<DataRecord> records;
+		RecordList list = *record_lists[ii];
+
+		for (uint jj = 0 ; jj < list.record_count ; jj++) {
+			DataRecord record = list.record_ptr[jj];
+			records.push_back(record);
+		}
+
+		this->spill_run('n', 0, records);
+	}
+}
+
 vector<DataRecord> StorageDevice::get_run_page(uint run, uint num_records)
 {
 	vector<DataRecord> records;
