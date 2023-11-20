@@ -5,15 +5,17 @@
 #include "DataRecord.h"
 #include "Tree.h"
 #include "StorageDevice.h"
-#include "sortParams.h"
+#include "SortRecords.h"
 
 #define TEST_0 false
 #define TEST_1 false
 #define TEST_2 true
 #define TEST_3 true
 #define TEST_4 true
-#define TEST_5 true // Run Spilling on Disk and Reading Run Pages from Disk
-#define TEST_6 true // Internal sort on list of records
+// #define TEST_5 true // Run Spilling on Disk and Reading Run Pages from Disk
+// #define TEST_6 true // Internal sort on list of records
+// #define TEST_7 true // Test get_last_run
+#define TEST_8 true // Test External Merge Sort
 
 /*
  * Test configuration
@@ -216,8 +218,8 @@ int main (int argc, char * argv [])
 	for (int ii = 0 ; ii < 2*num_records; ii++) {
 		test_tree4->run_tree();
 	}
-	test_tree4.print_run();
-	test_tree4.spillover_run();
+	test_tree4->print_run();
+	test_tree4->spillover_run();
 #endif
 #if TEST_5
 	DataRecord *sorted_run = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
@@ -235,8 +237,8 @@ int main (int argc, char * argv [])
 	test_tree1.print_heap();
 #endif
 #if NEW_TEST
-	lluint max_runs = (lluint)SSD_SIZE / (lluint)OPTIMAL_HDD_PAGE_SIZE;
-	StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE, max_runs);
+{
+	StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE);
 	vector<DataRecord> records;
 
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
@@ -260,8 +262,10 @@ int main (int argc, char * argv [])
 	}
 
 	ssd.truncate_device();
+}
 #endif
 #if TEST_6
+{
 	DataRecord *internal_sort_records = new DataRecord [NUM_RECORDS];
 	RecordList record_list;
 
@@ -283,6 +287,49 @@ int main (int argc, char * argv [])
 		cout << record_list.record_ptr[ii].GetRecord() << endl;
 	}
 	delete []internal_sort_records;
+}
 #endif
-	return 0;
+#if TEST_7
+{
+	StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE);
+	vector<DataRecord> records;
+
+	for (int ii = 0; ii < NUM_RECORDS; ii++)
+	{
+		DataRecord record = DataRecord(ii + 10, ii + 11, ii + 12);
+		records.push_back(record);
+	}
+
+	ssd.spill_run('n', 0, records);
+	cout << ssd.get_last_run() << endl;
+	ssd.spill_run('n', 1, records);
+	cout << ssd.get_last_run() << endl;
+	ssd.truncate_device();
+}
+#endif
+#if TEST_8
+{
+	StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE);
+	StorageDevice hdd = StorageDevice("./HDD", (lluint)HDD_SIZE);
+	vector<DataRecord> records;
+	SortRecords sort = SortRecords(0, &ssd, &hdd);
+
+	for (int ii = 0; ii < NUM_RECORDS; ii++)
+	{
+		DataRecord record = DataRecord(ii + 10, ii + 11, ii + 12);
+		records.push_back(record);
+	}
+	ssd.spill_run('n', 0, records);
+
+	for (int ii = 0; ii < NUM_RECORDS; ii++)
+	{
+		DataRecord record = DataRecord(ii + 10, ii + 11, ii + 12);
+		records.push_back(record);
+	}
+	ssd.spill_run('n', 0, records);
+
+	sort.merge_runs_ssd();
+}
+#endif
+return 0;
 } // main

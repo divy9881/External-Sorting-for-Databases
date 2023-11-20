@@ -1,30 +1,52 @@
 #include "StorageDevice.h"
 
-StorageDevice::StorageDevice(string device_path, lluint total_space, uint max_runs)
+StorageDevice::StorageDevice(string device_path, lluint total_space)
 {
-	this->num_runs = 0;
 	this->device_path = device_path;
 	this->free_space = total_space;
 	this->total_space = total_space;
-	this->max_runs = max_runs;
-	this->run_offsets = new lluint[max_runs];
+	this->run_offsets = new lluint[MAX_RUNS];
 	this->total_reads = 0;
 	this->total_writes = 0;
 
 	mkdir(this->device_path.c_str(), 0777);
 
-	for(uint ii = 0 ; ii < this->max_runs ; ii++)
+	for(uint ii = 0 ; ii < MAX_RUNS ; ii++)
 	{
 		this->run_offsets[ii] = 0;
 	}
+}
+
+int StorageDevice::get_last_run()
+{
+	int n;
+	uint run;
+	struct dirent **namelist;
+
+	n = scandir(this->device_path.c_str(), &namelist, 0, alphasort);
+
+	if (n <= 2) return -1;
+	else sscanf((char *)&namelist[n - 1]->d_name[4], "%u", &run);
+
+	return run;
+}
+
+uint StorageDevice::get_num_runs()
+{
+	int n;
+	struct dirent **namelist;
+
+	n = scandir(this->device_path.c_str(), &namelist, 0, alphasort);
+
+	return n - 2;
 }
 
 void StorageDevice::spill_run(char run_bit, uint run, vector<DataRecord> records)
 {
 	string run_path;
 	if (run_bit == 'n') {
-		run_path = this->device_path + "/run_" + to_string(this->num_runs);
-		this->num_runs += 1;
+		int last_run = this->get_last_run();
+		run_path = this->device_path + "/run_" + to_string(last_run + 1);
 	} else {
 		run_path = this->device_path + "/run_" + to_string(run);
 	}
@@ -47,14 +69,47 @@ vector<DataRecord> StorageDevice::get_run_page(uint run, uint num_records)
 	return records;
 }
 
+vector<RecordList *> StorageDevice::get_run_pages(uint num_records)
+{
+	uint n;
+	struct dirent **namelist;
+	vector<RecordList *> record_lists;
+
+	n = scandir(this->device_path.c_str(), &namelist, 0, alphasort);
+
+	for (uint ii = 2 ; ii < n ; ii++) {
+		uint run;
+		vector<DataRecord> records;
+		string run_path;
+		DataRecord *record_objs;
+		RecordList *list = new RecordList;
+
+		sscanf((char *)&namelist[ii]->d_name[4], "%u", &run);
+
+		records = this->get_run_page(run, num_records);
+
+		record_objs = new DataRecord[records.size()];
+		for (uint jj = 0 ; jj < records.size() ; jj++) {
+			record_objs[jj] = records[jj];
+			record_objs[jj].print();
+		}
+
+		list->record_ptr = record_objs;
+		list->record_count = records.size();
+
+		record_lists.push_back(list);
+	}
+
+	return record_lists;
+}
+
 void StorageDevice::truncate_device()
 {
 	truncate_all_runs();
 
-	this->num_runs = 0;
 	this->free_space = this->total_space;
 
-	for(uint ii = 0 ; ii < this->max_runs ; ii++)
+	for(uint ii = 0 ; ii < MAX_RUNS ; ii++)
 	{
 		this->run_offsets[ii] = 0;
 	}
@@ -97,7 +152,16 @@ vector<DataRecord> StorageDevice::get_run_page_from_disk(string run_path, lluint
 	runfile.seekg(*offset, ios::beg);
 
 	runfile.get(run_page, num_records * ON_DISK_RECORD_SIZE + 1);
+	runfile.close();
 	*offset += strlen(run_page);
+
+	/*
+	 * Remove file if we have exhausted all the records
+	 * from the run file
+	 */
+	if (strlen(run_page) != (num_records * ON_DISK_RECORD_SIZE)) {
+		remove(run_path.c_str());
+	}
 
 	string s(run_page);
 	/*
@@ -136,8 +200,6 @@ vector<DataRecord> StorageDevice::get_run_page_from_disk(string run_path, lluint
 		DataRecord record = DataRecord(col_value1, col_value2, col_value3);
 		records.push_back(record);
 	}
-
-	runfile.close();
 
 	delete[] run_page;
 

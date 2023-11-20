@@ -418,11 +418,14 @@ void Tree::spillover_run() {
 */
 void Tree::print_run() {
 	for (auto a: this->generated_run) {
-        if (a != NULL) {
-            a->print();
-        }
+		a.print();
 	}
 	return;
+}
+
+vector<DataRecord> Tree::get_generated_run()
+{
+	return this->generated_run;
 }
 
 Tree::~Tree ()

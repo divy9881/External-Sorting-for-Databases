@@ -4,13 +4,13 @@ Implement a External Sorting algorithm for Databases having constrained storage 
 
 # Initial Setup
 ```
-docker run -it -v $pwd/External-Sort:/External-Sort ubuntu bash
+docker run -it --privileged -v $pwd/External-Sort:/External-Sort ubuntu bash
 apt-get update
-apt-get install build-essential make g++ -y valgrind
+apt-get install build-essential make g++ vim sudo valgrind -y
 cd ./External-Sort
 make
 ./Test.exe
 # Run valgrind on Test.exe program
-# Creates a log file `valgriund` inside External-Sort directory
+# Creates a log file `valgrind` inside External-Sort directory
 valgrind --track-origins=yes --log-file="/External-Sort/valgrind" ./Test.exe
 ```
