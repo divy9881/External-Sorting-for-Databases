@@ -33,7 +33,7 @@ class Tree
 {
 	private:
 		vector<struct Node> heap;
-		vector<struct DataRecord*> generated_run;
+		vector<DataRecord> generated_run;
 		lluint total_leaves, total_nodes, tree_depth;
 		lluint total_record_count;
 	public:
@@ -56,6 +56,7 @@ class Tree
 		vector<int> get_empty_leaves();
 		int add_run_at_leaf(int leaf_node_idx, DataRecord *sorted_run, int number_of_records);
 		void spillover_run();
+		vector<DataRecord>  get_generated_run();
 		
 		// Deconstructor
 		~Tree();

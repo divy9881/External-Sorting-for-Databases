@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Iterator.h"
 
 class ScanPlan : public Plan

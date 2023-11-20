@@ -245,7 +245,8 @@ void Tree::run_tree() {
 	}
 	// cout<<"The heap in iteration "<<iteration<<endl;
 	// this->print_heap();
-	this->generated_run.push_back(this->heap[0].current_record);
+	this->heap[0].current_record->print();
+	this->generated_run.push_back(*this->heap[0].current_record);
 	this->heap[0].current_record = NULL;
 }
 
@@ -330,9 +331,14 @@ void Tree::spillover_run() {
 */
 void Tree::print_run() {
 	for (auto a: this->generated_run) {
-		a->print();
+		a.print();
 	}
 	return;
+}
+
+vector<DataRecord> Tree::get_generated_run()
+{
+	return this->generated_run;
 }
 
 Tree::~Tree ()

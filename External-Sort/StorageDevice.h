@@ -7,13 +7,15 @@
 class StorageDevice
 {
 	public:
-		StorageDevice(string, lluint, uint);
+		StorageDevice(string, lluint);
+		int get_last_run();
+		uint get_num_runs();
 		vector<DataRecord> get_run_page(uint, uint);
+		vector<RecordList *> get_run_pages(uint);
 		void spill_run(char, uint, vector<DataRecord>);
 		void truncate_device();
+
 	protected:
-		uint num_runs;
-		uint max_runs;
 		string device_path;
 		lluint free_space;
 		lluint total_space;
