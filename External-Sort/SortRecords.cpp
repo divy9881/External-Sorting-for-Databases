@@ -16,6 +16,7 @@ void SortRecords::sort()
 	while (rem_num_records)
 	{
 		uint rem_dram_size_num_records = min(DRAM_SIZE / ON_DISK_RECORD_SIZE, rem_num_records);
+		lluint count_of_records = 0;
 		vector<RecordList *> runs;
 		while (rem_dram_size_num_records)
 		{
@@ -39,10 +40,21 @@ void SortRecords::sort()
 			 * DataRecord's using delete operator
 			 */
 			RecordList *records = p.GetRecords();
+			count_of_records += records->record_count;
 			InternalSort(records);
 			runs.push_back(records);
 		}
+		if (count_of_records * ON_DISK_RECORD_SIZE <= this->ssd_device->get_free_space())
+		{
+			this->ssd_device->spill_runs(runs);
+		}
+		else
+		{
+			this->hdd_device->spill_runs(runs);
+		}
 	}
+	this->merge_runs_ssd();
+	this->merge_runs_hdd();
 }
 
 void SortRecords::merge_runs_ssd()
@@ -75,6 +87,9 @@ void SortRecords::merge_runs_ssd()
 	return;
 }
 
+/*
+ * TODO: Inspect merge_runs_hdd for termination condition of the while loop
+ */
 void SortRecords::merge_runs_hdd()
 {
 	uint hdd_page_num_records = OPTIMAL_HDD_PAGE_SIZE / ON_DISK_RECORD_SIZE;

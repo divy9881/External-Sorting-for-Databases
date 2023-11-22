@@ -10,6 +10,8 @@ class StorageDevice
 		StorageDevice(string, lluint);
 		int get_last_run();
 		uint get_num_runs();
+		int get_num_records(uint run);
+		lluint get_free_space();
 		vector<DataRecord> get_run_page(uint, uint);
 		vector<RecordList *> get_run_pages(uint);
 		void spill_run(char, uint, vector<DataRecord>);
