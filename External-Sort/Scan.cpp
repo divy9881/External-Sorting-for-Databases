@@ -34,6 +34,7 @@ RecordList * ScanPlan::GetRecords ()
 
 	for (lluint ii = 0 ; ii < this->_count ; ii++) {
 		records[ii] = this->GetRecord(ii);
+		records[ii].print();
 	}
 
 	record_list->record_ptr = records;

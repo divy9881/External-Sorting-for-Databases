@@ -34,7 +34,12 @@ int StorageDevice::get_last_run()
 	n = scandir(this->device_path.c_str(), &namelist, 0, alphasort);
 
 	if (n <= 2) return -1;
-	else sscanf((char *)&namelist[n - 1]->d_name[4], "%u", &run);
+	else {
+		if (namelist[n - 1]->d_name[0] == 't') {
+			return -1;
+		}
+		sscanf((char *)&namelist[n - 1]->d_name[4], "%u", &run);
+	}
 
 	return run;
 }
@@ -44,39 +49,47 @@ int StorageDevice::get_last_run()
  */
 uint StorageDevice::get_num_runs()
 {
-	int n;
+	uint n;
+	struct dirent **namelist;
+	uint count = 0;
+
+	n = scandir(this->device_path.c_str(), &namelist, 0, alphasort);
+
+	for (uint ii = 2; ii < n ; ii++)
+	{
+		if (namelist[ii]->d_name[0] == 't') {
+			continue;
+		}
+
+		count += 1;
+	}
+
+	return count;
+}
+
+/*
+ * Get the number of records present in a all the runs on a StorageDevice
+ */
+int StorageDevice::get_num_records()
+{
+	uint n;
+	lluint count = 0;
 	struct dirent **namelist;
 
 	n = scandir(this->device_path.c_str(), &namelist, 0, alphasort);
 
-	return n - 2;
-}
+	for (uint ii = 2; ii < n; ii++)
+	{
+		uint run;
 
-/*
- * Get the number of records present in a particular run
- * Params:
- * run - The run number to specify the run for which the count of records
- * are to be returned
- */
-int StorageDevice::get_num_records(uint run)
-{
-	fstream runfile;
-	lluint count = 0;
-	string run_path = this->device_path + "/run_" + to_string(run);
-	char *run_page = new char[ON_DISK_RECORD_SIZE + 1];
+		if (namelist[ii]->d_name[0] == 't') {
+			continue;
+		}
 
-	runfile.open(run_path, ios::in);
-	if (!runfile.is_open())
-		return -1;
+		sscanf((char *)&namelist[ii]->d_name[4], "%u", &run);
 
-	runfile.seekg(0, ios::beg);
-
-	do {
-		runfile.get(run_page, ON_DISK_RECORD_SIZE + 1);
-		count += 1;
-	} while (strlen(run_page) != ON_DISK_RECORD_SIZE);
-
-	runfile.close();
+		count += this->get_run_num_records(run);
+	}
 
 	return count;
 }
@@ -102,6 +115,8 @@ void StorageDevice::spill_run(char run_bit, uint run, vector<DataRecord> records
 	if (run_bit == 'n') {
 		int last_run = this->get_last_run();
 		run_path = this->device_path + "/run_" + to_string(last_run + 1);
+	} else if (run_bit == 't') {
+		run_path = this->device_path + "/temp_run";
 	} else {
 		run_path = this->device_path + "/run_" + to_string(run);
 	}
@@ -155,18 +170,19 @@ vector<DataRecord> StorageDevice::get_run_page(uint run, uint num_records)
  * Params:
  * num_records - Specifies the number of records to be fetched as part of each page of the runs
  */
-vector<RecordList *> StorageDevice::get_run_pages(uint num_records)
+pair<vector<RecordList *>, lluint> StorageDevice::get_run_pages(uint num_records)
 {
 	uint n;
+	lluint count = 0;
 	struct dirent **namelist;
 	vector<RecordList *> record_lists;
+	pair <vector<RecordList *>, lluint> p;
 
 	n = scandir(this->device_path.c_str(), &namelist, 0, alphasort);
 
 	for (uint ii = 2 ; ii < n ; ii++) {
 		uint run;
 		vector<DataRecord> records;
-		string run_path;
 		DataRecord *record_objs;
 		RecordList *list = new RecordList;
 
@@ -177,16 +193,33 @@ vector<RecordList *> StorageDevice::get_run_pages(uint num_records)
 		record_objs = new DataRecord[records.size()];
 		for (uint jj = 0 ; jj < records.size() ; jj++) {
 			record_objs[jj] = records[jj];
-			record_objs[jj].print();
 		}
 
 		list->record_ptr = record_objs;
 		list->record_count = records.size();
 
+		count += records.size();
 		record_lists.push_back(list);
 	}
 
-	return record_lists;
+	p.first = record_lists;
+	p.second = count;
+
+	return p;
+}
+
+void StorageDevice::commit_temp_run()
+{
+	uint last_run = this->get_last_run();
+	string temp_run_path = this->device_path + "/temp_run";
+	cout << "Last run: " << last_run << endl;
+	string committed_run_path = this->device_path + "/run_" + to_string(last_run + 1);
+
+	if (access(temp_run_path.c_str(), F_OK) == 0) {
+		rename(temp_run_path.c_str(), committed_run_path.c_str());
+	}
+
+	return;
 }
 
 /*
@@ -202,6 +235,40 @@ void StorageDevice::truncate_device()
 	{
 		this->run_offsets[ii] = 0;
 	}
+}
+
+/*
+ * Implementation of get_num_records()
+ * Should never be called by the user of StorageDevice object directly
+ * Params:
+ * run - Specifies the run-number of the run-file for which the count of records are to be returned
+ */
+lluint StorageDevice::get_run_num_records(uint run)
+{
+	fstream runfile;
+	lluint count = 0;
+	string run_path = this->device_path + "/run_" + to_string(run);
+	char *run_page = new char[ON_DISK_RECORD_SIZE + 1];
+
+	runfile.open(run_path, ios::in);
+	if (!runfile.is_open())
+		return -1;
+
+	runfile.seekg(0, ios::beg);
+
+	do
+	{
+		runfile.get(run_page, ON_DISK_RECORD_SIZE + 1);
+		if (strlen(run_page) == ON_DISK_RECORD_SIZE) {
+			count += 1;
+		} else {
+			break;
+		}
+	} while (true);
+
+	runfile.close();
+
+	return count;
 }
 
 /*
@@ -332,5 +399,5 @@ int StorageDevice::truncate_all_runs()
 	}
 	closedir(device);
 
-	return rmdir(device_path.c_str());
+	return 0;
 }

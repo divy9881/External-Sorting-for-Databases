@@ -17,6 +17,7 @@
 // #define TEST_7 true // Test get_last_run
 // #define TEST_8 true // Test merging sorted runs on SSD
 // #define TEST_9 true // Test merging sorted runs on HDD
+#define TEST_10 true // Test External Merge sort of 20 records
 
 /*
  * Test configuration
@@ -315,20 +316,33 @@ int main (int argc, char * argv [])
 	vector<DataRecord> records;
 	SortRecords sort = SortRecords(0, &ssd, &hdd);
 
+	ssd.truncate_device();
+	hdd.truncate_device();
+
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
 		DataRecord record = DataRecord(ii + 10, ii + 11, ii + 12);
 		records.push_back(record);
 	}
 	ssd.spill_run('n', 0, records);
+	cout << "Count of Records in SSD Device: " << ssd.get_num_records() << endl;
+
+	records.clear();
+
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
 		DataRecord record = DataRecord(ii + 10, ii + 11, ii + 12);
 		records.push_back(record);
 	}
 	ssd.spill_run('n', 0, records);
+	cout << "Count of Records in SSD Device: " << ssd.get_num_records() << endl;
 
 	sort.merge_runs_ssd();
+	hdd.commit_temp_run();
+
+	cout << "After merging sorted runs....." << endl;
+	cout << "Count of Records in SSD Device: " << ssd.get_num_records() << endl;
+	cout << "Count of Records in HDD Device: " << hdd.get_num_records() << endl;
 }
 #endif
 #if TEST_9
@@ -338,20 +352,49 @@ int main (int argc, char * argv [])
 	vector<DataRecord> records;
 	SortRecords sort = SortRecords(0, &ssd, &hdd);
 
+	ssd.truncate_device();
+	hdd.truncate_device();
+
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
 		DataRecord record = DataRecord(ii + 10, ii + 11, ii + 12);
 		records.push_back(record);
 	}
 	hdd.spill_run('n', 0, records);
+	cout << "Count of Records in HDD Device: " << hdd.get_num_records() << endl;
+
+	records.clear();
+
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
 		DataRecord record = DataRecord(ii + 10, ii + 11, ii + 12);
 		records.push_back(record);
 	}
 	hdd.spill_run('n', 0, records);
+	cout << "Count of Records in HDD Device: " << hdd.get_num_records() << endl;
 
 	sort.merge_runs_hdd();
+
+	cout << "After merging sorted runs....." << endl;
+	cout << "Count of Records in SSD Device: " << ssd.get_num_records() << endl;
+	cout << "Count of Records in HDD Device: " << hdd.get_num_records() << endl;
+}
+#endif
+#if TEST_10
+{
+	StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE);
+	StorageDevice hdd = StorageDevice("./HDD", (lluint)HDD_SIZE);
+	vector<DataRecord> records;
+	SortRecords sort = SortRecords(20, &ssd, &hdd);
+
+	ssd.truncate_device();
+	hdd.truncate_device();
+
+	sort.sort();
+
+	cout << "After completion of external merge sort....." << endl;
+	cout << "Count of Records in SSD Device: " << ssd.get_num_records() << endl;
+	cout << "Count of Records in HDD Device: " << hdd.get_num_records() << endl;
 }
 #endif
 return 0;

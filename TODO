@@ -4,3 +4,4 @@
 - Introduce use of vectors for list
 - Run valgrind on the final implementation of External Sort
 - Implement SSDDevice and HDDDevice class
+- Need to change vector attributes allocation to mitigate with invalid free crashes
