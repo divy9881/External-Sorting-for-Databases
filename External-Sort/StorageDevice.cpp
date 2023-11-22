@@ -1,5 +1,10 @@
 #include "StorageDevice.h"
-
+/*
+ * Constructor to initialize the StorageDevice Object
+ * Params:
+ * device_path - Relative/absolute path to the device
+ * total_space - Total available space for storage on the device 
+ */
 StorageDevice::StorageDevice(string device_path, lluint total_space)
 {
 	this->device_path = device_path;
@@ -17,6 +22,9 @@ StorageDevice::StorageDevice(string device_path, lluint total_space)
 	}
 }
 
+/*
+ * Get the last run(sorted serially on run-number) stored on a StorageDevice
+ */
 int StorageDevice::get_last_run()
 {
 	int n;
@@ -31,6 +39,9 @@ int StorageDevice::get_last_run()
 	return run;
 }
 
+/*
+ * Get total number of runs present on the StorageDevice
+ */
 uint StorageDevice::get_num_runs()
 {
 	int n;
@@ -41,6 +52,50 @@ uint StorageDevice::get_num_runs()
 	return n - 2;
 }
 
+/*
+ * Get the number of records present in a particular run
+ * Params:
+ * run - The run number to specify the run for which the count of records
+ * are to be returned
+ */
+int StorageDevice::get_num_records(uint run)
+{
+	fstream runfile;
+	lluint count = 0;
+	string run_path = this->device_path + "/run_" + to_string(run);
+	char *run_page = new char[ON_DISK_RECORD_SIZE + 1];
+
+	runfile.open(run_path, ios::in);
+	if (!runfile.is_open())
+		return -1;
+
+	runfile.seekg(0, ios::beg);
+
+	do {
+		runfile.get(run_page, ON_DISK_RECORD_SIZE + 1);
+		count += 1;
+	} while (strlen(run_page) != ON_DISK_RECORD_SIZE);
+
+	runfile.close();
+
+	return count;
+}
+
+/*
+ * Get the free available space on the device in bytes
+ */
+lluint StorageDevice::get_free_space()
+{
+	return this->free_space;
+}
+
+/*
+ * To persist a sorted run to the StorageDevice either to new run-file or to specified run-file
+ * Params:
+ * run_bit - Specifies whether to create a new run-file or to spill to a existing run-file
+ * run - Specifies the run-number of the run to which the records are to be spilled
+ * records - List of DataRecord(s) which are to be spilled to the StorageDevice
+ */
 void StorageDevice::spill_run(char run_bit, uint run, vector<DataRecord> records)
 {
 	string run_path;
@@ -57,6 +112,11 @@ void StorageDevice::spill_run(char run_bit, uint run, vector<DataRecord> records
 	this->total_writes += 1;
 }
 
+/*
+ * To persist a sorted runs to the StorageDevice
+ * Params:
+ * record_lists - List of RecordList(s) which represents multiple number of sorted runs
+ */
 void StorageDevice::spill_runs(vector<RecordList *> record_lists)
 {
 	for (uint ii = 0 ; ii < record_lists.size() ; ii++) {
@@ -72,6 +132,12 @@ void StorageDevice::spill_runs(vector<RecordList *> record_lists)
 	}
 }
 
+/*
+ * Get page of records from a run-file
+ * Params:
+ * run - Specifies the run-number of the run from which a page of records is to be fetched
+ * num_records - Specifies the number of records to be fetched as part of a page
+ */
 vector<DataRecord> StorageDevice::get_run_page(uint run, uint num_records)
 {
 	vector<DataRecord> records;
@@ -84,6 +150,11 @@ vector<DataRecord> StorageDevice::get_run_page(uint run, uint num_records)
 	return records;
 }
 
+/*
+ * Get pages of records from each run persisted on the StorageDevice
+ * Params:
+ * num_records - Specifies the number of records to be fetched as part of each page of the runs
+ */
 vector<RecordList *> StorageDevice::get_run_pages(uint num_records)
 {
 	uint n;
@@ -118,6 +189,9 @@ vector<RecordList *> StorageDevice::get_run_pages(uint num_records)
 	return record_lists;
 }
 
+/*
+ * Deletes all the runs present on the StorageDevice
+ */
 void StorageDevice::truncate_device()
 {
 	truncate_all_runs();
@@ -130,6 +204,13 @@ void StorageDevice::truncate_device()
 	}
 }
 
+/*
+ * Implementation of spill_run()
+ * Should never be called by the user of StorageDevice object directly
+ * Params:
+ * run_path - Specifies the path of the run-file to which records are to be spilled
+ * records - List of records to be spilled to a run-file
+ */
 void StorageDevice::spill_run_to_disk(string run_path, vector<DataRecord> records)
 {
 	fstream runfile;
@@ -150,6 +231,14 @@ void StorageDevice::spill_run_to_disk(string run_path, vector<DataRecord> record
 	return;
 }
 
+/*
+ * Implementation of get_run_page()
+ * Should never be called by the user of StorageDevice object directly
+ * Params:
+ * run_path - Specifies the path of the run-file from which records are to be paged-in
+ * offset - Specifies the current offset of a run-file from where the pages should be fetched
+ * num_records - Specifies the number of records to be fetched as part of the page from the run
+ */
 vector<DataRecord> StorageDevice::get_run_page_from_disk(string run_path, lluint *offset, uint num_records)
 {
 	fstream runfile;	
@@ -221,6 +310,10 @@ vector<DataRecord> StorageDevice::get_run_page_from_disk(string run_path, lluint
 	return records;
 }
 
+/*
+ * Implementation of truncate_device()
+ * Should never be called by the user of StorageDevice object directly
+ */
 int StorageDevice::truncate_all_runs()
 {
 	struct stat sb;
