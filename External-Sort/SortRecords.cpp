@@ -23,9 +23,9 @@ void SortRecords::sort()
 			lluint gen_num_records = 0;
 			if (num_records_per_run >= rem_dram_size_num_records)
 			{
-				rem_dram_size_num_records = 0;
 				rem_num_records -= rem_dram_size_num_records;
 				gen_num_records = rem_dram_size_num_records;
+				rem_dram_size_num_records = 0;
 			}
 			else
 			{
@@ -44,6 +44,7 @@ void SortRecords::sort()
 			InternalSort(records);
 			runs.push_back(records);
 		}
+
 		if (count_of_records * ON_DISK_RECORD_SIZE <= this->ssd_device->get_free_space())
 		{
 			this->ssd_device->spill_runs(runs);
@@ -54,34 +55,34 @@ void SortRecords::sort()
 		}
 	}
 	this->merge_runs_ssd();
+	this->hdd_device->commit_temp_run();
 	this->merge_runs_hdd();
 }
 
 void SortRecords::merge_runs_ssd()
 {
-	uint last_run_hdd = this->hdd_device->get_last_run();
 	uint ssd_page_num_records = OPTIMAL_SSD_PAGE_SIZE / ON_DISK_RECORD_SIZE;
 
 	while (this->ssd_device->get_num_runs()) {
-		vector<RecordList *> record_lists;
+		lluint num_records;
 		vector<DataRecord> records;
-		record_lists = this->ssd_device->get_run_pages(ssd_page_num_records);
+		vector<RecordList *> record_lists;
+		pair <vector<RecordList *>, lluint> p;
 
+		p = this->ssd_device->get_run_pages(ssd_page_num_records);
+		record_lists = p.first;
+		num_records = p.second;
 		Tree tree = Tree(record_lists);
-		cout << "Print tree" << endl;
-		tree.print_heap();
-		for (uint ii = 0; ii < record_lists.size(); ii++)
+
+		cout << "Record count: " << num_records << " Number of records lists: " << record_lists.size() << endl;
+		for (uint ii = 0; ii < num_records ; ii++)
 		{
-			for (uint jj = 0 ; jj < record_lists[ii]->record_count ; jj++)
-			{
-				tree.run_tree();
-			}
+			tree.run_tree();
 		}
-		cout << "Print run" << endl;
-		tree.print_run();
+
 		records = tree.get_generated_run();
 
-		this->hdd_device->spill_run('o', last_run_hdd + 1, records);
+		this->hdd_device->spill_run('t', -1, records);
 	}
 
 	return;
@@ -96,13 +97,18 @@ void SortRecords::merge_runs_hdd()
 
 	while (this->hdd_device->get_num_runs())
 	{
-		vector<RecordList *> record_lists;
 		vector<DataRecord> records;
-		record_lists = this->hdd_device->get_run_pages(hdd_page_num_records);
+		vector<RecordList *> record_lists;
+		pair <vector<RecordList *>, lluint> p;
+
+		p = this->hdd_device->get_run_pages(hdd_page_num_records);
+		record_lists = p.first;
 
 		this->ssd_device->spill_runs(record_lists);
 		this->merge_runs_ssd();
 	}
+
+	this->hdd_device->commit_temp_run();
 
 	return;
 }

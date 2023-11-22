@@ -38,8 +38,37 @@ void DataRecord::SetRecord (lluint col1, lluint col2, lluint col3)
 
 string DataRecord::GetRecord ()
 {
+	uint diff, count = 0;
 	string record = "";
-	record = to_string(this->_record[0]) + COLUMN_DELIMITER + to_string(this->_record[1]) + COLUMN_DELIMITER + to_string(this->_record[2]);
+	string col1_value, col2_value, col3_value;
+
+	diff = NUM_CHARS_COL_VALUE - to_string(this->_record[0]).length();
+	count = 0;
+	while (count < diff) {
+		col1_value += "0";
+		count += 1;
+	}
+	col1_value += to_string(this->_record[0]);
+
+	diff = NUM_CHARS_COL_VALUE - to_string(this->_record[1]).length();
+	count = 0;
+	while (count < diff) {
+		col2_value += "0";
+		count += 1;
+	}
+	col2_value += to_string(this->_record[1]);
+
+	diff = NUM_CHARS_COL_VALUE - to_string(this->_record[2]).length();
+	count = 0;
+	while (count < diff)
+	{
+		col3_value += "0";
+		count += 1;
+	}
+	col3_value += to_string(this->_record[2]);
+
+	record = col1_value + COLUMN_DELIMITER + col2_value + COLUMN_DELIMITER + col3_value;
+
 	return record;
 } // DataRecord::GetRecord()
 
