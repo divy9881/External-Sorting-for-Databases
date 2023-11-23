@@ -7,10 +7,9 @@
 
 #define TEST_0 false
 #define TEST_1 false
-#define TEST_2 false
+#define TEST_2 true
 #define TEST_3 false
 #define TEST_4 true
-#define TEST_5 false
 
 int main (int argc, char * argv [])
 {
@@ -90,7 +89,7 @@ int main (int argc, char * argv [])
 	cout<<"The current heap is :: "<<endl; 
 	test_tree3->print_heap();
 	cout<<"Running the tree for "<< num_records<<" entries"<<endl;
-	for (lluint ii = 0; ii < num_records; ii++) {
+	for (int ii = 0; ii < num_records; ii++) {
 		test_tree3->run_tree();
 	}
 	// test_tree3->print_heap();
@@ -124,7 +123,7 @@ int main (int argc, char * argv [])
 		sorted_run3[jj].SetRecord(jj+3, jj+3, jj+3);
 		sorted_run4[jj].SetRecord(jj+4, jj+4, jj+4);
 		sorted_run5[jj].SetRecord(jj+5, jj+5, jj+5);
-		sorted_run6[jj].SetRecord(jj+8, jj+8, jj+8);
+		sorted_run6[jj].SetRecord(jj+6, jj+6, jj+6);
 	}
 	RecordList *list_of_sorted_runs = create_empty_record_list(count_of_sorted_runs);
     RecordList *setter = list_of_sorted_runs; setter->record_count = 0;
@@ -139,16 +138,25 @@ int main (int argc, char * argv [])
 
 	int total_recs = 4 * num_records; 
 
-	Tree *test_tree4 = new Tree(list_of_sorted_runs, 4);
+	Tree *test_tree4 = new Tree(list_of_sorted_runs, count_of_sorted_runs);
 	cout<<"Printing the heap:"<<endl;
 	test_tree4->print_heap();
 	cout<<"Running the tree for "<<4*4<<" records\n";
 	for (int ii = 0 ; ii < 4*4 ; ii++) {
+	cout<<"Running the tree for "<<count_of_sorted_runs*num_records<<"records\n";
+	for (int ii = 0 ; ii < count_of_sorted_runs*num_records ; ii++) {
 		test_tree4->run_tree();
 	}
-	total_recs -= 4*4;
 	test_tree4->print_run();
-	cout<<"The heap before adding the new run :: "<<endl;
+	test_tree4->spillover_run();
+	cout<<"\nAdding new sorted run at the position 3 and 6"<<endl;
+	for (int ii = 0 ; ii < num_records; ii++) {
+		cout<<" | sorted_run5 @ "<<ii<<": ";sorted_run5[ii].print();
+		cout<<" | sorted_run6 @ "<<ii<<": "; sorted_run6[ii].print();
+		cout<<endl;
+	}
+	test_tree4->add_run_at_leaf(3, sorted_run5, num_records);
+	test_tree4->add_run_at_leaf(6, sorted_run6, num_records);
 	test_tree4->print_heap();
 
 	test_tree4->add_run_at_leaf(3, sorted_run6, num_records);

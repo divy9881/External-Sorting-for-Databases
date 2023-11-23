@@ -8,75 +8,9 @@
 #define NODE_RECORD_LIST(node) node->list->record_ptr
 #define NODE_RECORD_LIST_AT(node, idx) node->list->record_ptr[idx]
 #define NODE_RECORD_LIST_LENGTH(node) node->list->record_count
-#define CHECK_SET_EMPTY(node, node_idx)\
-            if (node != NULL) {\
-                if (node->list->record_count == 0) {\
-                    node->is_empty = true;\
-                }\
-            }
-#define SET_INTERNAL_EMPTY(node) node->current_record = NULL;
-#define LAST_DATARECORD(temp, record_list)\
-            temp = record_list->record_ptr;\
-            while(temp->next != NULL)\
-                {temp = temp->next;}
-
-#define ADD_RECORDS(last_record, new_record_list, count)\
-            for (lluint ii = 0 ; ii < count; ii++) {\
-                last_record->next = (DataRecord*) malloc(sizeof(DataRecord));\
-                last_record->next->ovc = 0;\
-                last_record->next->rel = '\0'; \
-                last_record->next->_record[0] = last_record->next->_record[1] = last_record->next->_record[2] = 0;\
-                (last_record->next)->SetRecord(new_record_list[ii]._record[0], new_record_list[ii]._record[1], new_record_list[ii]._record[2]);\
-                last_record = last_record->next;\
-                last_record->next=NULL;\
-            }
-
-
-
-RecordList* create_empty_record_list(int count_of_sorted_runs) {
-    RecordList *new_list = (RecordList*) malloc(sizeof(RecordList)*count_of_sorted_runs);
-    RecordList *iterator = new_list;
-    for (int ii = 0 ; ii < count_of_sorted_runs; ii++) {
-        iterator->record_count = 0;
-        iterator->record_ptr = NULL;
-        iterator++;
-    }
-    return new_list;
-} 
-
-/*
- * We use linked list, because we need to spill it to the persistent storage
- * and free up the memory
- * An array does not allow us to have any holes; so it cannot be freed up
- * unless whole array is merged.
- */
-void append_to_record_list(RecordList** record_list, DataRecord* incoming_records, lluint incoming_count) {
-    DataRecord *temp = NULL;
-    if (*record_list == NULL) {
-        *record_list = (RecordList*) malloc(sizeof(RecordList));
-        (*record_list)->record_count = 0;
-        (*record_list)->record_ptr = NULL;
-    }
-    (*record_list)->record_count += incoming_count;
-    printf("%p : %llu\n", (void*)*record_list, (*record_list)->record_count);
-    if ((*record_list)->record_ptr == NULL) {
-        (*record_list)->record_ptr = (DataRecord*) malloc(sizeof(DataRecord));
-        (*record_list)->record_ptr->SetRecord(incoming_records[0]._record[0], incoming_records[0]._record[1], incoming_records[0]._record[2]);
-        (*record_list)->record_ptr->next = NULL;
-        temp = (*record_list)->record_ptr;
-        incoming_records++;
-        ADD_RECORDS(temp, incoming_records, incoming_count-1);
-        temp = (*record_list)->record_ptr;
-        while(temp != NULL) {
-            temp->print();
-            temp = temp->next;
-        }
-    } else {
-        LAST_DATARECORD(temp, (*record_list));
-        // cout<<"Adding to the last record "; temp->print(); cout<<" Total records: "<<incoming_count<<endl;
-        ADD_RECORDS(temp, incoming_records, incoming_count);
-    }
-}
+#define CHECK_SET_EMPTY(node, node_idx) if (node->list->record_count == 0) {\
+                            node->is_empty = true;\
+                        }
 
 DataRecord* pop_record(RecordList *list) {
     DataRecord* top = NULL;
@@ -84,11 +18,11 @@ DataRecord* pop_record(RecordList *list) {
         return NULL;
     }
     if (list->record_count == 1) {
-        top = list->record_ptr;
+        top = &(list->record_ptr[0]);
         list->record_ptr = NULL;
     } else if (list->record_count > 1) {
-        top = list->record_ptr;
-        list->record_ptr = list->record_ptr->next;
+        top = &(list->record_ptr[0]);
+        list->record_ptr = &(list->record_ptr[1]);
     }
     list->record_count--;
     return top;
@@ -117,11 +51,11 @@ Tree::Tree(RecordList *sorted_runs, int count_of_sorted_runs)
     int current_run = 0;
     lluint ii = first_leaf_node;
     for ( ; ii < (this->total_leaves*2) - 1 ; ii++) {
-        current_run++;
         this->heap[ii].current_record = NULL;
         this->heap[ii].is_empty = false;
         this->heap[ii].is_leaf = true;
         this->heap[ii].list = each_run;
+        current_run++;
         if (current_run < count_of_sorted_runs) {
             each_run+=1;
             // printf("%p\n", (void*)each_run);
@@ -413,22 +347,18 @@ void Tree::print_heap() {
             }
             DataRecord *current_record = heap_list->record_ptr;
 
-            printf("\n(%lld (Count: %lld) -> ", ii, heap_list->record_count);
-            lluint jj = 0;
-            while(current_record != NULL) {
-                printf("[%lld @ %lld :: (%d, %d, %d)",
-                    ii, jj, current_record->_record[0],
-                    current_record->_record[1],
-                    current_record->_record[2]);
-                if (current_record->ovc == 0) {
-                    printf("@{:}] ");
-                } else {
-                    printf("@{%d:%s}] ",current_record->ovc, current_record->rel.c_str());
+                printf("\n(%lld (Count: %lld) -> ", ii, heap_list->record_count);
+                for (lluint jj = 0; jj < this->heap[ii].list->record_count; jj++) {
+                    printf("[%lld @ %lld :: (%d, %d, %d)] ",
+                        ii, jj, current_record->_record[0],
+                        current_record->_record[1],
+                        current_record->_record[0]);
+                    current_record++;
                 }
-                current_record = current_record->next;
-                jj++;
+                printf(")\n");
             }
-            printf(")\n");
+        } else {
+            printf("\n(%lld Empty )\n", ii);
         }
     }
 }
@@ -446,14 +376,20 @@ vector<int> Tree::get_empty_leaves() {
 }
 
 /*
- * Appends new sorted records at a leaf node
+ * Add new records at a leaf node (only if the existing list is exhausted)
  */
-int Tree::add_run_at_leaf(int leaf_node_index, DataRecord *record_list, lluint record_ct) {
-    this->heap[leaf_node_index].is_empty = false;
-    if (this->heap[leaf_node_index].list == NULL) {
-        this->heap[leaf_node_index].list = create_empty_record_list(1);
+int Tree::add_run_at_leaf(int leaf_node_index, DataRecord *record_list, int record_ct) {
+    if (!this->heap[leaf_node_index].is_empty) {
+        cout<<"The leaf node "<<leaf_node_index<<" is not empty. Cannot add new records!";
+        return 1;
+    } else {
+        this->heap[leaf_node_index].is_empty = false;
+        if (this->heap[leaf_node_index].list == NULL) {
+            this->heap[leaf_node_index].list = (RecordList*) malloc(sizeof(RecordList));
+        }
+        this->heap[leaf_node_index].list->record_ptr = record_list;
+        this->heap[leaf_node_index].list->record_count = record_ct;
     }
-    append_to_record_list(&(this->heap[leaf_node_index].list), record_list, record_ct);
     return 0;
 }
 
@@ -478,6 +414,12 @@ void Tree::print_run() {
 
 Tree::~Tree ()
 {
+    lluint first_leaf_node = this->total_nodes - ((this->total_nodes - 1)/2) - 1;
+    for (lluint ii = first_leaf_node ; ii < (this->total_leaves*2) - 1; ii++) {
+        if (this->heap[ii].list) {
+            free(&this->heap[ii].list);
+        }
+    }
 	TRACE (true);
 	// delete root;
 }

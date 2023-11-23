@@ -33,9 +33,9 @@ public:
 	bool operator>(const DataRecord& other) const;
 	bool operator==(const DataRecord& other) const;
 
+// private:
 	int _record[3];
 	suint ovc;
 	string rel;
 	int index; // index of the DataRecord in the list (required to maintain the ordering)
-	DataRecord *next = NULL;
 }; // class DataRecord
