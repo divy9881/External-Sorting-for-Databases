@@ -245,7 +245,7 @@ void Tree::run_tree() {
 	}
 	// cout<<"The heap in iteration "<<iteration<<endl;
 	// this->print_heap();
-	this->heap[0].current_record->print();
+	// this->heap[0].current_record->print();
 	this->generated_run.push_back(*this->heap[0].current_record);
 	this->heap[0].current_record = NULL;
 }
@@ -349,6 +349,6 @@ Tree::~Tree ()
 			free(&this->heap[ii].list);
 		}
 	}
-	TRACE (true);
+	TRACE(ENABLE_TRACE);
 	// delete root;
 }

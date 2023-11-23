@@ -34,6 +34,8 @@ void Assert (bool const predicate,
 
 // -----------------------------------------------------------------
 
+#define ENABLE_TRACE false
+
 class Trace
 {
 public :

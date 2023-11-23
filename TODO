@@ -5,3 +5,6 @@
 - Run valgrind on the final implementation of External Sort
 - Implement SSDDevice and HDDDevice class
 - Need to change vector attributes allocation to mitigate with invalid free crashes
+- Add disk writes and reads number and add code to get latency for External Sort
+- Resolve merge conflicts with Devaki's PR
+- Resolve merge conflicts with Sahil's last commit

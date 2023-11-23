@@ -6,6 +6,7 @@
 #include "Tree.h"
 #include "StorageDevice.h"
 #include "SortRecords.h"
+#include "defs.h"
 
 // #define TEST_1 true
 // #define TEST_2 true
@@ -26,7 +27,7 @@
 
 int main (int argc, char * argv [])
 {
-	// TRACE (true);
+	TRACE (ENABLE_TRACE);
 #if TEST_1
 	Plan * const plan = new ScanPlan (7);
 	// new SortPlan(new FilterPlan(newScanPlan(7)));
@@ -312,17 +313,90 @@ int main (int argc, char * argv [])
 {
 	StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE);
 	StorageDevice hdd = StorageDevice("./HDD", (lluint)HDD_SIZE);
-	vector<DataRecord> records;
 	SortRecords sort = SortRecords(20, &ssd, &hdd);
 
 	ssd.truncate_device();
 	hdd.truncate_device();
 
+	cout << endl << "Sort 20 records..." << endl;
 	sort.sort();
 
-	cout << "After completion of external merge sort....." << endl;
-	cout << "Count of Records in SSD Device: " << ssd.get_num_records() << endl;
-	cout << "Count of Records in HDD Device: " << hdd.get_num_records() << endl;
+	// cout << "Count of Records in SSD Device: " << ssd.get_num_records() << endl;
+	// cout << "Count of Records in HDD Device: " << hdd.get_num_records() << endl;
+	cout << endl;
+	cout << "Stats for SSD Device:" << endl;
+	ssd.get_device_access_stats();
+	cout << endl;
+	cout << "Stats for HDD Device:" << endl;
+	hdd.get_device_access_stats();
+
+	sort = SortRecords(100, &ssd, &hdd);
+
+	ssd.truncate_device();
+	hdd.truncate_device();
+
+	cout << endl << "Sort 100 records..." << endl;
+	sort.sort();
+
+	// cout << "Count of Records in SSD Device: " << ssd.get_num_records() << endl;
+	// cout << "Count of Records in HDD Device: " << hdd.get_num_records() << endl;
+	cout << endl;
+	cout << "Stats for SSD Device:" << endl;
+	ssd.get_device_access_stats();
+	cout << endl;
+	cout << "Stats for HDD Device:" << endl;
+	hdd.get_device_access_stats();
+
+	sort = SortRecords(1000, &ssd, &hdd);
+
+	ssd.truncate_device();
+	hdd.truncate_device();
+
+	cout << endl << "Sort 1000 records..." << endl;
+	sort.sort();
+
+	// cout << "Count of Records in SSD Device: " << ssd.get_num_records() << endl;
+	// cout << "Count of Records in HDD Device: " << hdd.get_num_records() << endl;
+	cout << endl;
+	cout << "Stats for SSD Device:" << endl;
+	ssd.get_device_access_stats();
+	cout << endl;
+	cout << "Stats for HDD Device:" << endl;
+	hdd.get_device_access_stats();
+
+	sort = SortRecords(10000, &ssd, &hdd);
+
+	ssd.truncate_device();
+	hdd.truncate_device();
+
+	cout << endl << "Sort 2000 records..." << endl;
+	sort.sort();
+
+	// cout << "Count of Records in SSD Device: " << ssd.get_num_records() << endl;
+	// cout << "Count of Records in HDD Device: " << hdd.get_num_records() << endl;
+	cout <<endl;
+	cout << "Stats for SSD Device:" << endl;
+	ssd.get_device_access_stats();
+	cout << endl;
+	cout << "Stats for HDD Device:" << endl;
+	hdd.get_device_access_stats();
+
+	sort = SortRecords(10000, &ssd, &hdd);
+
+	ssd.truncate_device();
+	hdd.truncate_device();
+
+	cout << endl << "Sort 10000 records..." << endl;
+	sort.sort();
+
+	// cout << "Count of Records in SSD Device: " << ssd.get_num_records() << endl;
+	// cout << "Count of Records in HDD Device: " << hdd.get_num_records() << endl;
+	cout << endl;
+	cout << "Stats for SSD Device:" << endl;
+	ssd.get_device_access_stats();
+	cout << endl;
+	cout << "Stats for HDD Device:" << endl;
+	hdd.get_device_access_stats();
 }
 #endif
 return 0;

@@ -72,15 +72,23 @@ void SortRecords::merge_runs_ssd()
 		p = this->ssd_device->get_run_pages(ssd_page_num_records);
 		record_lists = p.first;
 		num_records = p.second;
-		Tree tree = Tree(record_lists);
 
-		cout << "Record count: " << num_records << " Number of records lists: " << record_lists.size() << endl;
-		for (uint ii = 0; ii < num_records ; ii++)
-		{
-			tree.run_tree();
+		if (record_lists.size() > 1) {
+			Tree tree = Tree(record_lists);
+
+			for (uint ii = 0; ii < num_records; ii++)
+			{
+				tree.run_tree();
+			}
+
+			records = tree.get_generated_run();
+		} else {
+			for (uint ii = 0; ii < record_lists[0]->record_count; ii++)
+			{
+				records.push_back(record_lists[0]->record_ptr[ii]);
+			}
 		}
-
-		records = tree.get_generated_run();
+		
 
 		this->hdd_device->spill_run('t', -1, records);
 	}

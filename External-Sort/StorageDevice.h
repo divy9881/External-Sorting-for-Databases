@@ -18,6 +18,7 @@ class StorageDevice
 		void spill_runs(vector<RecordList *> record_lists);
 		void commit_temp_run();
 		void truncate_device();
+		void get_device_access_stats();
 
 	protected:
 		string device_path;
