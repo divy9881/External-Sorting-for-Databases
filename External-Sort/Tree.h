@@ -13,8 +13,6 @@ typedef struct RecordList {
     lluint record_count = 0;
 } RecordList;
 
-RecordList* create_empty_record_list(int count_of_sorted_runs);
-void append_to_record_list(RecordList** record_list, DataRecord* incoming_records, lluint incoming_count);
 
 /*
 * @struct Node
@@ -46,7 +44,7 @@ class Tree
 {
 private:
 	std::vector <struct Node> heap;
-	std::vector <DataRecord*> generated_run;
+	std::vector <struct DataRecord*> generated_run;
 	lluint total_leaves, total_nodes, tree_depth;
 	lluint total_record_count;
 public:
@@ -67,7 +65,7 @@ public:
     void run_tree();
     void compare_and_swap(int parent, int unused_leaf_idx);
     vector<int> get_empty_leaves();
-    int add_run_at_leaf(int leaf_node_idx, DataRecord *sorted_run, lluint number_of_records);
+    int add_run_at_leaf(int leaf_node_idx, DataRecord *sorted_run, int number_of_records);
     void spillover_run();
     
     // Deconstructor

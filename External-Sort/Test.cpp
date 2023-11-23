@@ -6,15 +6,14 @@
 #include "Tree.h"
 
 #define TEST_1 false
-#define TEST_2 false
+#define TEST_2 true
 #define TEST_3 false
 #define TEST_4 true
-#define TEST_5 false
 
 int main (int argc, char * argv [])
 {
 	// TRACE (true);
-	lluint num_records = 8;
+	int num_records = 8;
 #if TEST_1
 	Plan * const plan = new ScanPlan (7);
 	// new SortPlan(new FilterPlan(newScanPlan(7)));
@@ -63,9 +62,9 @@ int main (int argc, char * argv [])
 	// Test 2, only to be used for merging - replace when a record list is empty
 	cout<<"\n\n\n\t\t *********     TEST 2     *********"<<endl<<"\t\t\tTesting sorting of records\n\n\n";
 	DataRecord *list2 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
-	// for(luint ii = 0; ii < num_records; ii++) {
-	// 	list2[ii].SetRecord(ii+1, ii+1, ii+1);
-	// }
+	for(int ii = 0; ii < num_records; ii++) {
+		list2[ii].SetRecord(ii+1, ii+1, ii+1);
+	}
 
 	// Tree *test_tree2 = new Tree(list2, 8, 1);
 	// test_tree2->print_heap();
@@ -76,7 +75,7 @@ int main (int argc, char * argv [])
 	// num_records = 8;
 	DataRecord *list3 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
 	DataRecord *list4 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
-	for(luint ii = 0; ii < num_records; ii++) {
+	for(int ii = 0; ii < num_records; ii++) {
 		list2[ii].SetRecord(ii+2, ii+2, ii+2);
 		list3[ii].SetRecord(ii+1, ii+1, ii+1);
 		list4[ii].SetRecord(ii+3, ii+3, ii+3);
@@ -86,7 +85,7 @@ int main (int argc, char * argv [])
 	cout<<"The current heap is :: "<<endl; 
 	test_tree3->print_heap();
 	cout<<"Running the tree for "<< num_records<<" entries"<<endl;
-	for (lluint ii = 0; ii < num_records; ii++) {
+	for (int ii = 0; ii < num_records; ii++) {
 		test_tree3->run_tree();
 	}
 	// test_tree3->print_heap();
@@ -120,82 +119,43 @@ int main (int argc, char * argv [])
 	DataRecord *sorted_run5 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
 	DataRecord *sorted_run6 = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
 
-	for (lluint jj = 0 ; jj < num_records ; jj++) {
+	for (int jj = 0 ; jj < num_records ; jj++) {
 		sorted_run1[jj].SetRecord(jj+1, jj+1, jj+1);
 		sorted_run2[jj].SetRecord(jj+2, jj+2, jj+2);
 		sorted_run3[jj].SetRecord(jj+3, jj+3, jj+3);
 		sorted_run4[jj].SetRecord(jj+4, jj+4, jj+4);
 		sorted_run5[jj].SetRecord(jj+5, jj+5, jj+5);
-		sorted_run6[jj].SetRecord(jj+8, jj+8, jj+8);
+		sorted_run6[jj].SetRecord(jj+6, jj+6, jj+6);
 	}
-	RecordList *list_of_sorted_runs = create_empty_record_list(count_of_sorted_runs);
-    RecordList *setter = list_of_sorted_runs; setter->record_count = 0;
-	// printf("%p\n", (void*)setter);
-	append_to_record_list(&setter, sorted_run1, num_records); setter++; setter->record_count = 0;
-	// printf("%p\n", (void*)setter);
-	append_to_record_list(&setter, sorted_run2, num_records); setter++; setter->record_count = 0;
-	// printf("%p\n", (void*)setter);
-	append_to_record_list(&setter, sorted_run3, num_records); setter++; setter->record_count = 0;
-	// printf("%p\n", (void*)setter);
-	append_to_record_list(&setter, sorted_run4, num_records);
+	RecordList *list_of_sorted_runs = (RecordList*) malloc(sizeof(RecordList)*count_of_sorted_runs);
+	list_of_sorted_runs[0].record_ptr = sorted_run1; list_of_sorted_runs[0].record_count = num_records;
+	list_of_sorted_runs[1].record_ptr = sorted_run2; list_of_sorted_runs[1].record_count = num_records;
+	list_of_sorted_runs[2].record_ptr = sorted_run3; list_of_sorted_runs[2].record_count = num_records;
+	// list_of_sorted_runs[3].record_ptr = sorted_run4; list_of_sorted_runs[3].record_count = num_records;
 
-	lluint total_recs = 4 * num_records; 
-
-	Tree *test_tree4 = new Tree(list_of_sorted_runs, 4);
+	Tree *test_tree4 = new Tree(list_of_sorted_runs, count_of_sorted_runs);
 	cout<<"Printing the heap:"<<endl;
 	test_tree4->print_heap();
-	cout<<"Running the tree for "<<4*4<<" records\n";
-	for (lluint ii = 0 ; ii < 4*4 ; ii++) {
+	cout<<"Running the tree for "<<count_of_sorted_runs*num_records<<"records\n";
+	for (int ii = 0 ; ii < count_of_sorted_runs*num_records ; ii++) {
 		test_tree4->run_tree();
 	}
-	total_recs -= 4*4;
 	test_tree4->print_run();
-	cout<<"The heap before adding the new run :: "<<endl;
+	test_tree4->spillover_run();
+	cout<<"\nAdding new sorted run at the position 3 and 6"<<endl;
+	for (int ii = 0 ; ii < num_records; ii++) {
+		cout<<" | sorted_run5 @ "<<ii<<": ";sorted_run5[ii].print();
+		cout<<" | sorted_run6 @ "<<ii<<": "; sorted_run6[ii].print();
+		cout<<endl;
+	}
+	test_tree4->add_run_at_leaf(3, sorted_run5, num_records);
+	test_tree4->add_run_at_leaf(6, sorted_run6, num_records);
 	test_tree4->print_heap();
-
-	test_tree4->add_run_at_leaf(3, sorted_run6, num_records);
-	total_recs += num_records;
-	cout<<"The heap after adding the new run :: "<<endl;
-	test_tree4->print_heap();
-
-	for (lluint ii = 0 ; ii < total_recs ; ii++) {
+	for (int ii = 0 ; ii < 2*num_records; ii++) {
 		test_tree4->run_tree();
 	}
-
-	cout<<"The heap after running the whole tree :: "<<endl;
-	test_tree4->print_heap();
-	cout<<"The run after running the whole tree :: "<<endl;
 	test_tree4->print_run();
-	// test_tree4->spillover_run();
-	// cout<<"\nAdding new sorted run at the position 3 and 6"<<endl;
-	// for (lluint ii = 0 ; ii < num_records; ii++) {
-	// 	cout<<" | sorted_run5 @ "<<ii<<": ";sorted_run5[ii].print();
-	// 	cout<<" | sorted_run6 @ "<<ii<<": "; sorted_run6[ii].print();
-	// 	cout<<endl;
-	// }
-	// test_tree4->add_run_at_leaf(3, sorted_run5, num_records);
-	// test_tree4->add_run_at_leaf(6, sorted_run6, num_records);
-	// test_tree4->print_heap();
-	// for (lluint ii = 0 ; ii < 2*num_records; ii++) {
-	// 	test_tree4->run_tree();
-	// }
-	// test_tree4->print_run();
-	// test_tree4->spillover_run();
+	test_tree4->spillover_run();
 #endif
-// #ifdef TEST_5
-// 	DataRecord *sorted_run = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
-// 	for (lluint ii = 0; ii < num_records; ii++) {
-// 		sorted_run[ii].SetRecord(ii+1, ii+1, ii+1);
-// 	}
-// 	RecordList *record_list = (RecordList*) malloc(sizeof(RecordList));
-// 	append_to_record_list(&record_list, sorted_run, num_records);
-// 	// DataRecord* temp = record_list->record_ptr;
-// 	// while(temp->next != NULL) {
-// 	// 	temp->print();
-// 	// 	temp = temp->next;
-// 	// }
-// 	Tree test_tree1 = Tree(record_list, 1);
-// 	test_tree1.print_heap();
-// #endif
 	return 0;
 } // main
