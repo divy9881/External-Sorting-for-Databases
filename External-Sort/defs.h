@@ -1,6 +1,8 @@
 #pragma once
 
 #include <bits/stdc++.h>
+#include <sys/stat.h>
+#include <dirent.h>
 
 #include "setupConfig.h"
 
@@ -13,7 +15,7 @@ using namespace std;
 // call-through to assert() from <assert.h>
 //
 void Assert (bool const predicate,
-		char const * const file, int const line);
+			 char const * const file, int const line);
 //
 #if defined ( _DEBUG )  ||  defined (DEBUG)
 #define DebugAssert(b)	Assert ((b), __FILE__, __LINE__)
@@ -31,6 +33,8 @@ void Assert (bool const predicate,
 	printf
 
 // -----------------------------------------------------------------
+
+#define ENABLE_TRACE false
 
 class Trace
 {
@@ -121,6 +125,9 @@ template <class Val> inline Val mask (int const from, int const to)
 	//
 	return (((Val) 2) << to) - (((Val) 1) << from);
 } // Value mask (int from, int to)
+
+#define max(a, b) ((a > b) ? a : b)
+#define min(a, b) ((a < b) ? a : b)
 
 size_t Random (size_t const range);
 size_t Random (size_t const low_incl, size_t const high_incl);
