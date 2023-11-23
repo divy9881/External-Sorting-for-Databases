@@ -436,6 +436,6 @@ Tree::~Tree ()
 			free(&this->heap[ii].list);
 		}
 	}
-	TRACE (true);
+	TRACE(ENABLE_TRACE);
 	// delete root;
 }

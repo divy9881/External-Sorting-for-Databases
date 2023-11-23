@@ -208,11 +208,13 @@ pair<vector<RecordList *>, lluint> StorageDevice::get_run_pages(uint num_records
 	return p;
 }
 
+/*
+ * Commit the temporary run as a valid run-file
+ */
 void StorageDevice::commit_temp_run()
 {
-	uint last_run = this->get_last_run();
+	int last_run = this->get_last_run();
 	string temp_run_path = this->device_path + "/temp_run";
-	cout << "Last run: " << last_run << endl;
 	string committed_run_path = this->device_path + "/run_" + to_string(last_run + 1);
 
 	if (access(temp_run_path.c_str(), F_OK) == 0) {
@@ -235,6 +237,15 @@ void StorageDevice::truncate_device()
 	{
 		this->run_offsets[ii] = 0;
 	}
+}
+
+/*
+ * Print device read and write statistics
+ */
+void StorageDevice::get_device_access_stats()
+{
+	cout << "Number of reads on the device: " << this->total_reads << endl;
+	cout << "Number of writes on the device: " << this->total_writes << endl;
 }
 
 /*
@@ -332,6 +343,7 @@ vector<DataRecord> StorageDevice::get_run_page_from_disk(string run_path, lluint
 	 */
 	if (strlen(run_page) != (num_records * ON_DISK_RECORD_SIZE)) {
 		remove(run_path.c_str());
+		*offset = 0;
 	}
 
 	string s(run_page);
