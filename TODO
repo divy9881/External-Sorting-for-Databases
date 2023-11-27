@@ -1,0 +1,10 @@
+- Make sort generic for any number of columns
+- Support sort for column value types string and integer
+- Make sure that all the malloc'ed memory in TournamentTree is freed in its Deconstructor
+- Introduce use of vectors for list
+- Run valgrind on the final implementation of External Sort
+- Implement SSDDevice and HDDDevice class
+- Need to change vector attributes allocation to mitigate with invalid free crashes
+- Add disk writes and reads number and add code to get latency for External Sort
+- Resolve merge conflicts with Devaki's PR
+- Resolve merge conflicts with Sahil's last commit(0d85e4c4f7b7065adebb77b2f5346f7ea08bea86)

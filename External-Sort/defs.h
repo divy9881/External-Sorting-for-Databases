@@ -1,6 +1,8 @@
 #pragma once
 
 #include <bits/stdc++.h>
+#include <sys/stat.h>
+#include <dirent.h>
 
 #include "setupConfig.h"
 
@@ -31,6 +33,8 @@ void Assert (bool const predicate,
 	printf
 
 // -----------------------------------------------------------------
+
+#define ENABLE_TRACE false
 
 class Trace
 {

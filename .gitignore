@@ -1,3 +1,6 @@
 *.o
 *.exe
 .vscode/
+External-Sort/SSD
+External-Sort/HDD
+External-Sort/valgrind*

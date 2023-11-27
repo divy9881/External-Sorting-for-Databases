@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Iterator.h"
 
 class ScanPlan : public Plan
@@ -8,6 +10,7 @@ public:
 	~ScanPlan ();
 	Iterator * init () const;
 	DataRecord GetRecord(RowCount const rowid) const;
+	RecordList * GetRecords();
 private:
 	RowCount const _count;
 	DataRecord *_rows;
