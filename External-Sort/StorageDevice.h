@@ -15,8 +15,9 @@ class StorageDevice
 		vector<DataRecord> get_run_page(uint, uint);
 		pair<vector<RecordList *>, lluint> get_run_pages(uint);
 		void spill_run(char, uint, vector<DataRecord>);
-		void spill_runs(vector<RecordList *> record_lists);
-		void commit_temp_run();
+        bool verify_sort_result(lluint input_record_count, lluint output_record_count);
+        void spill_runs(vector<RecordList *> record_lists);
+        void commit_temp_run();
 		void truncate_device();
 		void get_device_access_stats();
 
