@@ -11,13 +11,13 @@
 #define TEST_1 false
 #define TEST_2 false
 #define TEST_3 false
-#define TEST_4 true
+#define TEST_4 false
 #define TEST_5 false // Run Spilling on Disk and Reading Run Pages from Disk
 #define TEST_6 false // Internal sort on list of records
 #define TEST_7 false // Test get_last_run
 #define TEST_8 false // Test merging sorted runs on SSD
 #define TEST_9 false // Test merging sorted runs on HDD
-#define TEST_10 false // Test External Merge sort of 20 records
+#define TEST_10 true // Test External Merge sort of 20 records
 #define TEST_11 false
 
 /*
@@ -378,7 +378,7 @@ int main (int argc, char * argv [])
 	cout << "Stats for HDD Device:" << endl;
 	hdd.get_device_access_stats();
 
-	sort = SortRecords(10000, &ssd, &hdd);
+	sort = SortRecords(2000, &ssd, &hdd);
 
 	ssd.truncate_device();
 	hdd.truncate_device();

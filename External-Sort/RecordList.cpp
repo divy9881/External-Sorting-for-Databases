@@ -54,29 +54,7 @@ int comparator(const void *arg1, const void *arg2)
 	}
 }
 
-void InternalSort(RecordList* records)
+void InternalSort(RecordList* record_list)
 {
-	// qsort((void *)records->records, (size_t)records->record_count, sizeof(DataRecord), comparator);
+    std::sort(record_list->records.begin(), record_list->records.end(), [](DataRecord &a, DataRecord &b){ return a._record[0] < b._record[0]; });
 }
-
-// int comparator(const void *arg1, const void *arg2)
-// {
-// 	if (*(DataRecord *)arg1 < *(DataRecord *)arg2)
-// 	{
-// 		return -1;
-// 	}
-// 	else if (*(DataRecord *)arg1 == *(DataRecord *)arg2)
-// 	{
-// 		return -1;
-// 	}
-// 	else
-// 	{
-// 		return 1;
-// 	}
-// }
-
-// void InternalSort(RecordList* records)
-// {
-// 	qsort((void *)records->records, (size_t)records->record_count, sizeof(DataRecord), comparator);
-// }
-
