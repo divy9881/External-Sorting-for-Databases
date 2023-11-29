@@ -1,4 +1,6 @@
 - Support sort for column value types string and integer
 - Fix memory leak related to RecordList and DataRecord heap memory
+- Add option to pass record length as input for ./ExternalSort.exe
+- Implement trace for ./ExternalSort.exe
 - Resolve merge conflicts with Devaki's PR
 - Resolve merge conflicts with Sahil's last commit(0d85e4c4f7b7065adebb77b2f5346f7ea08bea86)
