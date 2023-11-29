@@ -12,5 +12,5 @@ make
 ./Test.exe
 # Run valgrind on Test.exe program
 # Creates a log file `valgrind` inside External-Sort directory
-valgrind --track-origins=yes --log-file="/External-Sort/valgrind" ./Test.exe
+valgrind --track-origins=yes --log-file="/External-Sort/valgrind" --leak-check=yes ./Test.exe
 ```

@@ -33,7 +33,7 @@ RecordList * ScanPlan::GetRecords ()
 	DataRecord *records = new DataRecord[this->_count];
 
 	for (lluint ii = 0 ; ii < this->_count ; ii++) {
-		records[ii] = this->GetRecord(ii);
+		records[ii] = this->_rows[ii];
 	}
 
 	record_list->record_ptr = records;

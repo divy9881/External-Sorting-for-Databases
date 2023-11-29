@@ -7,9 +7,9 @@
 class DataRecord
 {
 public:
+	DataRecord ();
 	DataRecord (lluint col1, lluint col2, lluint col3);
 	DataRecord (const DataRecord& record);
-	DataRecord ();
 	~DataRecord ();
 	void SetRecord (lluint col1, lluint col2, lluint col3);
 	string GetRecord ();
@@ -38,7 +38,7 @@ public:
 	lluint _record[3];
 	luint index; // index of the DataRecord in the list (required to maintain the ordering)
 	uint ovc;
-	string rel;
+	char rel[NUM_CHARS_COL_VALUE+1];
 }; // class DataRecord
 
 /*

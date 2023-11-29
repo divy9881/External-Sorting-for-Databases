@@ -40,11 +40,15 @@ Tree::Tree(vector<RecordList *> sorted_runs)
 {
 	this->tree_depth = ceil(log2(sorted_runs.size()));
 	this->total_nodes = 2 * pow(2, this->tree_depth) - 1;
-	this->heap = vector <struct Node>(this->total_nodes);
+	this->heap = new struct Node[this->total_nodes];
 	this->total_leaves = pow(2, this->tree_depth);
-	int first_leaf_node = this->total_nodes - ((this->total_nodes - 1)/2) - 1;
-	uint jj = 0, current_run = 0;
+	llint first_leaf_node = this->total_nodes - ((this->total_nodes - 1)/2) - 1;
+	lluint jj = 0, current_run = 0;
 	lluint ii = first_leaf_node;
+
+	for (lluint ii = 0 ; ii < this->total_nodes ; ii++) {
+		this->heap[ii].list = NULL;
+	}
 
 	for ( ; ii < (this->total_leaves*2) - 1 ; ii++) {
 		this->heap[ii].current_record = NULL;
@@ -81,12 +85,12 @@ Tree::Tree(vector<RecordList *> sorted_runs)
  * * By default, we will try to create a full binary tree.
  * 
  */
-Tree::Tree(DataRecord *records, int record_ct, int initial_run)
+Tree::Tree(DataRecord *records, llint record_ct, llint initial_run)
 {
 	// TODO: See if this is optimal division for fanning
 	this->total_leaves = record_ct/2;
 	DataRecord *current_ptr = records;
-	int count_of_cols_per_row = ceil(record_ct/this->total_leaves);
+	llint count_of_cols_per_row = ceil(record_ct/this->total_leaves);
 
 	if (initial_run) {
 		count_of_cols_per_row = 1;
@@ -96,11 +100,11 @@ Tree::Tree(DataRecord *records, int record_ct, int initial_run)
 	this->tree_depth = ceil(log2(this->total_leaves));
 	this->total_nodes = 2 * pow(2, this->tree_depth) - 1;
 	this->total_record_count = record_ct;
-	this->heap = vector <struct Node>(this->total_nodes);
+	this->heap = new struct Node[this->total_nodes];
 
-	int first_leaf_node = this->total_nodes - ((this->total_nodes - 1)/2) - 1;
+	llint first_leaf_node = this->total_nodes - ((this->total_nodes - 1)/2) - 1;
 
-	int current_ct = record_ct;
+	llint current_ct = record_ct;
 
 	// We always try to generate full binary tree at the beginning
 	// (last leaf may not be balanced)
@@ -136,7 +140,7 @@ Tree::Tree(DataRecord *records, int record_ct, int initial_run)
 	}
 }
 
-int Tree::capacity(int level) {
+llint Tree::capacity(llint level) {
 	return (1<<level);
 }
 
@@ -145,8 +149,8 @@ int Tree::capacity(int level) {
 * Runs only for the internal nodes.
 * @param parent Index (in heap) of the parent record
 */
-void Tree::compare_and_swap(int parent, int unused_leaves_idx) {
-	int child_left = parent*2+1, child_right=parent*2+2;
+void Tree::compare_and_swap(llint parent, llint unused_leaves_idx) {
+	llint child_left = parent*2+1, child_right=parent*2+2;
 	struct Node *parent_node = &this->heap[parent];
 
 	// None of the children are valid == not being used as runs
@@ -222,11 +226,11 @@ void Tree::compare_and_swap(int parent, int unused_leaves_idx) {
 	}
 }
 
-struct Node Tree::leaf(int index, int current_slot) {
+struct Node Tree::leaf(llint index, llint current_slot) {
 	return this->heap[current_slot*2 + index];
 }
 
-struct Node Tree::parent(int current_slot) {
+struct Node Tree::parent(llint current_slot) {
 	return this->heap[current_slot/2];
 }
 
@@ -234,11 +238,11 @@ struct Node Tree::parent(int current_slot) {
 * Each call runs the tree once, to generate one entry of merged run
 */
 void Tree::run_tree() {
-	int unused_leaves_idx = (this->total_nodes + 1) / 2 - 1 + this->total_leaves;
+	llint unused_leaves_idx = (this->total_nodes + 1) / 2 - 1 + this->total_leaves;
 
 	// Each iteration will give one of the priority queue elements,
 	// run for each of the inner nodes
-	for (int inner_node_idx = this->total_nodes - pow(2, this->tree_depth) - 1;
+	for (llint inner_node_idx = this->total_nodes - pow(2, this->tree_depth) - 1;
 			inner_node_idx >= 0;
 			inner_node_idx--) {
 		this->compare_and_swap(inner_node_idx, unused_leaves_idx);
@@ -290,9 +294,9 @@ void Tree::print_heap() {
 	}
 }
 
-vector<int> Tree::get_empty_leaves() {
-	vector<int> empty_leaf_idx_list;
-	int first_leaf_idx = pow(2, this->tree_depth) - 1;
+vector<llint> Tree::get_empty_leaves() {
+	vector<llint> empty_leaf_idx_list;
+	llint first_leaf_idx = pow(2, this->tree_depth) - 1;
 	for (lluint ii = first_leaf_idx; ii < this->total_nodes; ii++) {
 		if ((this->heap[ii].is_empty) &&
 			(this->heap[ii].list->record_ptr == NULL)) {
@@ -305,7 +309,7 @@ vector<int> Tree::get_empty_leaves() {
 /*
 * Add new records at a leaf node (only if the existing list is exhausted)
 */
-int Tree::add_run_at_leaf(int leaf_node_index, DataRecord *record_list, int record_ct) {
+llint Tree::add_run_at_leaf(llint leaf_node_index, DataRecord *record_list, llint record_ct) {
 	if (!this->heap[leaf_node_index].is_empty) {
 		cout<<"The leaf node "<<leaf_node_index<<" is not empty. Cannot add new records!";
 		return 1;
@@ -321,8 +325,6 @@ int Tree::add_run_at_leaf(int leaf_node_index, DataRecord *record_list, int reco
 }
 
 void Tree::spillover_run() {
-	// TODO Can add spillover to HDD/SSD logic here
-	// As of now, we will just empty the vector storing the merged run
 	this->generated_run.clear();
 }
 
@@ -343,12 +345,7 @@ vector<DataRecord> Tree::get_generated_run()
 
 Tree::~Tree ()
 {
-	lluint first_leaf_node = this->total_nodes - ((this->total_nodes - 1)/2) - 1;
-	for (lluint ii = first_leaf_node ; ii < (this->total_leaves*2) - 1; ii++) {
-		if (this->heap[ii].list) {
-			free(&this->heap[ii].list);
-		}
-	}
+	delete [] this->heap;
+
 	TRACE(ENABLE_TRACE);
-	// delete root;
 }
