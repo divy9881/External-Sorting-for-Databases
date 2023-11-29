@@ -1,14 +1,19 @@
 #include "DataRecord.h"
 
-DataRecord::DataRecord() {}
+DataRecord::DataRecord()
+{
+	this->ovc = 0;
+	strcpy(this->rel, "\0");
+	TRACE (false);
+}
 
-DataRecord::DataRecord (lluint col1, lluint col2, lluint col3)
+DataRecord::DataRecord(lluint col1, lluint col2, lluint col3)
 {
 	this->_record[0] = col1;
 	this->_record[1] = col2;
 	this->_record[2] = col3;
 	this->ovc = 0;
-	this->rel = "";
+	strcpy(this->rel, "\0");
 	TRACE (false);
 } // DataRecord::DataRecord (lluint col1, lluint col2, lluint col3)
 
@@ -18,7 +23,7 @@ DataRecord::DataRecord (const DataRecord& record)
 	this->_record[1] = record._record[1];
 	this->_record[2] = record._record[2];
 	this->ovc = record.ovc;
-	this->rel = record.rel;
+	// strcpy(this->rel, record.rel);
 	TRACE (false);
 } // DataRecord::DataRecord (const DataRecord& record)
 
@@ -33,14 +38,13 @@ void DataRecord::SetRecord (lluint col1, lluint col2, lluint col3)
 	this->_record[1] = col2;
 	this->_record[2] = col3;
 	this->ovc = 0;
-	this->rel = "";
 } // DataRecord::SetRecord()
 
 string DataRecord::GetRecord ()
 {
 	uint diff, count = 0;
 	string record = "";
-	string col1_value, col2_value, col3_value;
+	string col1_value = "", col2_value = "", col3_value = "";
 
 	diff = NUM_CHARS_COL_VALUE - to_string(this->_record[0]).length();
 	count = 0;
@@ -199,7 +203,7 @@ void DataRecord::populate_ovc_str(string current, string winner)
 		else
 		{
 			this->ovc = (arity - ii) * OVC_DOMAIN + (current[ii] - '0');
-			this->rel = winner;
+			strcpy(this->rel, winner.c_str());
 			break;
 		}
 	}

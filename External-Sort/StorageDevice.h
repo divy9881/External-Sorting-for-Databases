@@ -8,6 +8,7 @@ class StorageDevice
 {
 	public:
 		StorageDevice(string, lluint);
+		~StorageDevice();
 		int get_last_run();
 		uint get_num_runs();
 		int get_num_records();
