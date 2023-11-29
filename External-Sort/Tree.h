@@ -1,7 +1,7 @@
 #pragma once
 
 #include "defs.h"
-#include "DataRecord.h"
+#include "RecordList.h"
 
 /*
 * @struct Node
@@ -33,14 +33,14 @@ class Tree
 {
 	private:
 		vector<struct Node> heap;
-		vector<DataRecord> generated_run;
+		vector<DataRecord *> generated_run;
 		lluint total_leaves, total_nodes, tree_depth;
 		lluint total_record_count;
 	public:
 		// Constructor
 		Tree();
-		Tree(DataRecord *, int, int); // Used for sorting of individual records
-		Tree(vector<RecordList *>); // Used to generate tree with sorted runs
+		Tree(std::vector<DataRecord>, int); // Used for sorting of individual records
+		Tree(std::vector<RecordList *>); // Used to generate tree with sorted runs
 
 		// Utility functions
 		Node* getRoot();
@@ -54,9 +54,9 @@ class Tree
 		void run_tree();
 		void compare_and_swap(int parent, int unused_leaf_idx);
 		vector<int> get_empty_leaves();
-		int add_run_at_leaf(int leaf_node_idx, DataRecord *sorted_run, int number_of_records);
+		int add_run_at_leaf(int leaf_node_idx, std::vector <DataRecord>);
 		void spillover_run();
-		vector<DataRecord>  get_generated_run();
+		vector<DataRecord*>  get_generated_run();
 		
 		// Deconstructor
 		~Tree();

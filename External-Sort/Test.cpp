@@ -2,24 +2,23 @@
 #include "Scan.h"
 #include "Filter.h"
 #include "Sort.h"
-#include "DataRecord.h"
+#include "RecordList.h"
 #include "Tree.h"
 #include "StorageDevice.h"
 #include "SortRecords.h"
 #include "defs.h"
 
-#define TEST_0 false
 #define TEST_1 false
-#define TEST_2 true
-#define TEST_3 true
+#define TEST_2 false
+#define TEST_3 false
 #define TEST_4 true
-// #define TEST_5 true // Run Spilling on Disk and Reading Run Pages from Disk
-// #define TEST_6 true // Internal sort on list of records
-// #define TEST_7 true // Test get_last_run
-// #define TEST_8 true // Test merging sorted runs on SSD
-// #define TEST_9 true // Test merging sorted runs on HDD
-#define TEST_10 true // Test External Merge sort of 20 records
-#define TEST_11 true
+#define TEST_5 false // Run Spilling on Disk and Reading Run Pages from Disk
+#define TEST_6 false // Internal sort on list of records
+#define TEST_7 false // Test get_last_run
+#define TEST_8 false // Test merging sorted runs on SSD
+#define TEST_9 false // Test merging sorted runs on HDD
+#define TEST_10 false // Test External Merge sort of 20 records
+#define TEST_11 false
 
 /*
  * Test configuration
@@ -30,6 +29,7 @@
 int main (int argc, char * argv [])
 {
 	TRACE (ENABLE_TRACE);
+	// TRACE (true);
 	int num_records = 8;
 #if TEST_0
 	DataRecord d1;
@@ -81,21 +81,28 @@ int main (int argc, char * argv [])
 		list1[ii].print();
 	}
 
-	Tree *test_tree = new Tree(list1, 8, 1);
-	test_tree->print_heap();
-	for (int i = 0; i < 4; i++) {
-		test_tree->run_tree();
-	}
-	test_tree->print_run();
+	Tree test_tree = Tree(list1, 4, 1);
+	test_tree.print_heap();
+	test_tree.run_tree();
+	test_tree.print_run();
 #endif
 #if TEST_2
 	// Test 2, only to be used for merging - replace when a record list is empty
 	cout<<"\n\n\n\t\t *********     TEST 2     *********"<<endl<<"\t\t\tTesting sorting of records\n\n\n";
-	DataRecord list2[8];
-	DataRecord list3[8];
-	DataRecord list4[8];
+	DataRecord list2[NUM_RECORDS];
+	for(int ii = 0; ii < NUM_RECORDS; ii++) {
+		list2[ii].SetRecord(ii+1, ii+1, ii+1);
+	}
 
-	for(luint ii = 0; ii < num_records; ii++) {
+	// Tree *test_tree2 = new Tree(list2, 8, 1);
+	// test_tree2->print_heap();
+	// test_tree2->run_tree();
+	// test_tree2->print_run();
+	// test_tree2->print_heap();
+
+	DataRecord list3[NUM_RECORDS];
+	DataRecord list4[NUM_RECORDS];
+	for(int ii = 0; ii < NUM_RECORDS; ii++) {
 		list2[ii].SetRecord(ii+2, ii+2, ii+2);
 		list3[ii].SetRecord(ii+1, ii+1, ii+1);
 		list4[ii].SetRecord(ii+3, ii+3, ii+3);
@@ -129,34 +136,29 @@ int main (int argc, char * argv [])
 #endif
 #if TEST_4
 	cout<<"\n\n\n\t\t*********     TEST 4     *********"<<endl<<"\tGenerate tree with sorted runs at leaf nodes, and dynamically add new records\n\n\n";
-	int count_of_sorted_runs = 3;
-	num_records = 8;
-	DataRecord sorted_run1[8], sorted_run2[8], sorted_run3[8], sorted_run4[8], sorted_run5[8], sorted_run6[8];
-	for (int jj = 0 ; jj < num_records ; jj++) {
-		sorted_run1[jj].SetRecord(jj+1, jj+1, jj+1);
-		sorted_run2[jj].SetRecord(jj+2, jj+2, jj+2);
-		sorted_run3[jj].SetRecord(jj+3, jj+3, jj+3);
-		sorted_run4[jj].SetRecord(jj+4, jj+4, jj+4);
-		sorted_run5[jj].SetRecord(jj+5, jj+5, jj+5);
-		sorted_run6[jj].SetRecord(jj+6, jj+6, jj+6);
+	vector<DataRecord> sorted_run[6];
+	RecordList records[COUNT_OF_SORTED_RUNS];
+
+	for (int jj = 0 ; jj < NUM_RECORDS ; jj++) {
+		sorted_run[0].push_back(DataRecord(jj+1, jj+1, jj+1));
+		sorted_run[1].push_back(DataRecord(jj+2, jj+2, jj+2));
+		sorted_run[2].push_back(DataRecord(jj+3, jj+3, jj+3));
+		sorted_run[3].push_back(DataRecord(jj+4, jj+4, jj+4));
+		sorted_run[4].push_back(DataRecord(jj+5, jj+5, jj+5));
+		sorted_run[5].push_back(DataRecord(jj+6, jj+6, jj+6));
 	}
-	RecordList *list_of_sorted_runs = create_empty_record_list(count_of_sorted_runs);
-    RecordList *setter = list_of_sorted_runs; setter->record_count = 0;
-	// printf("%p\n", (void*)setter);
-	append_to_record_list(&setter, sorted_run1, num_records); setter++; setter->record_count = 0;
-	// printf("%p\n", (void*)setter);
-	append_to_record_list(&setter, sorted_run2, num_records); setter++; setter->record_count = 0;
-	// printf("%p\n", (void*)setter);
-	append_to_record_list(&setter, sorted_run3, num_records); setter++; setter->record_count = 0;
-	// printf("%p\n", (void*)setter);
-	append_to_record_list(&setter, sorted_run4, num_records);
+	vector<RecordList *> list_of_sorted_runs;
 
-	int total_recs = 4 * num_records; 
+	for (uint jj = 0 ; jj < COUNT_OF_SORTED_RUNS ; jj++) {
+		records[jj].records = sorted_run[jj];
+		records[jj].record_count = NUM_RECORDS;
+		list_of_sorted_runs.push_back(&records[jj]);
+	}
 
-	Tree *test_tree4 = new Tree(list_of_sorted_runs, COUNT_OF_SORTED_RUNS);
+	Tree test_tree4 = Tree(list_of_sorted_runs);
 	cout<<"Printing the heap:"<<endl;
 	test_tree4.print_heap();
-	cout<<"Running the tree for "<<COUNT_OF_SORTED_RUNS * NUM_RECORDS<<"records\n";
+	cout<<"Running the tree for "<<COUNT_OF_SORTED_RUNS * NUM_RECORDS<<" records\n";
 	for (int ii = 0 ; ii < COUNT_OF_SORTED_RUNS * NUM_RECORDS ; ii++) {
 		test_tree4.run_tree();
 	}
@@ -170,77 +172,16 @@ int main (int argc, char * argv [])
 		sorted_run[5][ii].print();
 		cout << endl;
 	}
-	test_tree4->add_run_at_leaf(3, sorted_run5, NUM_RECORDS);
-	test_tree4->add_run_at_leaf(6, sorted_run6, NUM_RECORDS);
-	test_tree4->print_heap();
-
-
-	total_recs += num_records;
-	cout<<"The heap after adding the new run :: "<<endl;
-	test_tree4->print_heap();
-
-	for (int ii = 0 ; ii < total_recs ; ii++) {
-		test_tree4->run_tree();
+	test_tree4.add_run_at_leaf(3, sorted_run[4]);
+	test_tree4.add_run_at_leaf(6, sorted_run[5]);
+	test_tree4.print_heap();
+	for (int ii = 0 ; ii < 2 * NUM_RECORDS; ii++) {
+		test_tree4.run_tree();
 	}
-
-	cout<<"The heap after running the whole tree :: "<<endl;
-	test_tree4->print_heap();
-	cout<<"The run after running the whole tree :: "<<endl;
-	test_tree4->print_run();
-	test_tree4->spillover_run();
-	cout<<"\nAdding new sorted run at the position 3 and 6"<<endl;
-	for (int ii = 0 ; ii < NUM_RECORDS ; ii++) {
-		cout<<" | sorted_run5 @ "<<ii<<": ";sorted_run5[ii].print();
-		cout<<" | sorted_run6 @ "<<ii<<": "; sorted_run6[ii].print();
-		cout<<endl;
-	}
-	test_tree4->add_run_at_leaf(3, sorted_run5, NUM_RECORDS);
-	test_tree4->add_run_at_leaf(6, sorted_run6, NUM_RECORDS);
-	test_tree4->print_heap();
-	total_recs += num_records;
-	cout<<"The heap after adding the new run :: "<<endl;
-	test_tree4->print_heap();
-
-	for (int ii = 0 ; ii < total_recs ; ii++) {
-		test_tree4->run_tree();
-	}
-
-	cout<<"The heap after running the whole tree :: "<<endl;
-	test_tree4->print_heap();
-	cout<<"The run after running the whole tree :: "<<endl;
-	test_tree4->print_run();
-	test_tree4->spillover_run();
-	cout<<"\nAdding new sorted run at the position 3 and 6"<<endl;
-	for (int ii = 0 ; ii < num_records; ii++) {
-		cout<<" | sorted_run5 @ "<<ii<<": ";sorted_run5[ii].print();
-		cout<<" | sorted_run6 @ "<<ii<<": "; sorted_run6[ii].print();
-		cout<<endl;
-	}
-	test_tree4->add_run_at_leaf(3, sorted_run5, num_records);
-	test_tree4->add_run_at_leaf(6, sorted_run6, num_records);
-	test_tree4->print_heap();
-	for (int ii = 0 ; ii < 2*num_records; ii++) {
-		test_tree4->run_tree();
-	}
-	test_tree4->print_run();
-	test_tree4->spillover_run();
+	test_tree4.print_run();
+	test_tree4.spillover_run();
 #endif
 #if TEST_5
-	DataRecord *sorted_run = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
-	for (lluint ii = 0; ii < num_records; ii++) {
-		sorted_run[ii].SetRecord(ii+1, ii+1, ii+1);
-	}
-	RecordList *record_list = (RecordList*) malloc(sizeof(RecordList));
-	append_to_record_list(&record_list, sorted_run, num_records);
-	// DataRecord* temp = record_list->record_ptr;
-	// while(temp->next != NULL) {
-	// 	temp->print();
-	// 	temp = temp->next;
-	// }
-	Tree test_tree1 = Tree(record_list, 1);
-	test_tree1.print_heap();
-#endif
-#if NEW_TEST
 {
 	StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE);
 	vector<DataRecord> records;
@@ -280,7 +221,7 @@ int main (int argc, char * argv [])
 		cout << internal_sort_records[ii].GetRecord() << endl;
 	}
 
-	record_list.record_ptr = internal_sort_records;
+	record_list.records = internal_sort_records;
 	record_list.record_count = NUM_RECORDS;
 
 	InternalSort(&record_list);
@@ -288,7 +229,7 @@ int main (int argc, char * argv [])
 	cout << "Sorted Data Records:" << endl;
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		cout << record_list.record_ptr[ii].GetRecord() << endl;
+		cout << record_list.records[ii].GetRecord() << endl;
 	}
 	delete []internal_sort_records;
 }
@@ -472,20 +413,23 @@ int main (int argc, char * argv [])
 	hdd.get_device_access_stats();
 }
 #endif
-#ifdef TEST_11
-	// DataRecord *sorted_run = (DataRecord*)malloc(sizeof(DataRecord) * num_records);
-	// for (lluint ii = 0; ii < num_records; ii++) {
-	// 	sorted_run[ii].SetRecord(ii+1, ii+1, ii+1);
+#if TEST_11
+	// DataRecord *sorted_run = new DataRecord[num_records];
+	std::vector <DataRecord> sorted_run;
+	for (lluint ii = 0; ii < num_records; ii++) {
+		sorted_run.push_back(DataRecord(ii+1, ii+1, ii+1));
+	}
+	std::vector<RecordList *>record_list;
+	RecordList* record_list_obj = new RecordList;
+	append_to_record_list(record_list_obj, &sorted_run);
+	record_list.push_back(record_list_obj);
+	// DataRecord* temp = record_list->records;
+	// while(temp->next != NULL) {
+	// 	temp->print();
+	// 	temp = temp->next;
 	// }
-	// RecordList *record_list = (RecordList*) malloc(sizeof(RecordList));
-	// append_to_record_list(&record_list, sorted_run, num_records);
-	// // DataRecord* temp = record_list->record_ptr;
-	// // while(temp->next != NULL) {
-	// // 	temp->print();
-	// // 	temp = temp->next;
-	// // }
-	// Tree test_tree1 = Tree(record_list, 1);
-	// test_tree1.print_heap();
+	Tree test_tree1 = Tree(record_list);
+	test_tree1.print_heap();
 #endif
 	return 0;
 } // main

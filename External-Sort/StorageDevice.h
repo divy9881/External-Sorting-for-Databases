@@ -2,7 +2,7 @@
 
 #include "defs.h"
 #include "databaseConfig.h"
-#include "DataRecord.h"
+#include "RecordList.h"
 
 class StorageDevice
 {
@@ -14,7 +14,7 @@ class StorageDevice
 		lluint get_free_space();
 		vector<DataRecord> get_run_page(uint, uint);
 		pair<vector<RecordList *>, lluint> get_run_pages(uint);
-		void spill_run(char, uint, vector<DataRecord>);
+		void spill_run(char, uint, vector<DataRecord*>);
 		void spill_runs(vector<RecordList *> record_lists);
 		void commit_temp_run();
 		void truncate_device();
@@ -29,7 +29,7 @@ class StorageDevice
 		lluint total_writes;
 
 		lluint get_run_num_records(uint run);
-		void spill_run_to_disk(string, vector<DataRecord>);
+		void spill_run_to_disk(string, vector<DataRecord*>);
 		vector<DataRecord> get_run_page_from_disk(string, lluint *, uint);
 		int truncate_all_runs();
 };

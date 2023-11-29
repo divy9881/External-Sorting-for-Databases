@@ -65,7 +65,7 @@ void SortRecords::merge_runs_ssd()
 
 	while (this->ssd_device->get_num_runs()) {
 		lluint num_records;
-		vector<DataRecord> records;
+		vector<DataRecord *> records;
 		vector<RecordList *> record_lists;
 		pair <vector<RecordList *>, lluint> p;
 
@@ -85,12 +85,18 @@ void SortRecords::merge_runs_ssd()
 		} else {
 			for (uint ii = 0; ii < record_lists[0]->record_count; ii++)
 			{
-				records.push_back(record_lists[0]->record_ptr[ii]);
+				DataRecord test = record_lists[0]->records[ii];
+				DataRecord *temp = new DataRecord;
+				temp->SetRecord(test._record[0], test._record[1], test._record[2]);
+				records.push_back(temp);
 			}
 		}
 		
 
 		this->hdd_device->spill_run('t', -1, records);
+		for (auto a: records) {
+			delete a;
+		}
 	}
 
 	return;

@@ -30,14 +30,14 @@ DataRecord ScanPlan::GetRecord (RowCount const rowid) const
 RecordList * ScanPlan::GetRecords ()
 {
 	RecordList *record_list = new RecordList;
-	DataRecord *records = new DataRecord[this->_count];
+	std::vector<DataRecord> records;
 
 	for (lluint ii = 0 ; ii < this->_count ; ii++) {
-		records[ii] = this->GetRecord(ii);
+		records.push_back(this->GetRecord(ii));
 	}
-
-	record_list->record_ptr = records;
-	record_list->record_count = this->_count;
+	append_to_record_list(record_list, &records);
+	// record_list->records = records;
+	// record_list->record_count = this->_count;
 
 	return record_list;
 } // ScanPlan::GetRecords

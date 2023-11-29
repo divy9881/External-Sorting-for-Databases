@@ -258,23 +258,3 @@ void DataRecord::populate_ovc_str(string current, string winner)
 	}
 }
 
-int comparator(const void *arg1, const void *arg2)
-{
-	if (*(DataRecord *)arg1 < *(DataRecord *)arg2)
-	{
-		return -1;
-	}
-	else if (*(DataRecord *)arg1 == *(DataRecord *)arg2)
-	{
-		return -1;
-	}
-	else
-	{
-		return 1;
-	}
-}
-
-void InternalSort(RecordList* records)
-{
-	qsort((void *)records->record_ptr, (size_t)records->record_count, sizeof(DataRecord), comparator);
-}

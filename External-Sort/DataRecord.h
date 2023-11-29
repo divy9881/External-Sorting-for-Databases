@@ -43,16 +43,3 @@ public:
 	int index; // index of the DataRecord in the list (required to maintain the ordering)
 }; // class DataRecord
 
-/*
- * @struct RecordList
- * Wrapper for the (list of) data records and the count of records in the list
- * Has two associated functions, pop_record and top_record
- */
-typedef struct RecordList
-{
-	DataRecord *record_ptr = NULL;
-	lluint record_count = 0;
-} RecordList;
-
-int comparator(const void *arg1, const void *arg2);
-void InternalSort(RecordList *records);

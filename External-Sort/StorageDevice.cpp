@@ -109,7 +109,7 @@ lluint StorageDevice::get_free_space()
  * run - Specifies the run-number of the run to which the records are to be spilled
  * records - List of DataRecord(s) which are to be spilled to the StorageDevice
  */
-void StorageDevice::spill_run(char run_bit, uint run, vector<DataRecord> records)
+void StorageDevice::spill_run(char run_bit, uint run, vector<DataRecord*> records)
 {
 	string run_path;
 	if (run_bit == 'n') {
@@ -135,15 +135,21 @@ void StorageDevice::spill_run(char run_bit, uint run, vector<DataRecord> records
 void StorageDevice::spill_runs(vector<RecordList *> record_lists)
 {
 	for (uint ii = 0 ; ii < record_lists.size() ; ii++) {
-		vector<DataRecord> records;
+		vector<DataRecord*> records;
 		RecordList list = *record_lists[ii];
 
-		for (uint jj = 0 ; jj < list.record_count ; jj++) {
-			DataRecord record = list.record_ptr[jj];
+		for (uint jj = 0 ; jj < list.records.size() ; jj++) {
+			DataRecord current_record = list.records[jj];
+			DataRecord* record = new DataRecord;
+			record->SetRecord(current_record._record[0], current_record._record[1], current_record._record[2]);
+			// record->SetRecord(list.records[jj].);
 			records.push_back(record);
 		}
 
 		this->spill_run('n', 0, records);
+		for (auto a: records) {
+			free(a);
+		}
 	}
 }
 
@@ -183,20 +189,19 @@ pair<vector<RecordList *>, lluint> StorageDevice::get_run_pages(uint num_records
 	for (uint ii = 2 ; ii < n ; ii++) {
 		uint run;
 		vector<DataRecord> records;
-		DataRecord *record_objs;
+		vector<DataRecord> record_objs;
 		RecordList *list = new RecordList;
 
 		sscanf((char *)&namelist[ii]->d_name[4], "%u", &run);
 
 		records = this->get_run_page(run, num_records);
 
-		record_objs = new DataRecord[records.size()];
 		for (uint jj = 0 ; jj < records.size() ; jj++) {
-			record_objs[jj] = records[jj];
+			record_objs.push_back(records[jj]);
 		}
-
-		list->record_ptr = record_objs;
-		list->record_count = records.size();
+		append_to_record_list(list, &record_objs);
+		// list->records = record_objs;
+		// list->record_count = records.size();
 
 		count += records.size();
 		record_lists.push_back(list);
@@ -289,7 +294,7 @@ lluint StorageDevice::get_run_num_records(uint run)
  * run_path - Specifies the path of the run-file to which records are to be spilled
  * records - List of records to be spilled to a run-file
  */
-void StorageDevice::spill_run_to_disk(string run_path, vector<DataRecord> records)
+void StorageDevice::spill_run_to_disk(string run_path, vector<DataRecord*> records)
 {
 	fstream runfile;
 	string str_records;
@@ -299,8 +304,8 @@ void StorageDevice::spill_run_to_disk(string run_path, vector<DataRecord> record
 		return;
 
 	for (uint ii = 0 ; ii < records.size() ; ii++) {
-		DataRecord record = records[ii];
-		string str_record = record.GetRecord();
+		DataRecord* record = records[ii];
+		string str_record = record->GetRecord();
 		str_records += str_record + RECORD_DELIMITER;
 	}
 	runfile << str_records;

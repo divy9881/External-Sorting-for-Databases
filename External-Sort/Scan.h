@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Iterator.h"
-
+#include "RecordList.h"
 class ScanPlan : public Plan
 {
 	friend class ScanIterator;
