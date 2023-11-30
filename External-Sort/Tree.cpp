@@ -8,31 +8,39 @@
 #define NODE_RECORD_LIST(node) node->list->record_ptr
 #define NODE_RECORD_LIST_AT(node, idx) node->list->record_ptr[idx]
 #define NODE_RECORD_LIST_LENGTH(node) node->list->record_count
-#define CHECK_SET_EMPTY(node, node_idx) if (node->list->record_count == 0) {\
-						if (node != NULL) {\
-							node->is_empty = true;\
-						}\
-					}
+#define CHECK_SET_EMPTY(node, node_idx)  if (node != NULL) {\
+							if (node->list->record_ptr.empty()) {\
+								node->is_empty = true;\
+							}\
+						}
 #define SET_INTERNAL_EMPTY(node) node->current_record = NULL;
 
 DataRecord* pop_record(RecordList *list) {
 	DataRecord* top = NULL;
-	if (list->record_count == 1) {
-		top = &(list->record_ptr[0]);
-		list->record_ptr = NULL;
-	} else if (list->record_count > 1) {
-		top = &(list->record_ptr[0]);
-		list->record_ptr = &(list->record_ptr[1]);
+	if (list == NULL) {
+		return NULL;
 	}
-	list->record_count--;
+	if (!list->record_ptr.empty()) {
+		top = new DataRecord(list->record_ptr.front());
+		// top = &temp;
+		list->record_ptr.pop_front();
+		#if DEBUG_PRINT
+		top->print();
+		#endif
+		list->record_count--;
+	}
 	return top;
 }
 
 DataRecord* top_record(RecordList *list) {
+	DataRecord *top = NULL;
 	if (list == NULL) {
 		return NULL;
 	}
-	return list->record_ptr;
+	if (!list->record_ptr.empty()){
+		return &list->record_ptr.front();
+	}
+	return top;
 }
 
 /*
@@ -51,6 +59,7 @@ Tree::Tree(vector<RecordList *> sorted_runs)
 
 	for (lluint ii = 0 ; ii < this->total_nodes ; ii++) {
 		this->heap[ii].list = NULL;
+		this->heap[ii].current_record = NULL;
 	}
 
 	for ( ; ii < (this->total_leaves*2) - 1 ; ii++) {
@@ -108,6 +117,7 @@ Tree::Tree(DataRecord *records, llint record_ct, llint initial_run)
 	llint first_leaf_node = this->total_nodes - ((this->total_nodes - 1)/2) - 1;
 
 	llint current_ct = record_ct;
+	int start = 0;
 
 	// We always try to generate full binary tree at the beginning
 	// (last leaf may not be balanced)
@@ -119,12 +129,16 @@ Tree::Tree(DataRecord *records, llint record_ct, llint initial_run)
 
 		// Assign records to each row
 		this->heap[ii].list = new RecordList;
-		this->heap[ii].list->record_ptr = new DataRecord;
-		this->heap[ii].list->record_ptr = current_ptr;
+		for (int ii = start; ii < start + count_of_cols_per_row; ii++) {
+			this->heap[ii].list->record_ptr.push_back(*current_ptr);
+			current_ptr++;
+		}
+		// this->heap[ii].list->record_ptr;
+		// this->heap[ii].list->record_ptr = current_ptr;
 		this->heap[ii].list->record_count = count_of_cols_per_row;
 
 		if (current_ct > 0) {
-			current_ptr = current_ptr + count_of_cols_per_row;
+			start += count_of_cols_per_row;
 			current_ct -= count_of_cols_per_row;
 		} else {
 			break;
@@ -154,7 +168,8 @@ llint Tree::capacity(llint level) {
 */
 void Tree::compare_and_swap(llint parent, llint unused_leaves_idx) {
 	int child_left = parent*2+1, child_right=parent*2+2;
-	struct Node *parent_node = &this->heap[parent];
+
+	struct Node *parent_node = &(this->heap[parent]);
 
     // None of the children are valid == not being used as runs
     if (child_left >= unused_leaves_idx) {
@@ -176,8 +191,8 @@ void Tree::compare_and_swap(llint parent, llint unused_leaves_idx) {
         if (parent_node->current_record) {
             return;
         } else {
-            struct Node *left_child_node = &this->heap[child_left];
-            struct Node *right_child_node = &this->heap[child_right];
+			struct Node *left_child_node = &(this->heap[child_left]);
+            struct Node *right_child_node = &(this->heap[child_right]);
             DataRecord *left_data = NULL, *right_data = NULL;
             if (IS_LEAF_NODE(left_child_node)) {
                 // Both will be a leaf node
@@ -198,9 +213,12 @@ void Tree::compare_and_swap(llint parent, llint unused_leaves_idx) {
                             return;
                         }
                     }
+					left_data->print();
+					right_data->print();
                     // If OVC do not exist for either or are equal, we need to check their actual
                     // values and update OVC based on the new winner
                     if (left_data->is_smaller_int(*right_data)) {
+						// left_data->print(); right_data->print();
                         // Left is the winner -> set OVC of right relative to left
                         right_data->populate_ovc_int(*left_data);
                         parent_node->current_record = pop_record(left_child_node->list);
@@ -337,17 +355,16 @@ void Tree::print_heap() {
 					printf("\n(%lld Empty )\n", ii);
 					continue;
 				}
-				DataRecord *current_record = heap_list->record_ptr;
-
+				lluint jj = 0;
 				printf("\n(%lld (Count: %lld) -> ", ii, heap_list->record_count);
-				for (lluint jj = 0; jj < this->heap[ii].list->record_count; jj++) {
+				for (auto current_record : heap_list->record_ptr) {
 					printf("[%lld @ %lld :: (%lld, %lld, %lld)@(%d:%s)] ",
-						ii, jj, current_record->_record[0],
-						current_record->_record[1],
-						current_record->_record[2],
-						current_record->ovc,
-						current_record->rel);
-						current_record++;
+						ii, jj, current_record._record[0],
+						current_record._record[1],
+						current_record._record[2],
+						current_record.ovc,
+						current_record.rel);
+						jj++;
 				}
 				printf(")\n");
 			}
@@ -362,7 +379,7 @@ vector<llint> Tree::get_empty_leaves() {
 	llint first_leaf_idx = pow(2, this->tree_depth) - 1;
 	for (lluint ii = first_leaf_idx; ii < this->total_nodes; ii++) {
 		if ((this->heap[ii].is_empty) &&
-			(this->heap[ii].list->record_ptr == NULL)) {
+			(this->heap[ii].list->record_ptr.empty())) {
 				empty_leaf_idx_list.push_back(ii);
 		}
 	}
@@ -373,17 +390,16 @@ vector<llint> Tree::get_empty_leaves() {
 * Add new records at a leaf node (only if the existing list is exhausted)
 */
 llint Tree::add_run_at_leaf(llint leaf_node_index, DataRecord *record_list, llint record_ct) {
-	if (!this->heap[leaf_node_index].is_empty) {
-		cout<<"The leaf node "<<leaf_node_index<<" is not empty. Cannot add new records!";
-		return 1;
-	} else {
-		this->heap[leaf_node_index].is_empty = false;
-		if (this->heap[leaf_node_index].list == NULL) {
-			this->heap[leaf_node_index].list = new RecordList;
-		}
-		this->heap[leaf_node_index].list->record_ptr = record_list;
-		this->heap[leaf_node_index].list->record_count = record_ct;
+	this->heap[leaf_node_index].is_empty = false;
+	if (this->heap[leaf_node_index].list == NULL) {
+		this->heap[leaf_node_index].list = new RecordList;
 	}
+	for (llint ii = 0 ; ii < record_ct; ii++) {
+		this->heap[leaf_node_index].list->record_ptr.push_back(*record_list);
+		record_list++;
+	}
+	// this->heap[leaf_node_index].list->record_ptr = record_list;
+	this->heap[leaf_node_index].list->record_count += record_ct;
 	return 0;
 }
 

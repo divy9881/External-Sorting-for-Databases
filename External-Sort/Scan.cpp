@@ -30,15 +30,12 @@ DataRecord ScanPlan::GetRecord (RowCount const rowid) const
 RecordList * ScanPlan::GetRecords ()
 {
 	RecordList *record_list = new RecordList;
-	DataRecord *records = new DataRecord[this->_count];
 
 	for (lluint ii = 0 ; ii < this->_count ; ii++) {
-		records[ii] = this->_rows[ii];
+		record_list->record_ptr.push_back(this->_rows[ii]);
 	}
 
-	record_list->record_ptr = records;
 	record_list->record_count = this->_count;
-
 	return record_list;
 } // ScanPlan::GetRecords
 

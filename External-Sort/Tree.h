@@ -24,6 +24,7 @@ struct Node {
 		current_record = NULL;
 		is_empty = true;
 		is_leaf = false;
+		list = NULL;
 		level = 0;
 	}
 	// Node(const DataRecord& val) : data(val), left((Node*)nullptr), right((Node*)nullptr) {}

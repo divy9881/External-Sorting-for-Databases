@@ -94,10 +94,11 @@ void SortRecords::merge_runs_ssd()
 		} else {
 			for (uint ii = 0; ii < record_lists[0]->record_count; ii++)
 			{
-				records.push_back(record_lists[0]->record_ptr[ii]);
+				records.push_back(record_lists[0]->record_ptr.front());
+				record_lists[0]->record_ptr.pop_front();
 			}
 
-			delete [] record_lists[0]->record_ptr;
+			// delete [] record_lists[0]->record_ptr;
 			delete record_lists[0];
 		}
 		this->hdd_device->spill_run('t', -1, records);

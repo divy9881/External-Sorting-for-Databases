@@ -233,7 +233,12 @@ int comparator(const void *arg1, const void *arg2)
 	}
 }
 
+bool comparator(const DataRecord& first, const DataRecord& second) {
+	return (first._record[0] < second._record[0]);
+}
+
 void InternalSort(RecordList* records)
 {
-	qsort((void *)records->record_ptr, (size_t)records->record_count, sizeof(DataRecord), comparator);
+	records->record_ptr.sort();
+	// qsort((void *)records->record_ptr, (size_t)records->record_count, sizeof(DataRecord), comparator);
 }

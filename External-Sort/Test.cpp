@@ -11,13 +11,13 @@
 // #define TEST_1 true
 // #define TEST_2 true
 // #define TEST_3 true
-// #define TEST_4 true
+#define TEST_4 true
 // #define TEST_5 true // Run Spilling on Disk and Reading Run Pages from Disk
 // #define TEST_6 true // Internal sort on list of records
 // #define TEST_7 true // Test get_last_run
 // #define TEST_8 true // Test merging sorted runs on SSD
 // #define TEST_9 true // Test merging sorted runs on HDD
-#define TEST_10 true // Test External Merge sort of 20 records
+// #define TEST_10 true // Test External Merge sort of 20 records
 
 /*
  * Test configuration
@@ -136,7 +136,9 @@ int main (int argc, char * argv [])
 	vector<RecordList *> list_of_sorted_runs;
 
 	for (uint jj = 0 ; jj < COUNT_OF_SORTED_RUNS ; jj++) {
-		records[jj].record_ptr = sorted_run[jj];
+		for (int ii = 0 ; ii < NUM_RECORDS; ii++) {
+			records[jj].record_ptr.push_back(sorted_run[jj][ii]);
+		}
 		records[jj].record_count = NUM_RECORDS;
 		list_of_sorted_runs.push_back(&records[jj]);
 	}
@@ -346,7 +348,7 @@ int main (int argc, char * argv [])
 	cout << endl;
 	cout << "Stats for HDD Device:" << endl;
 	hdd.get_device_access_stats();
-
+/*
 	sort = SortRecords(1000, &ssd, &hdd);
 
 	ssd.truncate_device();
@@ -431,6 +433,7 @@ int main (int argc, char * argv [])
 	cout << endl;
 	cout << "Stats for HDD Device:" << endl;
 	hdd.get_device_access_stats();
+*/
 }
 #endif
 return 0;

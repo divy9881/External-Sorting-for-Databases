@@ -165,15 +165,18 @@ void StorageDevice::spill_runs(vector<RecordList *> record_lists)
 		vector<DataRecord> records;
 		RecordList *list = record_lists[ii];
 
-		for (uint jj = 0 ; jj < list->record_count ; jj++) {
-			records.push_back(list->record_ptr[jj]);
+		while(!list->record_ptr.empty()) {
+			records.push_back(list->record_ptr.front());
 		}
 
 		this->spill_run('n', 0, records);
+		// for (int ii = 0; ii < records.size(); ii++) {
+		// 	delete records[ii];
+		// }
 	}
 
 	for (uint ii = 0 ; ii < record_lists.size() ; ii++) {
-		delete [] record_lists[ii]->record_ptr;
+		// delete [] record_lists[ii]->record_ptr;
 		delete record_lists[ii];
 	}
 }
@@ -214,19 +217,19 @@ pair<vector<RecordList *>, lluint> StorageDevice::get_run_pages(uint num_records
 	for (uint ii = 2 ; ii < n ; ii++) {
 		uint run;
 		vector<DataRecord> records;
-		DataRecord *record_objs;
+		// DataRecord *record_objs;
 		RecordList *list = new RecordList;
 
 		sscanf((char *)&namelist[ii]->d_name[4], "%u", &run);
 
 		records = this->get_run_page(run, num_records);
 
-		record_objs = new DataRecord[records.size()];
+		// record_objs = new DataRecord[records.size()];
 		for (uint jj = 0 ; jj < records.size() ; jj++) {
-			record_objs[jj] = records[jj];
+			list->record_ptr.push_back(records[jj]);
 		}
 
-		list->record_ptr = record_objs;
+		// list->record_ptr = record_objs;
 		list->record_count = records.size();
 
 		count += records.size();
