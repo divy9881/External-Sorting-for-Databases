@@ -12,7 +12,7 @@ using namespace std;
 #define nullptr	((void *) NULL)
 #define yesno(b)	((b) ? "yes" : "no")
 
-#define DEBUG_PRINT false
+#define DEBUG_PRINT true
 
 // call-through to assert() from <assert.h>
 //

@@ -39,8 +39,8 @@ public:
 	lluint _record[3];
 	luint index; // index of the DataRecord in the list (required to maintain the ordering)
 	uint ovc;
-	char rel[256 + 1];
 	uint col_value_length;
+	char rel[NUM_CHARS_COL_VALUE + 1];
 }; // class DataRecord
 
 /*

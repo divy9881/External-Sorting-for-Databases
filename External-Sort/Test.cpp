@@ -12,7 +12,7 @@
 // #define TEST_1 true
 // #define TEST_2 true
 // #define TEST_3 true
-// #define TEST_4 true
+#define TEST_4 true
 // #define TEST_5 true // Run Spilling on Disk and Reading Run Pages from Disk
 // #define TEST_6 true // Internal sort on list of records
 // #define TEST_7 true // Test get_last_run
@@ -424,6 +424,7 @@ int main (int argc, char * argv [])
 	cout << endl;
 	cout << "Stats for HDD Device:" << endl;
 	hdd.get_device_access_stats();
+*/
 }
 #endif
 return 0;

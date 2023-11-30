@@ -213,6 +213,8 @@ void Tree::compare_and_swap(llint parent, llint unused_leaves_idx) {
                             return;
                         }
                     }
+					left_data->print();
+					right_data->print();
                     // If OVC do not exist for either or are equal, we need to check their actual
                     // values and update OVC based on the new winner
                     if (left_data->is_smaller_int(*right_data)) {
