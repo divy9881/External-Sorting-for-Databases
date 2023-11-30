@@ -27,6 +27,7 @@
 
 int main (int argc, char * argv [])
 {
+	
 	TRACE (ENABLE_TRACE);
 #if TEST_1
 	Plan * const plan = new ScanPlan (7);
@@ -388,7 +389,10 @@ int main (int argc, char * argv [])
 
 	cout << endl << "Sort 10000 records..." << endl;
 	sort.sort();
-
+	// TODO : add the verification part
+	// TODO : add the verification part for number of records as well
+	// 1000 should be replaced with the input number
+	cout << Iterator::verifyNumRecords(1000);
 	// cout << "Count of Records in SSD Device: " << ssd.get_num_records() << endl;
 	// cout << "Count of Records in HDD Device: " << hdd.get_num_records() << endl;
 	cout << endl;

@@ -130,10 +130,10 @@ void StorageDevice::spill_run(char run_bit, uint run, vector<DataRecord> records
 }
 
 // Check if the number of records matches the expected output
-bool StorageDevice::verify_sort_result(lluint input_record_count, lluint output_record_count)
-{
-    return (input_record_count == output_record_count);
-}
+// bool StorageDevice::verify_sort_result(lluint input_record_count, lluint output_record_count)
+// {
+//     return (input_record_count == output_record_count);
+// }
 
 /*
  * To persist a sorted runs to the StorageDevice
@@ -143,14 +143,14 @@ bool StorageDevice::verify_sort_result(lluint input_record_count, lluint output_
 void StorageDevice::spill_runs(vector<RecordList *> record_lists)
 {
 	 // Check if each run is sorted
-    for (const auto& run : sorted_runs)
-    {
-        if (!std::is_sorted(run->record_ptr, run->record_ptr + run->record_count))
-        {
-            // Handle the case where a run is not sorted (throw an exception, print an error, etc.)
-            throw std::runtime_error("Error: Input runs must be sorted.");
-        }
-    }
+    // for (const auto& run : sorted_runs)
+    // {
+    //     if (!std::is_sorted(run->record_ptr, run->record_ptr + run->record_count))
+    //     {
+    //         // Handle the case where a run is not sorted (throw an exception, print an error, etc.)
+    //         throw std::runtime_error("Error: Input runs must be sorted.");
+    //     }
+    // }
 
 	for (uint ii = 0 ; ii < record_lists.size() ; ii++) {
 		vector<DataRecord> records;
@@ -165,14 +165,14 @@ void StorageDevice::spill_runs(vector<RecordList *> record_lists)
 	}
 
 	// Verify the result
-    lluint output_record_count = this->get_num_records();
-    bool verification_result = this->verify_sort_result(input_record_count, output_record_count);
+    // lluint output_record_count = this->get_num_records();
+    // bool verification_result = this->verify_sort_result(input_record_count, output_record_count);
 
-    if (verification_result) {
-        cout << "Sorting verification passed! Number of rows in the input and output match." << endl;
-    } else {
-        cout << "Sorting verification failed! Number of rows in the input and output do not match." << endl;
-    }
+    // if (verification_result) {
+    //     cout << "Sorting verification passed! Number of rows in the input and output match." << endl;
+    // } else {
+    //     cout << "Sorting verification failed! Number of rows in the input and output do not match." << endl;
+    // }
 }
 
 /*

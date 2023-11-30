@@ -23,6 +23,9 @@ public:
 	virtual ~Iterator ();
 	void run ();
 	virtual bool next () = 0;
+	static bool verifyNumRecords (string, int);
+	static bool verifySortOrder (string);
 private:
 	RowCount _count;
+	static std::string findHighestRunFile(const std::string& directoryPath);
 }; // class Iterator
