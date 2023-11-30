@@ -393,6 +393,40 @@ int main (int argc, char * argv [])
 	// TODO : add the verification part for number of records as well
 	// 1000 should be replaced with the input number
 	cout << Iterator::verifyNumRecords(1000);
+	cout << "Count of Records in SSD Device: " << ssd.get_num_records() << endl;
+	cout << "Count of Records in HDD Device: " << hdd.get_num_records() << endl;
+	cout << endl;
+	cout << "Stats for SSD Device:" << endl;
+	ssd.get_device_access_stats();
+	cout << endl;
+	cout << "Stats for HDD Device:" << endl;
+	hdd.get_device_access_stats();
+
+	sort = SortRecords(100000, &ssd, &hdd);
+
+	ssd.truncate_device();
+	hdd.truncate_device();
+
+	cout << endl << "Sort 100000 records..." << endl;
+	sort.sort();
+
+	// cout << "Count of Records in SSD Device: " << ssd.get_num_records() << endl;
+	// cout << "Count of Records in HDD Device: " << hdd.get_num_records() << endl;
+	cout << endl;
+	cout << "Stats for SSD Device:" << endl;
+	ssd.get_device_access_stats();
+	cout << endl;
+	cout << "Stats for HDD Device:" << endl;
+	hdd.get_device_access_stats();
+
+	sort = SortRecords(1200000, &ssd, &hdd);
+
+	ssd.truncate_device();
+	hdd.truncate_device();
+
+	cout << endl << "Sort 1200000 records..." << endl;
+	sort.sort();
+
 	// cout << "Count of Records in SSD Device: " << ssd.get_num_records() << endl;
 	// cout << "Count of Records in HDD Device: " << hdd.get_num_records() << endl;
 	cout << endl;

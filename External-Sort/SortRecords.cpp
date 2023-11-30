@@ -82,23 +82,30 @@ void SortRecords::merge_runs_ssd()
 			}
 
 			records = tree.get_generated_run();
+			// TODO: fix freeing of memory
+			//       currently there is a memory link
+			//       but the below statement corrupt the memory
+			//       for large number of records
+			// for (uint ii = 0; ii < record_lists.size(); ii++)
+			// {
+			// 	delete[] record_lists[ii]->record_ptr;
+			// 	delete record_lists[ii];
+			// }
 		} else {
 			for (uint ii = 0; ii < record_lists[0]->record_count; ii++)
 			{
 				records.push_back(record_lists[0]->record_ptr[ii]);
 			}
-		}
-		
 
+			delete [] record_lists[0]->record_ptr;
+			delete record_lists[0];
+		}
 		this->hdd_device->spill_run('t', -1, records);
 	}
 
 	return;
 }
 
-/*
- * TODO: Inspect merge_runs_hdd for termination condition of the while loop
- */
 void SortRecords::merge_runs_hdd()
 {
 	uint hdd_page_num_records = OPTIMAL_HDD_PAGE_SIZE / ON_DISK_RECORD_SIZE;

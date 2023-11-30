@@ -24,6 +24,11 @@ StorageDevice::StorageDevice(string device_path, lluint total_space)
 	}
 }
 
+StorageDevice::~StorageDevice()
+{
+	delete [] this->run_offsets;
+}
+
 /*
  * Get the last run(sorted serially on run-number) stored on a StorageDevice
  */
@@ -35,13 +40,23 @@ int StorageDevice::get_last_run()
 
 	n = scandir(this->device_path.c_str(), &namelist, 0, alphasort);
 
-	if (n <= 2) return -1;
-	else {
+	if (n <= 2) {
+		run = -1;
+		goto out;
+	} else {
 		if (namelist[n - 1]->d_name[0] == 't') {
-			return -1;
+			run = -1;
+			goto out;
 		}
 		sscanf((char *)&namelist[n - 1]->d_name[4], "%u", &run);
 	}
+
+out:
+	for (uint ii = 0; ii < (uint)n; ii++)
+	{
+		free(namelist[ii]);
+	}
+	free(namelist);
 
 	return run;
 }
@@ -65,6 +80,12 @@ uint StorageDevice::get_num_runs()
 
 		count += 1;
 	}
+
+	for (uint ii = 0; ii < (uint)n; ii++)
+	{
+		free(namelist[ii]);
+	}
+	free(namelist);
 
 	return count;
 }
@@ -92,6 +113,12 @@ int StorageDevice::get_num_records()
 
 		count += this->get_run_num_records(run);
 	}
+
+	for (uint ii = 0; ii < (uint)n; ii++)
+	{
+		free(namelist[ii]);
+	}
+	free(namelist);
 
 	return count;
 }
@@ -154,25 +181,14 @@ void StorageDevice::spill_runs(vector<RecordList *> record_lists)
 
 	for (uint ii = 0 ; ii < record_lists.size() ; ii++) {
 		vector<DataRecord> records;
-		RecordList list = *record_lists[ii];
+		RecordList *list = record_lists[ii];
 
-		for (uint jj = 0 ; jj < list.record_count ; jj++) {
-			DataRecord record = list.record_ptr[jj];
-			records.push_back(record);
+		for (uint jj = 0 ; jj < list->record_count ; jj++) {
+			records.push_back(list->record_ptr[jj]);
 		}
 
 		this->spill_run('n', 0, records);
 	}
-
-	// Verify the result
-    // lluint output_record_count = this->get_num_records();
-    // bool verification_result = this->verify_sort_result(input_record_count, output_record_count);
-
-    // if (verification_result) {
-    //     cout << "Sorting verification passed! Number of rows in the input and output match." << endl;
-    // } else {
-    //     cout << "Sorting verification failed! Number of rows in the input and output do not match." << endl;
-    // }
 }
 
 /*
@@ -232,6 +248,12 @@ pair<vector<RecordList *>, lluint> StorageDevice::get_run_pages(uint num_records
 
 	p.first = record_lists;
 	p.second = count;
+
+	for (uint ii = 0; ii < (uint)n; ii++)
+	{
+		free(namelist[ii]);
+	}
+	free(namelist);
 
 	return p;
 }
@@ -307,6 +329,8 @@ lluint StorageDevice::get_run_num_records(uint run)
 
 	runfile.close();
 
+	delete [] run_page;
+
 	return count;
 }
 
@@ -320,7 +344,7 @@ lluint StorageDevice::get_run_num_records(uint run)
 void StorageDevice::spill_run_to_disk(string run_path, vector<DataRecord> records)
 {
 	fstream runfile;
-	string str_records;
+	string str_records = "";
 
 	runfile.open(run_path, ios_base::app);
 	if (!runfile.is_open())
