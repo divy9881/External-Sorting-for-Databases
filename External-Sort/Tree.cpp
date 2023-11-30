@@ -9,8 +9,11 @@
 #define NODE_RECORD_LIST_AT(node, idx) node->list->record_ptr[idx]
 #define NODE_RECORD_LIST_LENGTH(node) node->list->record_count
 #define CHECK_SET_EMPTY(node, node_idx) if (node->list->record_count == 0) {\
+						if (node != NULL) {\
 							node->is_empty = true;\
-						}
+						}\
+					}
+#define SET_INTERNAL_EMPTY(node) node->current_record = NULL;
 
 DataRecord* pop_record(RecordList *list) {
 	DataRecord* top = NULL;
@@ -115,8 +118,8 @@ Tree::Tree(DataRecord *records, llint record_ct, llint initial_run)
 		this->heap[ii].is_leaf = true;
 
 		// Assign records to each row
-		this->heap[ii].list = (RecordList *) malloc(sizeof(RecordList));
-		this->heap[ii].list->record_ptr = (DataRecord *) malloc(sizeof(DataRecord*));
+		this->heap[ii].list = new RecordList;
+		this->heap[ii].list->record_ptr = new DataRecord;
 		this->heap[ii].list->record_ptr = current_ptr;
 		this->heap[ii].list->record_count = count_of_cols_per_row;
 
@@ -150,80 +153,130 @@ llint Tree::capacity(llint level) {
 * @param parent Index (in heap) of the parent record
 */
 void Tree::compare_and_swap(llint parent, llint unused_leaves_idx) {
-	llint child_left = parent*2+1, child_right=parent*2+2;
+	int child_left = parent*2+1, child_right=parent*2+2;
 	struct Node *parent_node = &this->heap[parent];
 
-	// None of the children are valid == not being used as runs
-	if (child_left >= unused_leaves_idx) {
-		return;
-	} else if (child_left < unused_leaves_idx /*Only left child is valid, special case only valid at leaf nodes */ 
-				&& child_right >= unused_leaves_idx) {
-			struct Node *left_child_node = &this->heap[child_left];
-			// If parent has a valid record, it will be the winner, so skip.
-			// Iteration over the next level will empty this node
-			// the iteration after that for this level would fill it up.
-			if (parent_node->current_record) {
-				return;
-			} else {
-				if (IS_LEAF_NODE(left_child_node)) {
-					parent_node->current_record = pop_record(left_child_node->list);
-				}
-			}
-	} else { /* Both the children are valid. So add the popped record at parent (if empty) */
-		if (parent_node->current_record) {
-			return;
-		} else {
-			struct Node *left_child_node = &this->heap[child_left];
-			struct Node *right_child_node = &this->heap[child_right];
-			DataRecord *left_data = NULL, *right_data = NULL;
-			if (IS_LEAF_NODE(left_child_node)) {
-				// Both will be a leaf node
-				left_data = top_record(left_child_node->list);
-				right_data = top_record(right_child_node->list);
-				if ((right_data != NULL) & (left_data != NULL)) {
-					// Compare
-					if (left_data->_record[0] <= right_data->_record[0]) {
-						parent_node->current_record = pop_record(left_child_node->list);
-						CHECK_SET_EMPTY(left_child_node, child_left);
-					} else {
-						parent_node->current_record = pop_record(right_child_node->list);
-						CHECK_SET_EMPTY(right_child_node, child_right);
-					}
-				} else if (left_data) {
-					parent_node->current_record = pop_record(left_child_node->list);
-					CHECK_SET_EMPTY(left_child_node, child_left);
-				} else if (right_data) {
-					parent_node->current_record = pop_record(right_child_node->list);
-					CHECK_SET_EMPTY(right_child_node, child_right);
-				} else {
-					parent_node->current_record = NULL;
-					// At this point, both of the left and right should have been reported as empty, so no need to update.
-				}
-			} else {
-				// It is an internal node
-				left_data = NODE_CURRENT_RECORD(left_child_node);
-				right_data = NODE_CURRENT_RECORD(right_child_node);
-				if (left_data && right_data) {
-					// Compare
-					if (left_data->_record[0] <= right_data->_record[0]) {
-						parent_node->current_record = left_data;
-						NODE_CURRENT_RECORD(left_child_node) = NULL;
-					} else {
-						parent_node->current_record = right_data;
-						NODE_CURRENT_RECORD(right_child_node) = NULL;
-					}
-				} else if (left_data) {
-					parent_node->current_record = left_data;
-					NODE_CURRENT_RECORD(left_child_node) = NULL;
-				} else if (right_data) {
-					parent_node->current_record = right_data;
-					NODE_CURRENT_RECORD(right_child_node) = NULL;
-				} else {
-					parent_node->current_record = NULL;
-				}
-			}
-		}
-	}
+    // None of the children are valid == not being used as runs
+    if (child_left >= unused_leaves_idx) {
+        return;
+    } else if (child_left < unused_leaves_idx /*Only left child is valid, special case only valid at leaf nodes */ 
+                && child_right >= unused_leaves_idx) {
+            struct Node *left_child_node = &this->heap[child_left];
+            // If parent has a valid record, it will be the winner, so skip.
+            // Iteration over the next level will empty this node
+            // the iteration after that for this level would fill it up.
+            if (parent_node->current_record) {
+                return;
+            } else {
+                if (IS_LEAF_NODE(left_child_node)) {
+                    parent_node->current_record = pop_record(left_child_node->list);
+                }
+            }
+    } else { /* Both the children are valid. So add the popped record at parent (if empty) */
+        if (parent_node->current_record) {
+            return;
+        } else {
+            struct Node *left_child_node = &this->heap[child_left];
+            struct Node *right_child_node = &this->heap[child_right];
+            DataRecord *left_data = NULL, *right_data = NULL;
+            if (IS_LEAF_NODE(left_child_node)) {
+                // Both will be a leaf node
+                left_data = top_record(left_child_node->list);
+                right_data = top_record(right_child_node->list);
+                if ((right_data != NULL) & (left_data != NULL)) {
+                    // Compare with OVCs only if both the ovcs exist
+                    if ((left_data->ovc != 0) & (right_data->ovc != 0)) {
+                        if (left_data->ovc < right_data->ovc) {
+                            // If OVC is strictly smaller, the data record is small
+                            parent_node->current_record = pop_record(left_child_node->list);
+                            CHECK_SET_EMPTY(left_child_node, child_left);
+                            return;
+                        } else if (left_data->ovc > right_data->ovc) {
+                            // If OVC is strictly greater, the data record is larger
+                            parent_node->current_record = pop_record(right_child_node->list);
+                            CHECK_SET_EMPTY(right_child_node, child_right);
+                            return;
+                        }
+                    }
+                    // If OVC do not exist for either or are equal, we need to check their actual
+                    // values and update OVC based on the new winner
+                    if (left_data->is_smaller_int(*right_data)) {
+                        // Left is the winner -> set OVC of right relative to left
+                        right_data->populate_ovc_int(*left_data);
+                        parent_node->current_record = pop_record(left_child_node->list);
+                        CHECK_SET_EMPTY(left_child_node, child_left);
+                        return;
+                    } else {
+                        // Right is the winner -> set OVC of left relative to right
+                        left_data->populate_ovc_int(*right_data);
+                        parent_node->current_record = pop_record(right_child_node->list);
+                        CHECK_SET_EMPTY(right_child_node, child_right);
+                        return;
+                    }
+                } else if (left_data) {
+                    parent_node->current_record = pop_record(left_child_node->list);
+                    CHECK_SET_EMPTY(left_child_node, child_left);
+                    return;
+                } else if (right_data) {
+                    parent_node->current_record = pop_record(right_child_node->list);
+                    CHECK_SET_EMPTY(right_child_node, child_right);
+                    return;
+                } else {
+                    parent_node->current_record = NULL;
+                    return;
+                    // At this point, both of the left and right should have been reported as empty, so no need to update.
+                }
+            } else {
+                // It is an internal node
+                left_data = NODE_CURRENT_RECORD(left_child_node);
+                right_data = NODE_CURRENT_RECORD(right_child_node);
+                if (left_data && right_data) {
+                    // Compare with the OVCs only, if they exist
+                    if ((left_data->ovc != 0) & (right_data->ovc != 0)) {
+                        if (left_data->ovc < right_data->ovc) {
+                            // If OVC is strictly smaller, the data record is small
+                            parent_node->is_empty = false;
+                            parent_node->current_record = left_data;
+                            SET_INTERNAL_EMPTY(left_child_node);
+                            return;
+                        } else if (left_data->ovc > right_data->ovc) {
+                            // If OVC is strictly greater, the data record is larger
+                            parent_node->is_empty = false;
+                            parent_node->current_record = right_data;
+                            SET_INTERNAL_EMPTY(right_child_node);
+                            return;
+                        }
+                    }
+                    // If OVC are equal or do not exist for either, we need to check
+                    // their actual values and update OVC based on the new winner
+                    if (left_data->is_smaller_int(*right_data)) {
+                        parent_node->is_empty = false;
+                        right_data->populate_ovc_int(*left_data);
+                        parent_node->current_record = left_data;
+                        SET_INTERNAL_EMPTY(left_child_node);
+                        return;
+                    } else {
+                        parent_node->is_empty = false;
+                        left_data->populate_ovc_int(*right_data);
+                        parent_node->current_record = right_data;
+                        SET_INTERNAL_EMPTY(right_child_node);
+                        return;
+                    }
+                } else if (left_data) {
+                    parent_node->is_empty = false;
+                    parent_node->current_record = left_data;
+                    NODE_CURRENT_RECORD(left_child_node) = NULL;
+                } else if (right_data) {
+                    parent_node->is_empty = false;
+                    parent_node->current_record = right_data;
+                    NODE_CURRENT_RECORD(right_child_node) = NULL;
+                } else {
+                    parent_node->is_empty = true;
+                    parent_node->current_record = NULL;
+                }
+            }
+        }
+    }
 }
 
 struct Node Tree::leaf(llint index, llint current_slot) {
@@ -247,8 +300,10 @@ void Tree::run_tree() {
 			inner_node_idx--) {
 		this->compare_and_swap(inner_node_idx, unused_leaves_idx);
 	}
-	// cout<<"The heap in iteration "<<iteration<<endl;
-	// this->print_heap();
+#if DEBUG_PRINT
+	cout<<"The heap in iteration "<<endl;
+	this->print_heap();
+#endif
 	// this->heap[0].current_record->print();
 	this->generated_run.push_back(*this->heap[0].current_record);
 	this->heap[0].current_record = NULL;
@@ -270,20 +325,28 @@ void Tree::print_heap() {
 	for (lluint ii = 0 ; ii < this->total_nodes; ii++) {
 		if (!this->heap[ii].is_empty) {
 			if (this->heap[ii].current_record) {
-				printf("%lld :: (%lld, %lld, %lld)\n",
+				printf("%lld :: (%lld, %lld, %lld)@(%d:%s)\n",
 						ii, this->heap[ii].current_record->_record[0],
 						this->heap[ii].current_record->_record[1],
-						this->heap[ii].current_record->_record[2]);
+						this->heap[ii].current_record->_record[2],
+						this->heap[ii].current_record->ovc,
+						this->heap[ii].current_record->rel);
 			} else {
 				RecordList *heap_list = this->heap[ii].list;
+				if (heap_list == NULL) {
+					printf("\n(%lld Empty )\n", ii);
+					continue;
+				}
 				DataRecord *current_record = heap_list->record_ptr;
 
 				printf("\n(%lld (Count: %lld) -> ", ii, heap_list->record_count);
 				for (lluint jj = 0; jj < this->heap[ii].list->record_count; jj++) {
-					printf("[%lld @ %lld :: (%lld, %lld, %lld)] ",
+					printf("[%lld @ %lld :: (%lld, %lld, %lld)@(%d:%s)] ",
 						ii, jj, current_record->_record[0],
 						current_record->_record[1],
-						current_record->_record[0]);
+						current_record->_record[2],
+						current_record->ovc,
+						current_record->rel);
 						current_record++;
 				}
 				printf(")\n");
@@ -316,7 +379,7 @@ llint Tree::add_run_at_leaf(llint leaf_node_index, DataRecord *record_list, llin
 	} else {
 		this->heap[leaf_node_index].is_empty = false;
 		if (this->heap[leaf_node_index].list == NULL) {
-			this->heap[leaf_node_index].list = (RecordList*) malloc(sizeof(RecordList));
+			this->heap[leaf_node_index].list = new RecordList;
 		}
 		this->heap[leaf_node_index].list->record_ptr = record_list;
 		this->heap[leaf_node_index].list->record_count = record_ct;

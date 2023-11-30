@@ -122,7 +122,7 @@ int main (int argc, char * argv [])
 #endif
 #if TEST_4
 	cout<<"\n\n\n\t\t*********     TEST 4     *********"<<endl<<"\tGenerate tree with sorted runs at leaf nodes, and dynamically add new records\n\n\n";
-	DataRecord sorted_run[NUM_RECORDS][COUNT_OF_SORTED_RUNS];
+	DataRecord sorted_run[6][NUM_RECORDS];
 	RecordList records[COUNT_OF_SORTED_RUNS];
 
 	for (int jj = 0 ; jj < NUM_RECORDS ; jj++) {
@@ -130,8 +130,8 @@ int main (int argc, char * argv [])
 		sorted_run[1][jj].SetRecord(jj+2, jj+2, jj+2);
 		sorted_run[2][jj].SetRecord(jj+3, jj+3, jj+3);
 		sorted_run[3][jj].SetRecord(jj+4, jj+4, jj+4);
-		sorted_run[4][jj].SetRecord(jj+5, jj+5, jj+5);
-		sorted_run[5][jj].SetRecord(jj+6, jj+6, jj+6);
+		sorted_run[4][jj].SetRecord(jj+15, jj+5, jj+5);
+		sorted_run[5][jj].SetRecord(jj+16, jj+6, jj+6);
 	}
 	vector<RecordList *> list_of_sorted_runs;
 

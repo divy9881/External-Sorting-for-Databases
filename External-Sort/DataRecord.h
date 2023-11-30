@@ -21,19 +21,19 @@ public:
 	 * @return True if the current record loses (stays at the place),
 	 *  False if the incoming record loses (The current record moves up the tree)
 	*/
-	bool is_smaller_int(DataRecord incoming_record);
-	bool is_smaller_str(DataRecord incoming_record);
+	bool is_smaller_int(const DataRecord incoming_record) const;
+	bool is_smaller_str(const DataRecord incoming_record) const;
 	/**
 	 * Creates or updates the offset value code for the current data record
 	 * when it loses.
 	 * @param winner The datarecord that won at a position in the tree (We update the OVC for the loser)
 	 * @return void
 	 */
-	void populate_ovc(DataRecord winner);
+	void populate_ovc_int(DataRecord winner);
+	void populate_ovc_str(DataRecord winner);
 	bool operator<(const DataRecord& other) const;
 	bool operator==(const DataRecord& other) const;
-	void populate_ovc_int(lluint current, lluint winner_key);
-	void populate_ovc_str(string current, string winner_key);
+	bool operator>(const DataRecord& other) const;
 	// private:
 	lluint _record[3];
 	luint index; // index of the DataRecord in the list (required to maintain the ordering)
