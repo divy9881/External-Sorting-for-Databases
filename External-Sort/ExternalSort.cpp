@@ -13,6 +13,7 @@ int main(int argc, char *argv[])
     char *str_num_records, *str_record_size, *str_trace_file;
     llint c;
     lluint num_records, record_size;
+    Iterator iterator;
     StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE);
     StorageDevice hdd = StorageDevice("./HDD", (lluint)HDD_SIZE);
 
@@ -43,6 +44,14 @@ int main(int argc, char *argv[])
 
     cout << endl << "Sort "<< num_records << " records..." << endl;
     sort.sort();
+
+    // Verification of the records
+    iterator.verifyNumRecords("SSD", num_records);
+    iterator.verifyNumRecords("HDD", num_records);
+    //verification of sort order
+    iterator.verifySortOrder("SDD");
+    iterator.verifySortOrder("HDD");
+
 
     cout << "Count of Records in SSD Device: " << ssd.get_num_records() << endl;
     cout << "Count of Records in HDD Device: " << hdd.get_num_records() << endl;

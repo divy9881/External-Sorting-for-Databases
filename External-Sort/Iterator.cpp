@@ -69,7 +69,7 @@ std::string Iterator::findHighestRunFile(const std::string& directoryPath) {
 // Parameters - Accepts device type and expected number from the input command
 bool Iterator::verifyNumRecords(string device, int numberRecords) {
     TRACE(ENABLE_TRACE);
-	std::string directoryPath = "/"+device;  // Replace with the actual path to your device directory
+	std::string directoryPath = "./"+device;  // Replace with the actual path to your device directory
     std::string highestRunFilePath = findHighestRunFile(directoryPath);
 
     if (highestRunFilePath.empty()) {
@@ -111,7 +111,7 @@ bool Iterator::verifyNumRecords(string device, int numberRecords) {
 bool Iterator::verifySortOrder(string device) {
     TRACE(ENABLE_TRACE);
 	// opening the directory path for the individual file
-	std::string directoryPath = "/"+device;  // Replace with the actual path to your device directory
+	std::string directoryPath = "./"+device;  // Replace with the actual path to your device directory
     std::string highestRunFilePath = findHighestRunFile(directoryPath);
 
     if (highestRunFilePath.empty()) {
