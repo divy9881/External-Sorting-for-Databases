@@ -12,7 +12,7 @@
 // #define TEST_1 true
 // #define TEST_2 true
 // #define TEST_3 true
-#define TEST_4 true
+// #define TEST_4 true
 // #define TEST_5 true // Run Spilling on Disk and Reading Run Pages from Disk
 // #define TEST_6 true // Internal sort on list of records
 // #define TEST_7 true // Test get_last_run
@@ -397,11 +397,11 @@ int main (int argc, char * argv [])
 
 	sort = SortRecords(100000, &ssd, &hdd, 2);
 
-	ssd.truncate_device();
-	hdd.truncate_device();
+	// ssd.truncate_device();
+	// hdd.truncate_device();
 
-	cout << endl << "Sort 100000 records..." << endl;
-	sort.sort();
+	// cout << endl << "Sort 100000 records..." << endl;
+	// sort.sort();
 
 	cout << endl;
 	cout << "Stats for SSD Device:" << endl;
@@ -412,11 +412,11 @@ int main (int argc, char * argv [])
 
 	sort = SortRecords(1200000, &ssd, &hdd, 2);
 
-	ssd.truncate_device();
-	hdd.truncate_device();
+	// ssd.truncate_device();
+	// hdd.truncate_device();
 
-	cout << endl << "Sort 1200000 records..." << endl;
-	sort.sort();
+	// cout << endl << "Sort 1200000 records..." << endl;
+	// sort.sort();
 
 	cout << endl;
 	cout << "Stats for SSD Device:" << endl;
