@@ -24,6 +24,7 @@ struct Node {
 		current_record = NULL;
 		is_empty = true;
 		is_leaf = false;
+		list = NULL;
 		level = 0;
 	}
 	// Node(const DataRecord& val) : data(val), left((Node*)nullptr), right((Node*)nullptr) {}
@@ -33,7 +34,7 @@ class Tree
 {
 	private:
 		struct Node *heap;
-		vector<DataRecord> generated_run;
+		vector<DataRecord *> generated_run;
 		lluint total_leaves, total_nodes, tree_depth;
 		lluint total_record_count;
 	public:
@@ -56,7 +57,7 @@ class Tree
 		vector<llint> get_empty_leaves();
 		llint add_run_at_leaf(llint leaf_node_idx, DataRecord *sorted_run, llint number_of_records);
 		void spillover_run();
-		vector<DataRecord>  get_generated_run();
+		vector<DataRecord*>  get_generated_run();
 		
 		// Deconstructor
 		~Tree();
