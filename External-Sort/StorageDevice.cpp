@@ -136,7 +136,7 @@ lluint StorageDevice::get_free_space()
  * run - Specifies the run-number of the run to which the records are to be spilled
  * records - List of DataRecord(s) which are to be spilled to the StorageDevice
  */
-void StorageDevice::spill_run(char run_bit, uint run, vector<DataRecord> records)
+void StorageDevice::spill_run(char run_bit, uint run, vector<DataRecord*> records)
 {
 	string run_path;
 	if (run_bit == 'n') {
@@ -162,11 +162,13 @@ void StorageDevice::spill_run(char run_bit, uint run, vector<DataRecord> records
 void StorageDevice::spill_runs(vector<RecordList *> record_lists)
 {
 	for (uint ii = 0 ; ii < record_lists.size() ; ii++) {
-		vector<DataRecord> records;
+		vector<DataRecord*> records;
 		RecordList *list = record_lists[ii];
 
 		while(!list->record_ptr.empty()) {
-			records.push_back(list->record_ptr.front());
+			DataRecord *temp = &list->record_ptr.front();
+			records.push_back(temp);
+			list->record_ptr.pop_front();
 		}
 
 		this->spill_run('n', 0, records);
@@ -331,7 +333,7 @@ lluint StorageDevice::get_run_num_records(uint run)
  * run_path - Specifies the path of the run-file to which records are to be spilled
  * records - List of records to be spilled to a run-file
  */
-void StorageDevice::spill_run_to_disk(string run_path, vector<DataRecord> records)
+void StorageDevice::spill_run_to_disk(string run_path, vector<DataRecord*> records)
 {
 	fstream runfile;
 	string str_records = "";
@@ -341,8 +343,8 @@ void StorageDevice::spill_run_to_disk(string run_path, vector<DataRecord> record
 		return;
 
 	for (uint ii = 0 ; ii < records.size() ; ii++) {
-		DataRecord record = records[ii];
-		string str_record = record.GetRecord();
+		DataRecord *record = records[ii];
+		string str_record = record->GetRecord();
 		str_records += str_record + RECORD_DELIMITER;
 	}
 	runfile << str_records;

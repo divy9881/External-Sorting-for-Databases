@@ -213,8 +213,6 @@ void Tree::compare_and_swap(llint parent, llint unused_leaves_idx) {
                             return;
                         }
                     }
-					left_data->print();
-					right_data->print();
                     // If OVC do not exist for either or are equal, we need to check their actual
                     // values and update OVC based on the new winner
                     if (left_data->is_smaller_int(*right_data)) {
@@ -323,7 +321,7 @@ void Tree::run_tree() {
 	this->print_heap();
 #endif
 	// this->heap[0].current_record->print();
-	this->generated_run.push_back(*this->heap[0].current_record);
+	this->generated_run.push_back(this->heap[0].current_record);
 	this->heap[0].current_record = NULL;
 }
 
@@ -412,12 +410,12 @@ void Tree::spillover_run() {
 */
 void Tree::print_run() {
 	for (auto a: this->generated_run) {
-		a.print();
+		a->print();
 	}
 	return;
 }
 
-vector<DataRecord> Tree::get_generated_run()
+vector<DataRecord*> Tree::get_generated_run()
 {
 	return this->generated_run;
 }

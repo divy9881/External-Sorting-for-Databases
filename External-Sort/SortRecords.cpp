@@ -41,7 +41,13 @@ void SortRecords::sort()
 			 */
 			RecordList *records = p.GetRecords();
 			count_of_records += records->record_count;
+			// records->record_ptr.sort();
 			InternalSort(records);
+#if DEBUG_PRINT
+for (auto a: records->record_ptr) {
+	a.print();
+}
+#endif
 			runs.push_back(records);
 		}
 
@@ -65,7 +71,7 @@ void SortRecords::merge_runs_ssd()
 
 	while (this->ssd_device->get_num_runs()) {
 		lluint num_records;
-		vector<DataRecord> records;
+		vector<DataRecord *> records;
 		vector<RecordList *> record_lists;
 		pair <vector<RecordList *>, lluint> p;
 
@@ -86,15 +92,15 @@ void SortRecords::merge_runs_ssd()
 			//       currently there is a memory link
 			//       but the below statement corrupt the memory
 			//       for large number of records
-			// for (uint ii = 0; ii < record_lists.size(); ii++)
-			// {
-			// 	delete[] record_lists[ii]->record_ptr;
-			// 	delete record_lists[ii];
-			// }
+			for (uint ii = 0; ii < record_lists.size(); ii++)
+			{
+				// delete[] record_lists[ii]->record_ptr;
+				delete record_lists[ii];
+			}
 		} else {
 			for (uint ii = 0; ii < record_lists[0]->record_count; ii++)
 			{
-				records.push_back(record_lists[0]->record_ptr.front());
+				records.push_back(&(record_lists[0]->record_ptr.front()));
 				record_lists[0]->record_ptr.pop_front();
 			}
 
@@ -102,6 +108,9 @@ void SortRecords::merge_runs_ssd()
 			delete record_lists[0];
 		}
 		this->hdd_device->spill_run('t', -1, records);
+		for (lluint iter = 0 ; iter < records.size(); iter++) {
+			delete (records[iter]);
+		}
 	}
 
 	return;

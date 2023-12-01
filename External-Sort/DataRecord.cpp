@@ -237,8 +237,16 @@ bool comparator(const DataRecord& first, const DataRecord& second) {
 	return (first._record[0] < second._record[0]);
 }
 
+struct DataRecordComparator {
+    bool operator()(const DataRecord& first, const DataRecord& second) const {
+        // Return true if first should go before second
+		return first._record[0] < second._record[0];
+        // return true;
+    }
+};
+
 void InternalSort(RecordList* records)
 {
-	records->record_ptr.sort();
+	records->record_ptr.sort(DataRecordComparator());
 	// qsort((void *)records->record_ptr, (size_t)records->record_count, sizeof(DataRecord), comparator);
 }
