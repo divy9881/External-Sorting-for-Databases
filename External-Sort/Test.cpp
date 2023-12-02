@@ -184,7 +184,7 @@ int main (int argc, char * argv [])
 
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		DataRecord *record = new DataRecord(ii + 10, ii + 11, ii + 12);
+		DataRecord *record = new DataRecord(ii + 10, ii + 11, ii + 12, 2);
 		records_to_spill.push_back(record);
 	}
 
@@ -215,7 +215,7 @@ int main (int argc, char * argv [])
 	cout << "Unsorted Data Records:" << endl;
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		DataRecord newRec = DataRecord(10 - ii, ii + 11, ii + 12);
+		DataRecord newRec(10 - ii, ii + 11, ii + 12, 2);
 		internal_sort_records.push_back(newRec);
 		cout << newRec.GetRecord() << endl;
 	}
@@ -234,12 +234,12 @@ int main (int argc, char * argv [])
 #endif
 #if TEST_7
 {
-	StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE);
+	StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE, 2);
 	vector <DataRecord *> records;
 
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		DataRecord *record = new DataRecord(ii + 10, ii + 11, ii + 12);
+		DataRecord *record = new DataRecord(ii + 10, ii + 11, ii + 12, 2);
 		records.push_back(record);
 	}
 
@@ -264,7 +264,7 @@ int main (int argc, char * argv [])
 
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		DataRecord* record = new DataRecord(ii + 10, ii + 11, ii + 12);
+		DataRecord* record = new DataRecord(ii + 10, ii + 11, ii + 12, 2);
 		records.push_back(record);
 	}
 	ssd.spill_run('n', 0, records);
@@ -275,7 +275,7 @@ int main (int argc, char * argv [])
 
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		DataRecord * record = new DataRecord(ii + 10, ii + 11, ii + 12);
+		DataRecord * record = new DataRecord(ii + 10, ii + 11, ii + 12, 2);
 		records.push_back(record);
 	}
 	ssd.spill_run('n', 0, records);
@@ -302,7 +302,7 @@ int main (int argc, char * argv [])
 
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		DataRecord *record = new DataRecord(ii + 10, ii + 11, ii + 12);
+		DataRecord *record = new DataRecord(ii + 10, ii + 11, ii + 12, 2);
 		records.push_back(record);
 	}
 	hdd.spill_run('n', 0, records);
@@ -313,7 +313,7 @@ int main (int argc, char * argv [])
 
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		DataRecord *record = new DataRecord(ii + 10, ii + 11, ii + 12);
+		DataRecord *record = new DataRecord(ii + 10, ii + 11, ii + 12, 2);
 		records.push_back(record);
 	}
 	hdd.spill_run('n', 0, records);
@@ -435,7 +435,7 @@ int main (int argc, char * argv [])
 	cout << endl;
 	cout << "Stats for HDD Device:" << endl;
 	hdd.get_device_access_stats();
-*/
+
 }
 #endif
 return 0;
