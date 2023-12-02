@@ -8,10 +8,10 @@ class DataRecord
 {
 public:
 	DataRecord ();
-	DataRecord (lluint col1, lluint col2, lluint col3);
+	DataRecord (lluint col1, lluint col2, lluint col3, uint col_value_length);
 	DataRecord (const DataRecord& record);
 	~DataRecord ();
-	void SetRecord (lluint col1, lluint col2, lluint col3);
+	void SetRecord (lluint col1, lluint col2, lluint col3, uint col_value_length);
 	string GetRecord ();
 	friend class OffsetValueCode;
 	void print ();
@@ -38,7 +38,8 @@ public:
 	lluint _record[3];
 	luint index; // index of the DataRecord in the list (required to maintain the ordering)
 	uint ovc;
-	char rel[NUM_CHARS_COL_VALUE+1];
+	char rel[256 + 1];
+	uint col_value_length;
 }; // class DataRecord
 
 /*
