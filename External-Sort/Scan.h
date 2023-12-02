@@ -6,7 +6,7 @@ class ScanPlan : public Plan
 {
 	friend class ScanIterator;
 public:
-	ScanPlan (RowCount const count);
+	ScanPlan (RowCount const count, uint col_value_length);
 	~ScanPlan ();
 	Iterator * init () const;
 	DataRecord GetRecord(RowCount const rowid) const;
@@ -14,6 +14,7 @@ public:
 private:
 	RowCount const _count;
 	DataRecord *_rows;
+	uint col_value_length;
 }; // class ScanPlan
 
 class ScanIterator : public Iterator

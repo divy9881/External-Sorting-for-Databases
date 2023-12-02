@@ -3,4 +3,7 @@
 .vscode/
 External-Sort/SSD
 External-Sort/HDD
+External-Sort/input
+External-Sort/output
+External-Sort/trace
 External-Sort/valgrind*

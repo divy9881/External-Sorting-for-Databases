@@ -7,15 +7,17 @@
 #include "StorageDevice.h"
 #include "SortRecords.h"
 #include "defs.h"
+#include "SortTrace.h"
+
+char trace_file[256 + 1] = "trace";
+SortTrace trace(trace_file);
 
 int main(int argc, char *argv[])
 {
     char *str_num_records, *str_record_size, *str_trace_file;
+    char trace_file[256 + 1] = "trace";
     llint c;
-    lluint num_records, record_size;
-    //Iterator iterator;
-    StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE);
-    StorageDevice hdd = StorageDevice("./HDD", (lluint)HDD_SIZE);
+    lluint num_records = 20, record_size = 6, col_value_length = NUM_CHARS_COL_VALUE;
 
     while ((c = getopt(argc, argv, "c:s:o:")) != (llint)-1)
     {
@@ -31,36 +33,25 @@ int main(int argc, char *argv[])
                 break;
             case 'o':
                 str_trace_file = optarg;
+                strcpy(trace_file, str_trace_file);
                 break;
             default:
                 abort();
         }
     }
 
-    SortRecords sort = SortRecords(num_records, &ssd, &hdd);
+    col_value_length = record_size / 3;
+
+    StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE, col_value_length);
+    StorageDevice hdd = StorageDevice("./HDD", (lluint)HDD_SIZE, col_value_length);
+    SortRecords sort = SortRecords(num_records, &ssd, &hdd, col_value_length);
+    trace = SortTrace(trace_file);
 
     ssd.truncate_device();
     hdd.truncate_device();
 
     cout << endl << "Sort "<< num_records << " records..." << endl;
     sort.sort();
-
-    int ssd_record_number = ssd.get_num_records();
-    int hdd_record_number = hdd.get_num_records();
-
-    //Verification of the records
-    if (num_records != hdd_record_number){
-        cout<< "Error: Mismatch number of HDD records and input records" << endl;
-    }else{
-        cout << "Number of HDD Records: " << hdd_record_number << endl;
-        cout << "Number of input Records: " << num_records << endl;
-    }
-    //verification of sort order
-    Iterator::verifySortOrder("HDD");
-
-
-    cout << "Count of Records in SSD Device: " << ssd_record_number << endl;
-    cout << "Count of Records in HDD Device: " << hdd_record_number << endl;
 
     cout << endl;
     cout << "Stats for SSD Device:" << endl;

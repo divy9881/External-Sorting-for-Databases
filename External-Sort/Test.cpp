@@ -7,22 +7,28 @@
 #include "StorageDevice.h"
 #include "SortRecords.h"
 #include "defs.h"
+#include "SortTrace.h"
 
 // #define TEST_1 true
 // #define TEST_2 true
 // #define TEST_3 true
 // #define TEST_4 true
-// #define TEST_5 true // Run Spilling on Disk and Reading Run Pages from Disk
-// #define TEST_6 true // Internal sort on list of records
-// #define TEST_7 true // Test get_last_run
-// #define TEST_8 true // Test merging sorted runs on SSD
-// #define TEST_9 true // Test merging sorted runs on HDD
+#define TEST_5 true // Run Spilling on Disk and Reading Run Pages from Disk
+#define TEST_6 true // Internal sort on list of records
+#define TEST_7 true // Test get_last_run
+#define TEST_8 true // Test merging sorted runs on SSD
+#define TEST_9 true // Test merging sorted runs on HDD
 #define TEST_10 true // Test External Merge sort of 20 records
+#define CLEAN_RECORDS(records) 	for (lluint iter = 0 ; iter < records.size(); iter++) {\
+		delete records[iter];\
+	}
+char trace_file[256 + 1] = "trace";
+SortTrace trace(trace_file);
 
 /*
  * Test configuration
  */
-#define NUM_RECORDS 8
+#define NUM_RECORDS 4
 #define COUNT_OF_SORTED_RUNS 4
 
 int main (int argc, char * argv [])
@@ -30,12 +36,12 @@ int main (int argc, char * argv [])
 	
 	TRACE (ENABLE_TRACE);
 #if TEST_1
-	Plan * const plan = new ScanPlan (7);
+	Plan * const plan = new ScanPlan (7, 2);
 	// new SortPlan(new FilterPlan(newScanPlan(7)));
 	Iterator * const it = plan->init ();
-	DataRecord rec1 = DataRecord(1234, 1234, 1234);
-	DataRecord rec2 = DataRecord(5678, 5678, 5678);
-	DataRecord rec3 = DataRecord(9876, 9886, 9876);
+	DataRecord rec1 = DataRecord(1234, 1234, 1234, 4);
+	DataRecord rec2 = DataRecord(5678, 5678, 5678, 4);
+	DataRecord rec3 = DataRecord(9876, 9886, 9876, 4);
 	
 	it->run ();
 
@@ -65,7 +71,7 @@ int main (int argc, char * argv [])
 	DataRecord list1[NUM_RECORDS];
 
 	for(int ii = 0; ii < NUM_RECORDS; ii++) {
-		list1[ii].SetRecord(ii+1, ii+1, ii+1);
+		list1[ii].SetRecord(ii+1, ii+1, ii+1, 1);
 	}
 
 	Tree test_tree = Tree(list1, 4, 1);
@@ -78,7 +84,7 @@ int main (int argc, char * argv [])
 	cout<<"\n\n\n\t\t *********     TEST 2     *********"<<endl<<"\t\t\tTesting sorting of records\n\n\n";
 	DataRecord list2[NUM_RECORDS];
 	for(int ii = 0; ii < NUM_RECORDS; ii++) {
-		list2[ii].SetRecord(ii+1, ii+1, ii+1);
+		list2[ii].SetRecord(ii+1, ii+1, ii+1, 1);
 	}
 
 	// Tree *test_tree2 = new Tree(list2, 8, 1);
@@ -90,9 +96,9 @@ int main (int argc, char * argv [])
 	DataRecord list3[NUM_RECORDS];
 	DataRecord list4[NUM_RECORDS];
 	for(int ii = 0; ii < NUM_RECORDS; ii++) {
-		list2[ii].SetRecord(ii+2, ii+2, ii+2);
-		list3[ii].SetRecord(ii+1, ii+1, ii+1);
-		list4[ii].SetRecord(ii+3, ii+3, ii+3);
+		list2[ii].SetRecord(ii+2, ii+2, ii+2, 1);
+		list3[ii].SetRecord(ii+1, ii+1, ii+1, 1);
+		list4[ii].SetRecord(ii+3, ii+3, ii+3, 1);
 	}
 
 	Tree *test_tree3 = new Tree(list2, 8, 1);
@@ -123,7 +129,8 @@ int main (int argc, char * argv [])
 #endif
 #if TEST_4
 	cout<<"\n\n\n\t\t*********     TEST 4     *********"<<endl<<"\tGenerate tree with sorted runs at leaf nodes, and dynamically add new records\n\n\n";
-	DataRecord sorted_run[NUM_RECORDS][COUNT_OF_SORTED_RUNS];
+	DataRecord sorted_run[6][NUM_RECORDS];
+	DataRecord sorted_run[6][NUM_RECORDS];
 	RecordList records[COUNT_OF_SORTED_RUNS];
 
 	for (int jj = 0 ; jj < NUM_RECORDS ; jj++) {
@@ -131,13 +138,15 @@ int main (int argc, char * argv [])
 		sorted_run[1][jj].SetRecord(jj+2, jj+2, jj+2);
 		sorted_run[2][jj].SetRecord(jj+3, jj+3, jj+3);
 		sorted_run[3][jj].SetRecord(jj+4, jj+4, jj+4);
-		sorted_run[4][jj].SetRecord(jj+5, jj+5, jj+5);
-		sorted_run[5][jj].SetRecord(jj+6, jj+6, jj+6);
+		sorted_run[4][jj].SetRecord(jj+15, jj+5, jj+5);
+		sorted_run[5][jj].SetRecord(jj+16, jj+6, jj+6);
 	}
 	vector<RecordList *> list_of_sorted_runs;
 
 	for (uint jj = 0 ; jj < COUNT_OF_SORTED_RUNS ; jj++) {
-		records[jj].record_ptr = sorted_run[jj];
+		for (int ii = 0 ; ii < NUM_RECORDS; ii++) {
+			records[jj].record_ptr.push_back(sorted_run[jj][ii]);
+		}
 		records[jj].record_count = NUM_RECORDS;
 		list_of_sorted_runs.push_back(&records[jj]);
 	}
@@ -170,42 +179,46 @@ int main (int argc, char * argv [])
 #endif
 #if TEST_5
 {
-	StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE);
-	vector<DataRecord> records;
+	StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE, 2);
+	vector <DataRecord *> records_to_spill;
+	vector <DataRecord> run_read;
 
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		DataRecord record = DataRecord(ii + 10, ii + 11, ii + 12);
-		records.push_back(record);
+		DataRecord *record = new DataRecord(ii + 10, ii + 11, ii + 12, 2);
+		records_to_spill.push_back(record);
 	}
 
-	ssd.spill_run('n', 0, records);
+	ssd.spill_run('n', 0, records_to_spill);
 
-	records = ssd.get_run_page(0, NUM_RECORDS / 2);
-	for (uint ii = 0; ii < records.size() ; ii++)
+	run_read = ssd.get_run_page(0, NUM_RECORDS / 2);
+	for (uint ii = 0; ii < run_read.size() ; ii++)
 	{
-		records[ii].print();
+		run_read[ii].print();
 	}
 
-	records = ssd.get_run_page(0, NUM_RECORDS / 2);
-	for (uint ii = 0; ii < records.size(); ii++)
+	run_read = ssd.get_run_page(0, NUM_RECORDS / 2);
+	for (uint ii = 0; ii < run_read.size(); ii++)
 	{
-		records[ii].print();
+		run_read[ii].print();
 	}
 
 	ssd.truncate_device();
+
+	CLEAN_RECORDS(records_to_spill);
 }
 #endif
 #if TEST_6
 {
-	DataRecord *internal_sort_records = new DataRecord [NUM_RECORDS];
+	list<DataRecord> internal_sort_records;
 	RecordList record_list;
 
 	cout << "Unsorted Data Records:" << endl;
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		internal_sort_records[ii].SetRecord(10 - ii, ii + 11, ii + 12);
-		cout << internal_sort_records[ii].GetRecord() << endl;
+		DataRecord newRec(10 - ii, ii + 11, ii + 12, 2);
+		internal_sort_records.push_back(newRec);
+		cout << newRec.GetRecord() << endl;
 	}
 
 	record_list.record_ptr = internal_sort_records;
@@ -214,21 +227,20 @@ int main (int argc, char * argv [])
 	InternalSort(&record_list);
 
 	cout << "Sorted Data Records:" << endl;
-	for (int ii = 0; ii < NUM_RECORDS; ii++)
+	for (auto iter: record_list.record_ptr)
 	{
-		cout << record_list.record_ptr[ii].GetRecord() << endl;
+		cout << iter.GetRecord() << endl;
 	}
-	delete []internal_sort_records;
 }
 #endif
 #if TEST_7
 {
-	StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE);
-	vector<DataRecord> records;
+	StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE, 2);
+	vector <DataRecord *> records;
 
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		DataRecord record = DataRecord(ii + 10, ii + 11, ii + 12);
+		DataRecord *record = new DataRecord(ii + 10, ii + 11, ii + 12, 2);
 		records.push_back(record);
 	}
 
@@ -237,35 +249,39 @@ int main (int argc, char * argv [])
 	ssd.spill_run('n', 1, records);
 	cout << ssd.get_last_run() << endl;
 	ssd.truncate_device();
+	CLEAN_RECORDS(records);
+
 }
 #endif
 #if TEST_8
 {
-	StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE);
-	StorageDevice hdd = StorageDevice("./HDD", (lluint)HDD_SIZE);
-	vector<DataRecord> records;
-	SortRecords sort = SortRecords(0, &ssd, &hdd);
+	StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE, 2);
+	StorageDevice hdd = StorageDevice("./HDD", (lluint)HDD_SIZE, 2);
+	vector <DataRecord *> records;
+	SortRecords sort = SortRecords(0, &ssd, &hdd, 2);
 
 	ssd.truncate_device();
 	hdd.truncate_device();
 
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		DataRecord record = DataRecord(ii + 10, ii + 11, ii + 12);
+		DataRecord* record = new DataRecord(ii + 10, ii + 11, ii + 12, 2);
 		records.push_back(record);
 	}
 	ssd.spill_run('n', 0, records);
 	cout << "Count of Records in SSD Device: " << ssd.get_num_records() << endl;
 
+	CLEAN_RECORDS(records);
 	records.clear();
 
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		DataRecord record = DataRecord(ii + 10, ii + 11, ii + 12);
+		DataRecord * record = new DataRecord(ii + 10, ii + 11, ii + 12, 2);
 		records.push_back(record);
 	}
 	ssd.spill_run('n', 0, records);
 	cout << "Count of Records in SSD Device: " << ssd.get_num_records() << endl;
+	CLEAN_RECORDS(records)
 
 	sort.merge_runs_ssd();
 	hdd.commit_temp_run();
@@ -277,33 +293,35 @@ int main (int argc, char * argv [])
 #endif
 #if TEST_9
 {
-	StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE);
-	StorageDevice hdd = StorageDevice("./HDD", (lluint)HDD_SIZE);
-	vector<DataRecord> records;
-	SortRecords sort = SortRecords(0, &ssd, &hdd);
+	StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE, 2);
+	StorageDevice hdd = StorageDevice("./HDD", (lluint)HDD_SIZE, 2);
+	vector <DataRecord *> records;
+	SortRecords sort = SortRecords(0, &ssd, &hdd, 2);
 
 	ssd.truncate_device();
 	hdd.truncate_device();
 
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		DataRecord record = DataRecord(ii + 10, ii + 11, ii + 12);
+		DataRecord *record = new DataRecord(ii + 10, ii + 11, ii + 12, 2);
 		records.push_back(record);
 	}
 	hdd.spill_run('n', 0, records);
 	cout << "Count of Records in HDD Device: " << hdd.get_num_records() << endl;
 
+	CLEAN_RECORDS(records);
 	records.clear();
 
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		DataRecord record = DataRecord(ii + 10, ii + 11, ii + 12);
+		DataRecord *record = new DataRecord(ii + 10, ii + 11, ii + 12, 2);
 		records.push_back(record);
 	}
 	hdd.spill_run('n', 0, records);
 	cout << "Count of Records in HDD Device: " << hdd.get_num_records() << endl;
 
 	sort.merge_runs_hdd();
+	CLEAN_RECORDS(records);
 
 	cout << "After merging sorted runs....." << endl;
 	cout << "Count of Records in SSD Device: " << ssd.get_num_records() << endl;
@@ -312,9 +330,9 @@ int main (int argc, char * argv [])
 #endif
 #if TEST_10
 {
-	StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE);
-	StorageDevice hdd = StorageDevice("./HDD", (lluint)HDD_SIZE);
-	SortRecords sort = SortRecords(20, &ssd, &hdd);
+	StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE, 2);
+	StorageDevice hdd = StorageDevice("./HDD", (lluint)HDD_SIZE, 2);
+	SortRecords sort = SortRecords(20, &ssd, &hdd, 2);
 
 	ssd.truncate_device();
 	hdd.truncate_device();
@@ -322,8 +340,6 @@ int main (int argc, char * argv [])
 	cout << endl << "Sort 20 records..." << endl;
 	sort.sort();
 
-	// cout << "Count of Records in SSD Device: " << ssd.get_num_records() << endl;
-	// cout << "Count of Records in HDD Device: " << hdd.get_num_records() << endl;
 	cout << endl;
 	cout << "Stats for SSD Device:" << endl;
 	ssd.get_device_access_stats();
@@ -331,7 +347,7 @@ int main (int argc, char * argv [])
 	cout << "Stats for HDD Device:" << endl;
 	hdd.get_device_access_stats();
 
-	sort = SortRecords(100, &ssd, &hdd);
+	sort = SortRecords(100, &ssd, &hdd, 2);
 
 	ssd.truncate_device();
 	hdd.truncate_device();
@@ -339,8 +355,6 @@ int main (int argc, char * argv [])
 	cout << endl << "Sort 100 records..." << endl;
 	sort.sort();
 
-	// cout << "Count of Records in SSD Device: " << ssd.get_num_records() << endl;
-	// cout << "Count of Records in HDD Device: " << hdd.get_num_records() << endl;
 	cout << endl;
 	cout << "Stats for SSD Device:" << endl;
 	ssd.get_device_access_stats();
@@ -348,7 +362,7 @@ int main (int argc, char * argv [])
 	cout << "Stats for HDD Device:" << endl;
 	hdd.get_device_access_stats();
 
-	sort = SortRecords(1000, &ssd, &hdd);
+	sort = SortRecords(1000, &ssd, &hdd, 2);
 
 	ssd.truncate_device();
 	hdd.truncate_device();
@@ -356,8 +370,6 @@ int main (int argc, char * argv [])
 	cout << endl << "Sort 1000 records..." << endl;
 	sort.sort();
 
-	// cout << "Count of Records in SSD Device: " << ssd.get_num_records() << endl;
-	// cout << "Count of Records in HDD Device: " << hdd.get_num_records() << endl;
 	cout << endl;
 	cout << "Stats for SSD Device:" << endl;
 	ssd.get_device_access_stats();
@@ -365,7 +377,7 @@ int main (int argc, char * argv [])
 	cout << "Stats for HDD Device:" << endl;
 	hdd.get_device_access_stats();
 
-	sort = SortRecords(10000, &ssd, &hdd);
+	sort = SortRecords(10000, &ssd, &hdd, 2);
 
 	ssd.truncate_device();
 	hdd.truncate_device();
@@ -373,8 +385,6 @@ int main (int argc, char * argv [])
 	cout << endl << "Sort 2000 records..." << endl;
 	sort.sort();
 
-	// cout << "Count of Records in SSD Device: " << ssd.get_num_records() << endl;
-	// cout << "Count of Records in HDD Device: " << hdd.get_num_records() << endl;
 	cout <<endl;
 	cout << "Stats for SSD Device:" << endl;
 	ssd.get_device_access_stats();
@@ -382,19 +392,13 @@ int main (int argc, char * argv [])
 	cout << "Stats for HDD Device:" << endl;
 	hdd.get_device_access_stats();
 
-	sort = SortRecords(10000, &ssd, &hdd);
+	sort = SortRecords(10000, &ssd, &hdd, 2);
 
 	ssd.truncate_device();
 	hdd.truncate_device();
 
 	cout << endl << "Sort 10000 records..." << endl;
 	sort.sort();
-	// TODO : add the verification part
-	// TODO : add the verification part for number of records as well
-	// 1000 should be replaced with the input number
-	//cout << Iterator::verifyNumRecords(1000);
-	cout << "Count of Records in SSD Device: " << ssd.get_num_records() << endl;
-	cout << "Count of Records in HDD Device: " << hdd.get_num_records() << endl;
 	cout << endl;
 	cout << "Stats for SSD Device:" << endl;
 	ssd.get_device_access_stats();
@@ -402,7 +406,7 @@ int main (int argc, char * argv [])
 	cout << "Stats for HDD Device:" << endl;
 	hdd.get_device_access_stats();
 
-	sort = SortRecords(100000, &ssd, &hdd);
+	sort = SortRecords(100000, &ssd, &hdd, 2);
 
 	ssd.truncate_device();
 	hdd.truncate_device();
@@ -410,8 +414,6 @@ int main (int argc, char * argv [])
 	cout << endl << "Sort 100000 records..." << endl;
 	sort.sort();
 
-	// cout << "Count of Records in SSD Device: " << ssd.get_num_records() << endl;
-	// cout << "Count of Records in HDD Device: " << hdd.get_num_records() << endl;
 	cout << endl;
 	cout << "Stats for SSD Device:" << endl;
 	ssd.get_device_access_stats();
@@ -419,7 +421,7 @@ int main (int argc, char * argv [])
 	cout << "Stats for HDD Device:" << endl;
 	hdd.get_device_access_stats();
 
-	sort = SortRecords(1200000, &ssd, &hdd);
+	sort = SortRecords(1200000, &ssd, &hdd, 2);
 
 	ssd.truncate_device();
 	hdd.truncate_device();
@@ -427,14 +429,13 @@ int main (int argc, char * argv [])
 	cout << endl << "Sort 1200000 records..." << endl;
 	sort.sort();
 
-	// cout << "Count of Records in SSD Device: " << ssd.get_num_records() << endl;
-	// cout << "Count of Records in HDD Device: " << hdd.get_num_records() << endl;
 	cout << endl;
 	cout << "Stats for SSD Device:" << endl;
 	ssd.get_device_access_stats();
 	cout << endl;
 	cout << "Stats for HDD Device:" << endl;
 	hdd.get_device_access_stats();
+
 }
 #endif
 return 0;
