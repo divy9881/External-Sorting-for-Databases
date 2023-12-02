@@ -27,18 +27,17 @@ DataRecord ScanPlan::GetRecord (RowCount const rowid) const
 	return this->_rows[rowid];
 } // ScanPlan::GetRecord
 
+bool data_comparator(DataRecord &first, DataRecord &second) {
+	return (first._record[0] < second._record[0]);
+}
+
 RecordList * ScanPlan::GetRecords ()
 {
 	RecordList *record_list = new RecordList;
-	DataRecord *records = new DataRecord[this->_count];
-
-	for (lluint ii = 0 ; ii < this->_count ; ii++) {
-		records[ii] = this->_rows[ii];
-	}
-
-	record_list->record_ptr = records;
 	record_list->record_count = this->_count;
-
+	for (lluint ii = 0 ; ii < this->_count ; ii++) {
+		record_list->record_ptr.push_back(this->_rows[ii]);
+	}
 	return record_list;
 } // ScanPlan::GetRecords
 

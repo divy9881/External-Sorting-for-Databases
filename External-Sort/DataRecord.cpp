@@ -79,17 +79,20 @@ string DataRecord::GetRecord ()
 void DataRecord::print ()
 {
     cout<<this->_record[0]<<" "<<this->_record[1]<<" "<<this->_record[2]<<" ";
-	cout << "OVC: " << this->ovc;
-	cout << " Rel: " << this->rel << endl;
+	if (this->ovc == 0) {
+		cout<<"{:}"<<endl;
+	} else {
+		cout<<"{"<<this->ovc<<":"<<this->rel<<"}"<<endl;
+	}
 	TRACE (false);
 } // DataRecord::print
 
 // For integers, OVC would not matter too much (it is faster than string comparison)
-bool DataRecord::is_smaller_int (DataRecord incoming_record)
+bool DataRecord::is_smaller_int (const DataRecord incoming_record) const
 {
 	// TODO How to preserve order here?
 	// TODO Add a way to sort as per the other two columns as well
-	if (incoming_record._record[0] >= this->_record[0]) {
+	if (incoming_record._record[0] > this->_record[0]) {
 		return true;
 	}
 	return false;
@@ -136,15 +139,26 @@ bool DataRecord::is_smaller_str(DataRecord incoming_record)
 }
 */
 
-void DataRecord::populate_ovc (DataRecord winner)
+void DataRecord::populate_ovc_int (DataRecord winner)
 {
 	// TODO: Update this when we shift to strings
-	this->populate_ovc_int(this->_record[0], winner._record[0]);
+	this->populate_ovc_str(winner);
 }
 
 bool DataRecord::operator< (const DataRecord& other) const
 {
-	return _record[0] < other._record[0];
+	if (this->ovc < other.ovc){
+		return true;
+	}
+	return this->_record[0] < other._record[0];
+}
+
+bool DataRecord::operator>(const DataRecord& other) const
+{	
+	if (this->ovc > other.ovc) {
+		return true;
+	}
+	return this->_record[0] > other._record[0];
 }
 
 bool DataRecord::operator== (const DataRecord& other) const 
@@ -152,20 +166,14 @@ bool DataRecord::operator== (const DataRecord& other) const
 	return equal(begin(_record), end(_record), begin(other._record));
 }
 
-// It is called only when the current record loses to the incoming
-// (incoming record will be shorter/have lower value)
-void DataRecord::populate_ovc_int(lluint current, lluint winner)
-{
-	string current_record = to_string(current);
-	string winner_record = to_string(winner);
 
-	this->populate_ovc_str(current_record, winner_record);
-}
-
-void DataRecord::populate_ovc_str(string current, string winner)
+void DataRecord::populate_ovc_str(DataRecord winner)
 {
-	int current_length = current.length();
-	int winner_length = winner.length();
+	string current_record = to_string(this->_record[0]);
+	string winner_record = to_string(winner._record[0]);
+
+	int current_length = current_record.length();
+	int winner_length = winner_record.length();
 	int arity = 0;
 
 	if (current_length > winner_length)
@@ -177,7 +185,7 @@ void DataRecord::populate_ovc_str(string current, string winner)
 		{
 			zeroes += "0";
 		}
-		winner = zeroes + winner;
+		winner_record = zeroes + winner_record;
 	}
 	else
 	{
@@ -188,22 +196,22 @@ void DataRecord::populate_ovc_str(string current, string winner)
 		{
 			zeroes += "0";
 		}
-		current = zeroes + current;
+		current_record = zeroes + current_record;
 	}
 
-	arity = winner.length();
+	arity = winner_record.length();
 
 	// Traverse over winner record length (it will be shorter/lower value)
-	for (lluint ii = 0; ii < winner.length(); ii++)
+	for (lluint ii = 0; ii < winner_record.length(); ii++)
 	{
-		if (current[ii] == winner[ii])
+		if (current_record[ii] == winner_record[ii])
 		{
 			continue;
 		}
 		else
 		{
-			this->ovc = (arity - ii) * OVC_DOMAIN + (current[ii] - '0');
-			strcpy(this->rel, winner.c_str());
+			this->ovc = (arity - ii) * OVC_DOMAIN + (current_record[ii] - '0');
+			strcpy(this->rel, winner_record.c_str());
 			break;
 		}
 	}
@@ -225,7 +233,20 @@ int comparator(const void *arg1, const void *arg2)
 	}
 }
 
+bool comparator(const DataRecord& first, const DataRecord& second) {
+	return (first._record[0] < second._record[0]);
+}
+
+struct DataRecordComparator {
+    bool operator()(const DataRecord& first, const DataRecord& second) const {
+        // Return true if first should go before second
+		return first._record[0] < second._record[0];
+        // return true;
+    }
+};
+
 void InternalSort(RecordList* records)
 {
-	qsort((void *)records->record_ptr, (size_t)records->record_count, sizeof(DataRecord), comparator);
+	records->record_ptr.sort(DataRecordComparator());
+	// qsort((void *)records->record_ptr, (size_t)records->record_count, sizeof(DataRecord), comparator);
 }
