@@ -1,4 +1,7 @@
 #include "StorageDevice.h"
+
+extern SortTrace trace;
+
 /*
  * Constructor to initialize the StorageDevice Object
  * Params:
@@ -141,6 +144,9 @@ void StorageDevice::spill_run(char run_bit, uint run, vector<DataRecord> records
 {
 	uint on_disk_record_size = 0;
 	string run_path;
+	string trace_str;
+	lluint time_spent_us;
+	clock_t begin_time;
 
 	if (records.size()) {
 		on_disk_record_size = ON_DISK_RECORD_SIZE(this->col_value_length);
@@ -154,11 +160,20 @@ void StorageDevice::spill_run(char run_bit, uint run, vector<DataRecord> records
 	} else {
 		run_path = this->device_path + "/run_" + to_string(run);
 	}
-	
+
+	begin_time = clock();	
 	this->spill_run_to_disk(run_path, records);
+	time_spent_us = float(clock() - begin_time) * 1000 * 1000 / CLOCKS_PER_SEC;
+
 	this->free_space -= records.size() * on_disk_record_size;
 
 	this->total_writes += 1;
+
+	trace_str += "A write to " + this->device_path;
+	trace_str += " was made with size " + to_string(records.size() * on_disk_record_size) + " bytes";
+	trace_str += " and latency " + to_string(time_spent_us) + "us";
+
+	trace.append_trace(trace_str);
 }
 
 /*
@@ -193,12 +208,23 @@ void StorageDevice::spill_runs(vector<RecordList *> record_lists)
  */
 vector<DataRecord> StorageDevice::get_run_page(uint run, uint num_records)
 {
-	vector<DataRecord> records;
+	lluint time_spent_us;
 	string run_path = this->device_path + "/run_" + to_string(run);
+	string trace_str;
+	clock_t begin_time;
+	vector<DataRecord> records;
 
+	begin_time = clock();
 	records = this->get_run_page_from_disk(run_path, &this->run_offsets[run], num_records);
+	time_spent_us = float(clock() - begin_time) * 1000 * 1000 / CLOCKS_PER_SEC;
 
 	this->total_reads += 1;
+
+	trace_str += "A read to " + this->device_path;
+	trace_str += " was made with size " + to_string(num_records * ON_DISK_RECORD_SIZE(this->col_value_length)) + " bytes";
+	trace_str += " and latency " + to_string(time_spent_us) + "us";
+
+	trace.append_trace(trace_str);
 
 	return records;
 }

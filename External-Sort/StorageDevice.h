@@ -3,6 +3,7 @@
 #include "defs.h"
 #include "databaseConfig.h"
 #include "DataRecord.h"
+#include "SortTrace.h"
 
 class StorageDevice
 {
