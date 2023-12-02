@@ -5,7 +5,7 @@
  * device_path - Relative/absolute path to the device
  * total_space - Total available space for storage on the device 
  */
-StorageDevice::StorageDevice(string device_path, lluint total_space)
+StorageDevice::StorageDevice(string device_path, lluint total_space, uint col_value_length)
 {
 	this->device_path = device_path;
 	this->free_space = total_space;
@@ -13,6 +13,7 @@ StorageDevice::StorageDevice(string device_path, lluint total_space)
 	this->run_offsets = new lluint[MAX_RUNS];
 	this->total_reads = 0;
 	this->total_writes = 0;
+	this->col_value_length = col_value_length;
 
 	mkdir(this->device_path.c_str(), 0777);
 
@@ -138,7 +139,13 @@ lluint StorageDevice::get_free_space()
  */
 void StorageDevice::spill_run(char run_bit, uint run, vector<DataRecord*> records)
 {
+	uint on_disk_record_size = 0;
 	string run_path;
+
+	if (records.size()) {
+		on_disk_record_size = ON_DISK_RECORD_SIZE(this->col_value_length);
+	}
+
 	if (run_bit == 'n') {
 		int last_run = this->get_last_run();
 		run_path = this->device_path + "/run_" + to_string(last_run + 1);
@@ -149,7 +156,7 @@ void StorageDevice::spill_run(char run_bit, uint run, vector<DataRecord*> record
 	}
 	
 	this->spill_run_to_disk(run_path, records);
-	this->free_space -= records.size() * ON_DISK_RECORD_SIZE;
+	this->free_space -= records.size() * on_disk_record_size;
 
 	this->total_writes += 1;
 }
@@ -179,11 +186,6 @@ void StorageDevice::spill_runs(vector<RecordList *> record_lists)
 
 	for (uint ii = 0 ; ii < record_lists.size() ; ii++) {
 		// delete [] record_lists[ii]->record_ptr;
-		delete record_lists[ii];
-	}
-
-	for (uint ii = 0 ; ii < record_lists.size() ; ii++) {
-		delete [] record_lists[ii]->record_ptr;
 		delete record_lists[ii];
 	}
 }
@@ -306,7 +308,7 @@ lluint StorageDevice::get_run_num_records(uint run)
 	fstream runfile;
 	lluint count = 0;
 	string run_path = this->device_path + "/run_" + to_string(run);
-	char *run_page = new char[ON_DISK_RECORD_SIZE + 1];
+	char *run_page = new char[ON_DISK_RECORD_SIZE(this->col_value_length) + 1];
 
 	runfile.open(run_path, ios::in);
 	if (!runfile.is_open())
@@ -316,8 +318,8 @@ lluint StorageDevice::get_run_num_records(uint run)
 
 	do
 	{
-		runfile.get(run_page, ON_DISK_RECORD_SIZE + 1);
-		if (strlen(run_page) == ON_DISK_RECORD_SIZE) {
+		runfile.get(run_page, ON_DISK_RECORD_SIZE(this->col_value_length) + 1);
+		if (strlen(run_page) == ON_DISK_RECORD_SIZE(this->col_value_length)) {
 			count += 1;
 		} else {
 			break;
@@ -350,7 +352,7 @@ void StorageDevice::spill_run_to_disk(string run_path, vector<DataRecord*> recor
 	for (uint ii = 0 ; ii < records.size() ; ii++) {
 		DataRecord *record = records[ii];
 		string str_record = record->GetRecord();
-		str_records += str_record + RECORD_DELIMITER;
+		str_records += str_record + STORAGE_RECORD_DELIMITER;
 	}
 	runfile << str_records;
 
@@ -371,10 +373,10 @@ vector<DataRecord> StorageDevice::get_run_page_from_disk(string run_path, lluint
 	fstream runfile;	
 	vector<DataRecord> records;
 	lluint col_value1, col_value2, col_value3, pos = 0;
-	string record_delimiter(RECORD_DELIMITER);
-	string column_delimiter(COLUMN_DELIMITER);
+	string record_delimiter(STORAGE_RECORD_DELIMITER);
+	string column_delimiter(STORAGE_COLUMN_DELIMITER);
 	string col_value;
-	char *run_page = new char[num_records * ON_DISK_RECORD_SIZE + 1];
+	char *run_page = new char[num_records * ON_DISK_RECORD_SIZE(this->col_value_length) + 1];
 
 	runfile.open(run_path, ios::in);
 	if (!runfile.is_open())
@@ -382,7 +384,7 @@ vector<DataRecord> StorageDevice::get_run_page_from_disk(string run_path, lluint
 
 	runfile.seekg(*offset, ios::beg);
 
-	runfile.get(run_page, num_records * ON_DISK_RECORD_SIZE + 1);
+	runfile.get(run_page, num_records * ON_DISK_RECORD_SIZE(this->col_value_length) + 1);
 	runfile.close();
 	*offset += strlen(run_page);
 
@@ -390,7 +392,7 @@ vector<DataRecord> StorageDevice::get_run_page_from_disk(string run_path, lluint
 	 * Remove file if we have exhausted all the records
 	 * from the run file
 	 */
-	if (strlen(run_page) != (num_records * ON_DISK_RECORD_SIZE)) {
+	if (strlen(run_page) != (num_records * ON_DISK_RECORD_SIZE(this->col_value_length))) {
 		remove(run_path.c_str());
 		*offset = 0;
 	}
@@ -429,7 +431,7 @@ vector<DataRecord> StorageDevice::get_run_page_from_disk(string run_path, lluint
 		col_value = token;
 		ss3 << col_value;
 		ss3 >> col_value3;
-		DataRecord record = DataRecord(col_value1, col_value2, col_value3);
+		DataRecord record = DataRecord(col_value1, col_value2, col_value3, this->col_value_length);
 		records.push_back(record);
 	}
 

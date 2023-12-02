@@ -7,7 +7,7 @@
 class StorageDevice
 {
 	public:
-		StorageDevice(string, lluint);
+		StorageDevice(string, lluint, uint);
 		~StorageDevice();
 		int get_last_run();
 		uint get_num_runs();
@@ -28,9 +28,10 @@ class StorageDevice
 		lluint *run_offsets;
 		lluint total_reads;
 		lluint total_writes;
+		uint col_value_length;
 
-		lluint get_run_num_records(uint run);
-		void spill_run_to_disk(string, vector<DataRecord*>);
+		lluint get_run_num_records(uint);
+		void spill_run_to_disk(string, vector<DataRecord *>);
 		vector<DataRecord> get_run_page_from_disk(string, lluint *, uint);
 		int truncate_all_runs();
 };

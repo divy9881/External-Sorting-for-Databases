@@ -7,12 +7,13 @@ DataRecord::DataRecord()
 	TRACE (false);
 }
 
-DataRecord::DataRecord(lluint col1, lluint col2, lluint col3)
+DataRecord::DataRecord(lluint col1, lluint col2, lluint col3, uint col_value_length)
 {
 	this->_record[0] = col1;
 	this->_record[1] = col2;
 	this->_record[2] = col3;
 	this->ovc = 0;
+	this->col_value_length = col_value_length;
 	strcpy(this->rel, "\0");
 	TRACE (false);
 } // DataRecord::DataRecord (lluint col1, lluint col2, lluint col3)
@@ -23,6 +24,7 @@ DataRecord::DataRecord (const DataRecord& record)
 	this->_record[1] = record._record[1];
 	this->_record[2] = record._record[2];
 	this->ovc = record.ovc;
+	this->col_value_length = record.col_value_length;
 	// strcpy(this->rel, record.rel);
 	TRACE (false);
 } // DataRecord::DataRecord (const DataRecord& record)
@@ -32,8 +34,9 @@ DataRecord::~DataRecord ()
 	TRACE (false);
 } // DataRecord::~DataRecord
 
-void DataRecord::SetRecord (lluint col1, lluint col2, lluint col3)
+void DataRecord::SetRecord (lluint col1, lluint col2, lluint col3, uint col_value_length)
 {
+	this->col_value_length = col_value_length;
 	this->_record[0] = col1;
 	this->_record[1] = col2;
 	this->_record[2] = col3;
@@ -46,7 +49,7 @@ string DataRecord::GetRecord ()
 	string record = "";
 	string col1_value = "", col2_value = "", col3_value = "";
 
-	diff = NUM_CHARS_COL_VALUE - to_string(this->_record[0]).length();
+	diff = this->col_value_length - to_string(this->_record[0]).length();
 	count = 0;
 	while (count < diff) {
 		col1_value += "0";
@@ -54,7 +57,7 @@ string DataRecord::GetRecord ()
 	}
 	col1_value += to_string(this->_record[0]);
 
-	diff = NUM_CHARS_COL_VALUE - to_string(this->_record[1]).length();
+	diff = this->col_value_length - to_string(this->_record[1]).length();
 	count = 0;
 	while (count < diff) {
 		col2_value += "0";
@@ -62,7 +65,7 @@ string DataRecord::GetRecord ()
 	}
 	col2_value += to_string(this->_record[1]);
 
-	diff = NUM_CHARS_COL_VALUE - to_string(this->_record[2]).length();
+	diff = this->col_value_length - to_string(this->_record[2]).length();
 	count = 0;
 	while (count < diff)
 	{
@@ -71,7 +74,7 @@ string DataRecord::GetRecord ()
 	}
 	col3_value += to_string(this->_record[2]);
 
-	record = col1_value + COLUMN_DELIMITER + col2_value + COLUMN_DELIMITER + col3_value;
+	record = col1_value + STORAGE_COLUMN_DELIMITER + col2_value + STORAGE_COLUMN_DELIMITER + col3_value;
 
 	return record;
 } // DataRecord::GetRecord()
