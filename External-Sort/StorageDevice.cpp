@@ -194,9 +194,9 @@ void StorageDevice::spill_runs(vector<RecordList *> record_lists)
 		}
 
 		this->spill_run('n', 0, records);
-		// for (int ii = 0; ii < records.size(); ii++) {
-		// 	delete records[ii];
-		// }
+		for (lluint ii = 0; ii < records.size(); ii++) {
+			delete records[ii];
+		}
 	}
 
 	for (uint ii = 0 ; ii < record_lists.size() ; ii++) {

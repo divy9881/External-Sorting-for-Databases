@@ -117,9 +117,9 @@ void SortRecords::merge_runs_ssd()
 			delete record_lists[0];
 		}
 		this->hdd_device->spill_run('t', -1, records);
-		// for (lluint iter = 0 ; iter < records.size(); iter++) {
-		// 	delete (records[iter]);
-		// }
+		for (lluint iter = 0 ; iter < records.size(); iter++) {
+			delete (records[iter]);
+		}
 	}
 
 	return;
