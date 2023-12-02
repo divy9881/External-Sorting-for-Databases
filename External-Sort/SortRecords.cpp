@@ -108,7 +108,8 @@ void SortRecords::merge_runs_ssd()
 		} else {
 			for (uint ii = 0; ii < record_lists[0]->record_count; ii++)
 			{
-				records.push_back(&(record_lists[0]->record_ptr.front()));
+				DataRecord *temp = new DataRecord(record_lists[0]->record_ptr.front());
+				records.push_back(temp);
 				record_lists[0]->record_ptr.pop_front();
 			}
 
@@ -116,9 +117,9 @@ void SortRecords::merge_runs_ssd()
 			delete record_lists[0];
 		}
 		this->hdd_device->spill_run('t', -1, records);
-		for (lluint iter = 0 ; iter < records.size(); iter++) {
-			delete (records[iter]);
-		}
+		// for (lluint iter = 0 ; iter < records.size(); iter++) {
+		// 	delete (records[iter]);
+		// }
 	}
 
 	return;

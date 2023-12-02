@@ -188,7 +188,7 @@ void StorageDevice::spill_runs(vector<RecordList *> record_lists)
 		RecordList *list = record_lists[ii];
 
 		while(!list->record_ptr.empty()) {
-			DataRecord *temp = &list->record_ptr.front();
+			DataRecord *temp = new DataRecord(list->record_ptr.front());
 			records.push_back(temp);
 			list->record_ptr.pop_front();
 		}
