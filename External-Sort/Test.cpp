@@ -7,6 +7,7 @@
 #include "StorageDevice.h"
 #include "SortRecords.h"
 #include "defs.h"
+#include "SortTrace.h"
 
 // #define TEST_1 true
 // #define TEST_2 true
@@ -18,6 +19,9 @@
 // #define TEST_8 true // Test merging sorted runs on SSD
 // #define TEST_9 true // Test merging sorted runs on HDD
 #define TEST_10 true // Test External Merge sort of 20 records
+
+char trace_file[256 + 1] = "trace";
+SortTrace trace(trace_file);
 
 /*
  * Test configuration

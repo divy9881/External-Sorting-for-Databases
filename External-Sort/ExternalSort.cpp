@@ -7,6 +7,10 @@
 #include "StorageDevice.h"
 #include "SortRecords.h"
 #include "defs.h"
+#include "SortTrace.h"
+
+char trace_file[256 + 1] = "trace";
+SortTrace trace(trace_file);
 
 int main(int argc, char *argv[])
 {
@@ -41,6 +45,7 @@ int main(int argc, char *argv[])
     StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE, col_value_length);
     StorageDevice hdd = StorageDevice("./HDD", (lluint)HDD_SIZE, col_value_length);
     SortRecords sort = SortRecords(num_records, &ssd, &hdd, col_value_length);
+    trace = SortTrace(trace_file);
 
     ssd.truncate_device();
     hdd.truncate_device();

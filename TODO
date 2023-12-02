@@ -1,10 +1,8 @@
 - Support sort for column value types string
 - Fix memory leak related to RecordList and DataRecord heap memory
 - Add README documentation as mentioned in the canvas
-- Implement trace for ./ExternalSort.exe
-- Trace records access sizes, latency for each access on SSD, HDD and DRAM
+- Trace records access sizes, latency for each access on DRAM
 - Trace also should have sort state
 - Merge Manaswini's verification code
 - Resolve merge conflicts with Devaki's PR
 - Resolve merge conflicts with Sahil's last commit(0d85e4c4f7b7065adebb77b2f5346f7ea08bea86)
-- Add timer to calculate the time spent for sorting each SortPlan
