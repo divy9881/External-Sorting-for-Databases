@@ -1,7 +1,7 @@
 CPPOPT=-g -Og -D_DEBUG
 # -O2 -Os -Ofast
 # -fprofile-generate -fprofile-use
-CPPFLAGS=$(CPPOPT) -Wall -ansi -pedantic -std=c++11
+CPPFLAGS=$(CPPOPT) -Wall -ansi -pedantic -std=c++17
 # -Wparentheses -Wno-unused-parameter -Wformat-security
 # -fno-rtti -std=c++11 -std=c++98
 
@@ -53,9 +53,9 @@ trace : Test.exe Makefile
 	@size -t Test.exe $(OBJS) | sort -r >> trace
 
 $(OBJS) : Makefile defs.h setupConfig.h
-ExternalSort.o : Iterator.h Scan.h Filter.h Sort.h DataRecord.o
-Test.o : Iterator.h Scan.h Filter.h Sort.h DataRecord.o
-Iterator.o Scan.o Filter.o Sort.o DataRecord.o : Iterator.h
+ExternalSort.o : Iterator.h Scan.h Filter.h Sort.h DataRecord.h
+Test.o : Iterator.h Scan.h Filter.h Sort.h DataRecord.h
+Iterator.o Scan.o Filter.o Sort.o DataRecord.o : Iterator.h DataRecord.h
 Scan.o : Scan.h
 Filter.o : Filter.h
 Sort.o : Sort.h

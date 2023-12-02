@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     char *str_num_records, *str_record_size, *str_trace_file;
     llint c;
     lluint num_records, record_size;
-    Iterator iterator;
+    //Iterator iterator;
     StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE);
     StorageDevice hdd = StorageDevice("./HDD", (lluint)HDD_SIZE);
 
@@ -45,16 +45,22 @@ int main(int argc, char *argv[])
     cout << endl << "Sort "<< num_records << " records..." << endl;
     sort.sort();
 
-    // Verification of the records
-    iterator.verifyNumRecords("SSD", num_records);
-    iterator.verifyNumRecords("HDD", num_records);
+    int ssd_record_number = ssd.get_num_records();
+    int hdd_record_number = hdd.get_num_records();
+
+    //Verification of the records
+    if (num_records != hdd_record_number){
+        cout<< "Error: Mismatch number of HDD records and input records" << endl;
+    }else{
+        cout << "Number of HDD Records: " << hdd_record_number << endl;
+        cout << "Number of input Records: " << num_records << endl;
+    }
     //verification of sort order
-    iterator.verifySortOrder("SDD");
-    iterator.verifySortOrder("HDD");
+    Iterator::verifySortOrder("HDD");
 
 
-    cout << "Count of Records in SSD Device: " << ssd.get_num_records() << endl;
-    cout << "Count of Records in HDD Device: " << hdd.get_num_records() << endl;
+    cout << "Count of Records in SSD Device: " << ssd_record_number << endl;
+    cout << "Count of Records in HDD Device: " << hdd_record_number << endl;
 
     cout << endl;
     cout << "Stats for SSD Device:" << endl;
