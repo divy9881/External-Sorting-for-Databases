@@ -398,7 +398,8 @@ vector<DataRecord> StorageDevice::get_run_page_from_disk(string run_path, lluint
 {
 	fstream runfile;	
 	vector<DataRecord> records;
-	lluint col_value1, col_value2, col_value3, pos = 0;
+	string col_value1, col_value2, col_value3;
+	uint pos = 0;
 	string record_delimiter(STORAGE_RECORD_DELIMITER);
 	string column_delimiter(STORAGE_COLUMN_DELIMITER);
 	string col_value;

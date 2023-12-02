@@ -9,16 +9,16 @@
 #include "defs.h"
 #include "SortTrace.h"
 
-// #define TEST_1 true
-// #define TEST_2 true
-// #define TEST_3 true
-// #define TEST_4 true
-#define TEST_5 true // Run Spilling on Disk and Reading Run Pages from Disk
-#define TEST_6 true // Internal sort on list of records
-#define TEST_7 true // Test get_last_run
-#define TEST_8 true // Test merging sorted runs on SSD
-#define TEST_9 true // Test merging sorted runs on HDD
-#define TEST_10 true // Test External Merge sort of 20 records
+#define TEST_1 true
+#define TEST_2 true
+#define TEST_3 false
+#define TEST_4 false
+#define TEST_5 false // Run Spilling on Disk and Reading Run Pages from Disk
+#define TEST_6 false // Internal sort on list of records
+#define TEST_7 false // Test get_last_run
+#define TEST_8 false // Test merging sorted runs on SSD
+#define TEST_9 false // Test merging sorted runs on HDD
+#define TEST_10 false // Test External Merge sort of 20 records
 #define CLEAN_RECORDS(records) 	for (lluint iter = 0 ; iter < records.size(); iter++) {\
 		delete records[iter];\
 	}
@@ -38,31 +38,31 @@ int main (int argc, char * argv [])
 	Plan * const plan = new ScanPlan (7, 2);
 	// new SortPlan(new FilterPlan(newScanPlan(7)));
 	Iterator * const it = plan->init ();
-	DataRecord rec1 = DataRecord(1234, 1234, 1234, 4);
-	DataRecord rec2 = DataRecord(5678, 5678, 5678, 4);
-	DataRecord rec3 = DataRecord(9876, 9886, 9876, 4);
+	DataRecord rec1 = DataRecord("1234", "1234","1234", 4);
+	DataRecord rec2 = DataRecord("5678", "5678","5678", 4);
+	DataRecord rec3 = DataRecord("9876", "9886","9876", 4);
 	
 	it->run ();
 
 	delete it;
 	delete plan;
 
-	bool rec1_is_smaller_than_2 = rec1.is_smaller_int(rec2);
+	bool rec1_is_smaller_than_2 = rec1.is_smaller_str(rec2);
 	if (rec1_is_smaller_than_2) {
 		cout<<"Data record 1 is smaller than record 2"<<endl;
 	} else {
 		cout<<"Data record 1 is smaller than record 2"<<endl;
 	}
 
-	bool rec3_is_smaller_than_2 = rec3.is_smaller_int(rec2);
+	bool rec3_is_smaller_than_2 = rec3.is_smaller_str(rec2);
 	if (rec3_is_smaller_than_2) {
 		cout<<"Data record 3 is smaller than record 2"<<endl;
 	} else {
 		cout<<"Data record 3 is larger than record 2"<<endl;
 	}
 
-	rec2.populate_ovc(rec1);
-	rec3.populate_ovc(rec2);
+	rec2.populate_ovc_str(rec1);
+	rec3.populate_ovc_str(rec2);
 
 	rec2.print();
 	rec3.print();
@@ -70,7 +70,7 @@ int main (int argc, char * argv [])
 	DataRecord list1[NUM_RECORDS];
 
 	for(int ii = 0; ii < NUM_RECORDS; ii++) {
-		list1[ii].SetRecord(ii+1, ii+1, ii+1, 1);
+		list1[ii].SetRecord(to_string(ii+1), to_string(ii+1), to_string(ii+1), 1);
 	}
 
 	Tree test_tree = Tree(list1, 4, 1);
@@ -83,7 +83,7 @@ int main (int argc, char * argv [])
 	cout<<"\n\n\n\t\t *********     TEST 2     *********"<<endl<<"\t\t\tTesting sorting of records\n\n\n";
 	DataRecord list2[NUM_RECORDS];
 	for(int ii = 0; ii < NUM_RECORDS; ii++) {
-		list2[ii].SetRecord(ii+1, ii+1, ii+1, 1);
+		list2[ii].SetRecord(to_string(ii)+'1', to_string(ii)+'1', to_string(ii)+'1', 1);
 	}
 
 	// Tree *test_tree2 = new Tree(list2, 8, 1);
@@ -95,9 +95,9 @@ int main (int argc, char * argv [])
 	DataRecord list3[NUM_RECORDS];
 	DataRecord list4[NUM_RECORDS];
 	for(int ii = 0; ii < NUM_RECORDS; ii++) {
-		list2[ii].SetRecord(ii+2, ii+2, ii+2, 1);
-		list3[ii].SetRecord(ii+1, ii+1, ii+1, 1);
-		list4[ii].SetRecord(ii+3, ii+3, ii+3, 1);
+		list2[ii].SetRecord(to_string(ii)+'2', to_string(ii)+'2', to_string(ii)+'2', 1);
+		list3[ii].SetRecord(to_string(ii)+'1', to_string(ii)+'1', to_string(ii)+'1', 1);
+		list4[ii].SetRecord(to_string(ii)+'3', to_string(ii)+'3', to_string(ii)+'3', 1);
 	}
 
 	Tree *test_tree3 = new Tree(list2, 8, 1);
@@ -133,12 +133,12 @@ int main (int argc, char * argv [])
 	RecordList records[COUNT_OF_SORTED_RUNS];
 
 	for (int jj = 0 ; jj < NUM_RECORDS ; jj++) {
-		sorted_run[0][jj].SetRecord(jj+1, jj+1, jj+1);
-		sorted_run[1][jj].SetRecord(jj+2, jj+2, jj+2);
-		sorted_run[2][jj].SetRecord(jj+3, jj+3, jj+3);
-		sorted_run[3][jj].SetRecord(jj+4, jj+4, jj+4);
-		sorted_run[4][jj].SetRecord(jj+15, jj+5, jj+5);
-		sorted_run[5][jj].SetRecord(jj+16, jj+6, jj+6);
+		sorted_run[0][jj].SetRecord(to_string(jj+1), to_string(jj+1), to_string(jj+1));
+		sorted_run[1][jj].SetRecord(to_string(jj+2), to_string(jj+2), to_string(jj+2));
+		sorted_run[2][jj].SetRecord(to_string(jj+3), to_string(jj+3), to_string(jj+3));
+		sorted_run[3][jj].SetRecord(to_string(jj+4), to_string(jj+4), to_string(jj+4));
+		sorted_run[4][jj].SetRecord(to_string(jj+15), to_string(jj+5), to_string(jj+5));
+		sorted_run[5][jj].SetRecord(to_string(jj+16), to_string(jj+6), to_string(jj+6));
 	}
 	vector<RecordList *> list_of_sorted_runs;
 
@@ -184,7 +184,7 @@ int main (int argc, char * argv [])
 
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		DataRecord *record = new DataRecord(ii + 10, ii + 11, ii + 12, 2);
+		DataRecord *record = new DataRecord(to_string(ii + 10), to_string(ii + 11), to_string(ii + 12), 2);
 		records_to_spill.push_back(record);
 	}
 
@@ -215,7 +215,7 @@ int main (int argc, char * argv [])
 	cout << "Unsorted Data Records:" << endl;
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		DataRecord newRec(10 - ii, ii + 11, ii + 12, 2);
+		DataRecord newRec(to_string(10 - ii), to_string(ii + 11), to_string(ii + 12), 2);
 		internal_sort_records.push_back(newRec);
 		cout << newRec.GetRecord() << endl;
 	}
@@ -239,7 +239,7 @@ int main (int argc, char * argv [])
 
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		DataRecord *record = new DataRecord(ii + 10, ii + 11, ii + 12, 2);
+		DataRecord *record = new DataRecord(to_string(ii + 10), to_string(ii + 11), to_string(ii + 12), 2);
 		records.push_back(record);
 	}
 
@@ -264,7 +264,7 @@ int main (int argc, char * argv [])
 
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		DataRecord* record = new DataRecord(ii + 10, ii + 11, ii + 12, 2);
+		DataRecord* record = new DataRecord(to_string(ii + 10), to_string(ii + 11), to_string(ii + 12), 2);
 		records.push_back(record);
 	}
 	ssd.spill_run('n', 0, records);
@@ -275,7 +275,7 @@ int main (int argc, char * argv [])
 
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		DataRecord * record = new DataRecord(ii + 10, ii + 11, ii + 12, 2);
+		DataRecord * record = new DataRecord(to_string(ii + 10), to_string(ii + 11), to_string(ii + 12), 2);
 		records.push_back(record);
 	}
 	ssd.spill_run('n', 0, records);
@@ -302,7 +302,7 @@ int main (int argc, char * argv [])
 
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		DataRecord *record = new DataRecord(ii + 10, ii + 11, ii + 12, 2);
+		DataRecord *record = new DataRecord(to_string(ii + 10), to_string(ii + 11), to_string(ii + 12), 2);
 		records.push_back(record);
 	}
 	hdd.spill_run('n', 0, records);
@@ -313,7 +313,7 @@ int main (int argc, char * argv [])
 
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		DataRecord *record = new DataRecord(ii + 10, ii + 11, ii + 12, 2);
+		DataRecord *record = new DataRecord(to_string(ii + 10), to_string(ii + 11), to_string(ii + 12), 2);
 		records.push_back(record);
 	}
 	hdd.spill_run('n', 0, records);

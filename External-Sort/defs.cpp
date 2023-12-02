@@ -27,6 +27,13 @@ size_t Random (size_t const range)
 	return (size_t) rand () % range;
 } // Random
 
+string pick (size_t const range)
+{
+	int randIndex = rand() % range;
+	char randomChar = char(randIndex);
+	return string(1, randomChar);//5-6 chars
+} // Random
+
 size_t Random (size_t const low_incl, size_t const high_incl)
 {
 	return low_incl + (size_t) rand () % (high_incl - low_incl + 1);
