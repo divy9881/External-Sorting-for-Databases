@@ -1,8 +1,8 @@
 # Group Members
-Divy Patel (9085310937) dspatel6@wisc.edu
-Sahil Naphade (9085746619) smnaphade@wisc.edu
-Devaki Kulkarni (9086222321) dgkulkarni2@wisc.edu
-Manaswini Gogineni (9085432699) mgogineni@wisc.edu 
+- Divy Patel (9085310937) dspatel6@wisc.edu
+- Sahil Naphade (9085746619) smnaphade@wisc.edu
+- Devaki Kulkarni (9086222321) dgkulkarni2@wisc.edu
+- Manaswini Gogineni (9085432699) mgogineni@wisc.edu 
 
 # Techniques Implemented by our submission and the corresponding Source Files and Lines
 
