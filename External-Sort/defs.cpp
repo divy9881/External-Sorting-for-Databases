@@ -27,12 +27,21 @@ size_t Random (size_t const range)
 	return (size_t) rand () % range;
 } // Random
 
-string pick (size_t const range)
+string pick( size_t length )
 {
-	int randIndex = rand() % range;
-	char randomChar = char(randIndex);
-	return string(1, randomChar);//5-6 chars
-} // Random
+    auto randchar = []() -> char
+    {
+        const char charset[] =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+        const size_t max_index = (sizeof(charset) - 1);
+        return charset[ rand() % max_index ];
+    };
+    std::string str(length,0);
+    std::generate_n( str.begin(), length, randchar );
+    return str;
+}
 
 size_t Random (size_t const low_incl, size_t const high_incl)
 {
