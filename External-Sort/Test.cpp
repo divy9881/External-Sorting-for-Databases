@@ -9,10 +9,10 @@
 #include "defs.h"
 #include "SortTrace.h"
 
-#define TEST_1 true
-#define TEST_2 true
+// #define TEST_1 true
+// #define TEST_2 true
 #define TEST_3 false
-#define TEST_4 false
+#define TEST_4 true
 #define TEST_5 false // Run Spilling on Disk and Reading Run Pages from Disk
 #define TEST_6 false // Internal sort on list of records
 #define TEST_7 false // Test get_last_run
@@ -129,16 +129,15 @@ int main (int argc, char * argv [])
 #if TEST_4
 	cout<<"\n\n\n\t\t*********     TEST 4     *********"<<endl<<"\tGenerate tree with sorted runs at leaf nodes, and dynamically add new records\n\n\n";
 	DataRecord sorted_run[6][NUM_RECORDS];
-	DataRecord sorted_run[6][NUM_RECORDS];
 	RecordList records[COUNT_OF_SORTED_RUNS];
 
 	for (int jj = 0 ; jj < NUM_RECORDS ; jj++) {
-		sorted_run[0][jj].SetRecord(to_string(jj+1), to_string(jj+1), to_string(jj+1));
-		sorted_run[1][jj].SetRecord(to_string(jj+2), to_string(jj+2), to_string(jj+2));
-		sorted_run[2][jj].SetRecord(to_string(jj+3), to_string(jj+3), to_string(jj+3));
-		sorted_run[3][jj].SetRecord(to_string(jj+4), to_string(jj+4), to_string(jj+4));
-		sorted_run[4][jj].SetRecord(to_string(jj+15), to_string(jj+5), to_string(jj+5));
-		sorted_run[5][jj].SetRecord(to_string(jj+16), to_string(jj+6), to_string(jj+6));
+		sorted_run[0][jj].SetRecord(to_string(jj+1), to_string(jj+1), to_string(jj+1), DB_COL_SIZE);
+		sorted_run[1][jj].SetRecord(to_string(jj+2), to_string(jj+2), to_string(jj+2), DB_COL_SIZE);
+		sorted_run[2][jj].SetRecord(to_string(jj+3), to_string(jj+3), to_string(jj+3), DB_COL_SIZE);
+		sorted_run[3][jj].SetRecord(to_string(jj+4), to_string(jj+4), to_string(jj+4), DB_COL_SIZE);
+		sorted_run[4][jj].SetRecord(to_string(jj+15), to_string(jj+5), to_string(jj+5), DB_COL_SIZE);
+		sorted_run[5][jj].SetRecord(to_string(jj+16), to_string(jj+6), to_string(jj+6), DB_COL_SIZE);
 	}
 	vector<RecordList *> list_of_sorted_runs;
 

@@ -341,7 +341,7 @@ void Tree::print_heap() {
 	for (lluint ii = 0 ; ii < this->total_nodes; ii++) {
 		if (!this->heap[ii].is_empty) {
 			if (this->heap[ii].current_record) {
-				printf("%lld :: (%lld, %lld, %lld)@(%d:%s)\n",
+				printf("%lld :: (%.4s, %.4s, %.4s)@(%d:%s)\n",
 						ii, this->heap[ii].current_record->_record[0],
 						this->heap[ii].current_record->_record[1],
 						this->heap[ii].current_record->_record[2],
@@ -356,7 +356,7 @@ void Tree::print_heap() {
 				lluint jj = 0;
 				printf("\n(%lld (Count: %lld) -> ", ii, heap_list->record_count);
 				for (auto current_record : heap_list->record_ptr) {
-					printf("[%lld @ %lld :: (%lld, %lld, %lld)@(%d:%s)] ",
+					printf("[%lld @ %lld :: (%.4s, %.4s, %.4s)@(%d:%s)] ",
 						ii, jj, current_record._record[0],
 						current_record._record[1],
 						current_record._record[2],

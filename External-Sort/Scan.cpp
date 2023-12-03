@@ -6,9 +6,9 @@ ScanPlan::ScanPlan (RowCount const count, uint col_value_length) : _count (count
 	this->_rows = new DataRecord[this->_count];
 	this->col_value_length = col_value_length;
 	for (RowCount ii = 0; ii < _count; ii++) {
-		this->_rows[ii].SetRecord(pick(STRING_SIZE),
-								  pick(STRING_SIZE),
-								  pick(STRING_SIZE),
+		this->_rows[ii].SetRecord(pick(DB_RECORD_SIZE),
+								  pick(DB_RECORD_SIZE),
+								  pick(DB_RECORD_SIZE),
 								  col_value_length);
 	}
 	TRACE(ENABLE_TRACE);

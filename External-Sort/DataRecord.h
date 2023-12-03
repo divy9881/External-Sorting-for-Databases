@@ -36,7 +36,7 @@ public:
 	bool operator==(const DataRecord& other) const;
 	bool operator>(const DataRecord& other) const;
 	// private:
-	string _record[3];
+	char _record[3][DB_COL_SIZE + 2] = {{'\0'}};
 	luint index; // index of the DataRecord in the list (required to maintain the ordering)
 	uint ovc;
 	uint col_value_length;

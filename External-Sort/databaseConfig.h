@@ -6,7 +6,8 @@
 /* Database column-value Configurations */
 #define NUM_CHARS_COL_VALUE 2             // Column-value length
 #define DOMAIN_COL_VALUE(a) pow(10, a)    // Domain of Column-value
-#define STRING_SIZE 1024
+#define DB_RECORD_SIZE 1024
+#define DB_COL_SIZE int(DB_RECORD_SIZE/3)
 
 /* Database on-disk record storage size */
 /* A DataRecord on disk is represented as Tuple with 2 spaces, 1 newline character, and three column values*/
