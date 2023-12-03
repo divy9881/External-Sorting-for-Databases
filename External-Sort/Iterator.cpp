@@ -1,10 +1,13 @@
 #include "Iterator.h"
 #include "Sort.h"
 //#include <experimental/filesystem>
-#include <filesystem>
+// #include <filesystem>
 #include <string>
-#include <iostream>
 #include <cstdlib>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
 Plan::Plan ()
 {
 	TRACE(ENABLE_TRACE);
@@ -36,30 +39,30 @@ void Iterator::run ()
 } // Iterator::run
 
 //namespace fs = std::experimental::filesystem;
-namespace fs = std::filesystem;
+// namespace fs = std::filesystem;
 // This function is used the find the highest run file generated
 // Since the number of runs generated are dynamically changed
-// A separate function is used to find the file accordingly
-std::string Iterator::findHighestRunFile(const std::string& directoryPath) {
-    int highestRunNumber = -1;
-    std::string highestRunFilePath;
+// // A separate function is used to find the file accordingly
+// std::string Iterator::findHighestRunFile(const std::string& directoryPath) {
+//     int highestRunNumber = -1;
+//     std::string highestRunFilePath;
 
-    for (const auto& entry : fs::directory_iterator(directoryPath)) {
-        if (entry.is_regular_file()) {
-            std::string fileName = entry.path().filename().string();
+//     for (const auto& entry : fs::directory_iterator(directoryPath)) {
+//         if (entry.is_regular_file()) {
+//             std::string fileName = entry.path().filename().string();
 
-            if (fileName.compare(0, 4, "run_") == 0) {
-                int runNumber = std::atoi(fileName.substr(4).c_str());
-                if (runNumber > highestRunNumber) {
-                    highestRunNumber = runNumber;
-                    highestRunFilePath = entry.path().string();
-                }
-            }
-        }
-    }
+//             if (fileName.compare(0, 4, "run_") == 0) {
+//                 int runNumber = std::atoi(fileName.substr(4).c_str());
+//                 if (runNumber > highestRunNumber) {
+//                     highestRunNumber = runNumber;
+//                     highestRunFilePath = entry.path().string();
+//                 }
+//             }
+//         }
+//     }
 
-    return highestRunFilePath;
-}
+//     return highestRunFilePath;
+// }
 
 // This function will take the expected records
 // from the input and verify it against the records 
@@ -110,111 +113,86 @@ std::string Iterator::findHighestRunFile(const std::string& directoryPath) {
 //It will open the file containin the sorted order records
 //Parse through each line and will do a "<" and return the boolean accordingly
 //Parameter - Accepts device type
-bool Iterator::verifySortOrder(string device) {
-    TRACE(ENABLE_TRACE);
-    std::cout << "Inside sort order function" << std::endl;
-    std::string directoryPath = "./" + device;
-    std::string highestRunFilePath = findHighestRunFile(directoryPath);
 
-    if (highestRunFilePath.empty()) {
-        std::cerr << "No run files found in the directory: " << directoryPath << std::endl;
-        return false;
-    }
+constexpr size_t CHUNK_SIZE = 1024;
 
-    std::ifstream infile(highestRunFilePath.c_str());
-    if (!infile.is_open()) {
-        std::cerr << "Unable to open file: " << highestRunFilePath << std::endl;
-        return false;
-    }
+std::pair<bool, llint> processChunk(const std::vector<std::string>& lines, llint& recordCount) {
+    int previous = std::numeric_limits<int>::lowest();  // Initialize previous to a very small value
 
-    const size_t chunk_size = 1024; // Define your desired chunk size
-    char chunk[chunk_size];
+    for (const auto& line : lines) {
+        std::istringstream iss(line);
+        int firstColumnValue;
 
-    std::string prevFirstColumn;
-    std::string currFirstColumn;
-
-    // Read the first record
-    if (!std::getline(infile, prevFirstColumn, ' ')) {
-        std::cerr << "Error reading the first column of the first record" << std::endl;
-        infile.close();
-        return false;
-    }
-
-    while (infile.read(chunk, chunk_size)) {
-        size_t bytes_read = infile.gcount();
-        size_t i = 0;
-
-        for (i = 0; i < bytes_read; ++i) {
-            currFirstColumn += chunk[i];
-
-            // Check for the column delimiter ' '
-            if (chunk[i] == ' ') {
-                // Compare the first column for sorting order
-                cout << prevFirstColumn << endl;
-                if (prevFirstColumn > currFirstColumn) {
-                    std::cerr << "The sort order is not correct" << std::endl;
-                    infile.close();
-                    return false;
-                }
-
-                // Update prevFirstColumn for the next iteration
-                prevFirstColumn = currFirstColumn;
-                currFirstColumn.clear();
+        // Read and check the first value in each line
+        if (iss >> firstColumnValue) {
+            // Check if the value in the first column is in ascending order
+            if (firstColumnValue >= previous) {
+                previous = firstColumnValue;
+                recordCount += 1; // only increase the recourd count if the data is in increasing order
+            } else {
+                std::cerr << "Invalid sort order in the row." << std::endl;
+                return std::make_pair(false, recordCount);
             }
+        } else {
+            std::cerr << "Failed to read the first column value." << std::endl;
+            return std::make_pair(false, recordCount);
+        }
+
+        // Additional check for data corruption have to test
+        // std::string restOfLine;
+        // if (std::getline(iss >> std::ws, restOfLine)) {
+        //     if (!restOfLine.empty()) {
+        //         std::cerr << "Data corruption detected in the row." << std::endl;
+        //         return std::make_pair(false, recordCount);;
+        //     }
+        // }
+    }
+
+    return std::make_pair(true, recordCount);
+}
+
+std::pair<bool, llint> Iterator::verifySortOrder() {
+    TRACE(ENABLE_TRACE);
+
+    std::ifstream file("input/table");
+
+    if (!file.is_open()) {
+        std::cerr << "Failed to open the file." << std::endl;
+        return std::make_pair(false, 0);
+    }
+
+    llint recordCount = 0;
+    std::vector<std::string> lines;
+    std::string line;
+
+    while (std::getline(file, line)) {
+        lines.push_back(line);
+
+        if (lines.size() * line.size() >= CHUNK_SIZE) {
+            // Process the chunk
+            auto result = processChunk(lines, recordCount);
+
+            if (!result.first) {
+                return result;
+            }
+
+            // Clear the processed lines
+            lines.clear();
         }
     }
 
-    infile.close();
-    return true;
+    // Process the remaining lines in the last chunk
+    if (!lines.empty()) {
+        auto result = processChunk(lines, recordCount);
+
+        if (!result.first) {
+            // Handle the error as needed
+            return result;
+        }
+    }
+
+    // Close the file
+    file.close();
+
+    return std::make_pair(true, recordCount);
 }
-
-        
-//     }
-
-//     infile.close();
-//     cout << "The sort order is correct" << endl;
-//     return true;
-// }
-
-// lluint StorageDevice::get_run_num_records(uint run)
-// {
-//     fstream runfile;
-//     lluint count = 0;
-//     string run_path = this->device_path + "/run_" + to_string(run);
-
-//     const size_t chunk_size = 1024; // Define your desired chunk size
-//     char chunk[chunk_size];
-//     char *run_page = new char[ON_DISK_RECORD_SIZE + 1];
-
-//     runfile.open(run_path, ios::in);
-
-//     if (!runfile.is_open())
-//     {
-//         delete[] run_page;
-//         return -1;
-//     }
-
-//     while (!runfile.eof())
-//     {
-//         runfile.read(chunk, chunk_size);
-//         size_t bytes_read = runfile.gcount();
-
-//         for (size_t i = 0; i < bytes_read; i += ON_DISK_RECORD_SIZE)
-//         {
-//             // Extract a record from the chunk
-//             strncpy(run_page, &chunk[i], ON_DISK_RECORD_SIZE);
-//             run_page[ON_DISK_RECORD_SIZE] = '\0'; // Null-terminate the record
-
-//             // Validate the sort order or perform other processing here
-//             // Note: Modify this part according to your actual record comparison logic
-
-//             // Increment count if the record is valid
-//             count++;
-//         }
-//     }
-
-//     runfile.close();
-//     delete[] run_page;
-
-//     return count;
-// }

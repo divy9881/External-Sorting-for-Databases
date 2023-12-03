@@ -24,7 +24,7 @@ public:
 	void run ();
 	virtual bool next () = 0;
 	//static bool verifyNumRecords (string, int);
-	static bool verifySortOrder (string);
+	static std::pair<bool, llint> verifySortOrder ();
 private:
 	RowCount _count;
 	static std::string findHighestRunFile(const std::string& directoryPath);

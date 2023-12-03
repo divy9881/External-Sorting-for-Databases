@@ -53,6 +53,19 @@ int main(int argc, char *argv[])
     cout << endl << "Sort "<< num_records << " records..." << endl;
     sort.sort();
 
+    auto result = Iterator :: verifySortOrder();
+    if (!result.first){
+        cout << "\n\tVerification failed!" << endl;
+    }else{
+        cout << "\n\tVerification succeeded." << endl;
+    }
+
+    if (result.second != num_records){
+        cout << "\n\tNumber of sorted elements is incorrect! Expected: " << num_records << ", got: " << result.second;
+    }else{
+        cout << "\n\tNumber of records in the sorted file is correct" << endl;
+    }
+
     cout << endl;
     cout << "Stats for SSD Device:" << endl;
     ssd.get_device_access_stats();
