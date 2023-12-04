@@ -22,13 +22,12 @@ void Table::persist_records(RecordList *records)
 
 	this->num_records += records->record_count;
 
-	for (uint ii = 0; ii < records->record_count; ii++)
-	{
-		DataRecord record = records->record_ptr.front();
+	for (auto a: records->record_ptr) {
+		DataRecord record(a);
 		string str_record = record.GetRecord();
 		str_records += str_record + TABLE_RECORD_DELIMITER;
-		records->record_ptr.pop_front();
 	}
+
 	tablefile << str_records;
 
 	tablefile.close();

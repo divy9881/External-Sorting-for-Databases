@@ -1,4 +1,3 @@
-- Fix spilling of records(records vector's size 0)(Sahil)
 - Changes in pick(Sahil)
 - Change string parsing by col_value_length(Divy)
 - Fix output table(Divy)
