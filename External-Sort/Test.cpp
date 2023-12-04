@@ -11,17 +11,19 @@
 
 // #define TEST_1 true
 // #define TEST_2 true
-#define TEST_3 false
-#define TEST_4 false
-#define TEST_5 false // Run Spilling on Disk and Reading Run Pages from Disk
-#define TEST_6 false // Internal sort on list of records
-#define TEST_7 false // Test get_last_run
-#define TEST_8 false // Test merging sorted runs on SSD
+// #define TEST_3 false
+// #define TEST_4 false
+// #define TEST_5 false // Run Spilling on Disk and Reading Run Pages from Disk
+// #define TEST_6 false // Internal sort on list of records
+// #define TEST_7 false // Test get_last_run
+// #define TEST_8 false // Test merging sorted runs on SSD
 // #define TEST_9 true // Test merging sorted runs on HDD
 #define TEST_10 true // Test External Merge sort of 20 records
+
 #define CLEAN_RECORDS(records) 	for (lluint iter = 0 ; iter < records.size(); iter++) {\
 		delete records[iter];\
 	}
+
 char trace_file[256 + 1] = "trace";
 SortTrace trace(trace_file);
 

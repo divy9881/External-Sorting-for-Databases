@@ -1,8 +1,9 @@
+- Fix spilling of records(records vector's size 0)(Sahil)
 - Changes in pick(Sahil)
-- Change string parsing by col_value_length
-- Fix output table
-- Fix trace file output
-- Add README documentation as mentioned in the canvas
+- Change string parsing by col_value_length(Divy)
+- Fix output table(Divy)
+- Fix trace file output(Divy)
+- Add README documentation as mentioned in the canvas(Divy)
 - Trace records access sizes, latency for each access on DRAM
 - Trace also should have sort state
 - Merge Manaswini's verification code
