@@ -232,7 +232,7 @@ int main (int argc, char * argv [])
 		string s1 = pick(DB_COL_SIZE); string s2 = pick(DB_COL_SIZE); string s3 = pick(DB_COL_SIZE);
 		DataRecord newRec(s1, s2, s3, DB_COL_SIZE);
 		internal_sort_records.push_back(newRec);
-		printf("%.10s\n", newRec._record[0]);		
+		printf("%.10s\n", newRec._record[0]);
 		// cout << newRec._record[0] << endl;
 	}
 
@@ -245,7 +245,7 @@ int main (int argc, char * argv [])
 	for (auto iter: record_list.record_ptr)
 	{
 		// cout << iter._record[0] << endl<<flush;
-		printf("%.10s\n", iter._record[0]);		
+		printf("%.10s\n", iter._record[0]);
 	}
 }
 #endif
@@ -295,7 +295,7 @@ int main (int argc, char * argv [])
 	{
 		string s1 = pick(DB_COL_SIZE), s2 = pick(DB_COL_SIZE), s3 = pick(DB_COL_SIZE);
 		DataRecord* record = new DataRecord(s1, s2, s3, DB_COL_SIZE);
-		
+
 		records.push_back(record);
 	}
 	ssd.spill_run('n', 0, records);
@@ -396,7 +396,7 @@ int main (int argc, char * argv [])
 	cout << "Stats for HDD Device:" << endl;
 	hdd.get_device_access_stats();
 
-	sort = SortRecords(10000, &ssd, &hdd, DB_COL_SIZE);
+	sort = SortRecords(2000, &ssd, &hdd, DB_COL_SIZE);
 
 	ssd.truncate_device();
 	hdd.truncate_device();
