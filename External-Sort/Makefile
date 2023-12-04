@@ -74,4 +74,4 @@ co :
 	co $(REV) -l $(HDRS) $(SRCS) $(DOCS) $(SCRS)
 
 clean :
-	@rm -f $(OBJS) Test.exe Test.exe.stackdump trace ExternalSort.exe ExternalSort.exe.stackdump
+	@rm -rf $(OBJS) Test.exe Test.exe.stackdump trace ExternalSort.exe ExternalSort.exe.stackdump input output HDD SSD
