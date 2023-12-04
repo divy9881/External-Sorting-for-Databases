@@ -51,6 +51,7 @@ DataRecord* top_record(RecordList *list) {
 
 Tree::Tree(vector<RecordList *> sorted_runs)
 {
+
 	this->tree_depth = ceil(log2(sorted_runs.size()));
 	this->total_nodes = 2 * pow(2, this->tree_depth) - 1;
 	this->heap = new struct Node[this->total_nodes];

@@ -35,6 +35,7 @@ SortTrace trace(trace_file);
 
 int main (int argc, char * argv [])
 {
+	
 	TRACE (ENABLE_TRACE);
 #if TEST_1
 	Plan * const plan = new ScanPlan (7, 2);
@@ -420,7 +421,6 @@ int main (int argc, char * argv [])
 
 	cout << endl << "Sort 10000 records..." << endl;
 	sort.sort();
-
 	cout << endl;
 	cout << "Stats for SSD Device:" << endl;
 	ssd.get_device_access_stats();
