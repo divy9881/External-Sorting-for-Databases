@@ -1,6 +1,8 @@
-- Support sort for column value types string
+- Changes in pick(Sahil)
+- Change string parsing by col_value_length
+- Fix output table
+- Fix trace file output
 - Add README documentation as mentioned in the canvas
 - Trace records access sizes, latency for each access on DRAM
 - Trace also should have sort state
 - Merge Manaswini's verification code
-- Resolve merge conflicts with Devaki's PR
