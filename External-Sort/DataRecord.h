@@ -9,10 +9,10 @@ class DataRecord
 {
 public:
 	DataRecord ();
-	DataRecord (lluint col1, lluint col2, lluint col3, uint col_value_length);
+	DataRecord (string col1, string col2, string col3, uint col_value_length);
 	DataRecord (const DataRecord& record);
 	~DataRecord ();
-	void SetRecord (lluint col1, lluint col2, lluint col3, uint col_value_length);
+	void SetRecord (string col1, string col2, string col3, uint col_value_length);
 	string GetRecord ();
 	friend class OffsetValueCode;
 	void print ();
@@ -36,11 +36,11 @@ public:
 	bool operator==(const DataRecord& other) const;
 	bool operator>(const DataRecord& other) const;
 	// private:
-	lluint _record[3];
+	char _record[3][DB_COL_SIZE + 2] = {{'\0'}};
 	luint index; // index of the DataRecord in the list (required to maintain the ordering)
 	uint ovc;
 	uint col_value_length;
-	char rel[NUM_CHARS_COL_VALUE + 1];
+	char rel;
 }; // class DataRecord
 
 /*

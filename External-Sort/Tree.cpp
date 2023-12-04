@@ -25,7 +25,7 @@ DataRecord* pop_record(RecordList *list) {
 		// top = &temp;
 		list->record_ptr.pop_front();
 		#if DEBUG_PRINT
-		top->print();
+		// top->print();
 		#endif
 		list->record_count--;
 	}
@@ -38,7 +38,9 @@ DataRecord* top_record(RecordList *list) {
 		return NULL;
 	}
 	if (!list->record_ptr.empty()){
-		return &list->record_ptr.front();
+		top = new DataRecord(list->record_ptr.front());
+		// return &list->record_ptr.front();
+		return top;
 	}
 	return top;
 }
@@ -205,37 +207,43 @@ void Tree::compare_and_swap(llint parent, llint unused_leaves_idx) {
                             // If OVC is strictly smaller, the data record is small
                             parent_node->current_record = pop_record(left_child_node->list);
                             CHECK_SET_EMPTY(left_child_node, child_left);
+							delete left_data; delete right_data;
                             return;
                         } else if (left_data->ovc > right_data->ovc) {
                             // If OVC is strictly greater, the data record is larger
                             parent_node->current_record = pop_record(right_child_node->list);
                             CHECK_SET_EMPTY(right_child_node, child_right);
+							delete left_data; delete right_data;
                             return;
                         }
                     }
                     // If OVC do not exist for either or are equal, we need to check their actual
                     // values and update OVC based on the new winner
-                    if (left_data->is_smaller_int(*right_data)) {
+                    if (left_data->is_smaller_str(*right_data)) {
 						// left_data->print(); right_data->print();
                         // Left is the winner -> set OVC of right relative to left
                         right_data->populate_ovc_int(*left_data);
                         parent_node->current_record = pop_record(left_child_node->list);
                         CHECK_SET_EMPTY(left_child_node, child_left);
+						delete left_data; delete right_data;
                         return;
                     } else {
                         // Right is the winner -> set OVC of left relative to right
                         left_data->populate_ovc_int(*right_data);
                         parent_node->current_record = pop_record(right_child_node->list);
                         CHECK_SET_EMPTY(right_child_node, child_right);
+						delete left_data; delete right_data;
                         return;
                     }
                 } else if (left_data) {
                     parent_node->current_record = pop_record(left_child_node->list);
                     CHECK_SET_EMPTY(left_child_node, child_left);
+					delete left_data;
                     return;
                 } else if (right_data) {
                     parent_node->current_record = pop_record(right_child_node->list);
                     CHECK_SET_EMPTY(right_child_node, child_right);
+					delete right_data;
                     return;
                 } else {
                     parent_node->current_record = NULL;
@@ -265,7 +273,7 @@ void Tree::compare_and_swap(llint parent, llint unused_leaves_idx) {
                     }
                     // If OVC are equal or do not exist for either, we need to check
                     // their actual values and update OVC based on the new winner
-                    if (left_data->is_smaller_int(*right_data)) {
+                    if (left_data->is_smaller_str(*right_data)) {
                         parent_node->is_empty = false;
                         right_data->populate_ovc_int(*left_data);
                         parent_node->current_record = left_data;
@@ -339,9 +347,9 @@ void Tree::run_tree() {
 void Tree::print_heap() {
 	cout<<"Tree depth: "<<this->tree_depth+1<<", Total nodes: "<<this->total_nodes<<", Total leaves: "<<this->total_leaves<<endl;
 	for (lluint ii = 0 ; ii < this->total_nodes; ii++) {
-		if (!this->heap[ii].is_empty) {
+		// if (!this->heap[ii].is_empty) {
 			if (this->heap[ii].current_record) {
-				printf("%lld :: (%lld, %lld, %lld)@(%d:%s)\n",
+				printf("%lld :: (%.4s, %.4s, %.4s)@(%d:%c)\n",
 						ii, this->heap[ii].current_record->_record[0],
 						this->heap[ii].current_record->_record[1],
 						this->heap[ii].current_record->_record[2],
@@ -356,7 +364,7 @@ void Tree::print_heap() {
 				lluint jj = 0;
 				printf("\n(%lld (Count: %lld) -> ", ii, heap_list->record_count);
 				for (auto current_record : heap_list->record_ptr) {
-					printf("[%lld @ %lld :: (%lld, %lld, %lld)@(%d:%s)] ",
+					printf("[%lld @ %lld :: (%.4s, %.4s, %.4s)@(%d:%c)] ",
 						ii, jj, current_record._record[0],
 						current_record._record[1],
 						current_record._record[2],
@@ -366,9 +374,9 @@ void Tree::print_heap() {
 				}
 				printf(")\n");
 			}
-		} else {
-			printf("\n(%lld Empty )\n", ii);
-		}
+		// } else {
+		// 	printf("\n(%lld Empty )\n", ii);
+		// }
 	}
 }
 
@@ -402,6 +410,9 @@ llint Tree::add_run_at_leaf(llint leaf_node_index, DataRecord *record_list, llin
 }
 
 void Tree::spillover_run() {
+	for (auto a: this->generated_run) {
+		delete a;
+	}
 	this->generated_run.clear();
 }
 

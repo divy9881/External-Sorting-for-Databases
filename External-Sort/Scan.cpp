@@ -6,9 +6,9 @@ ScanPlan::ScanPlan (RowCount const count, uint col_value_length) : _count (count
 	this->_rows = new DataRecord[this->_count];
 	this->col_value_length = col_value_length;
 	for (RowCount ii = 0; ii < _count; ii++) {
-		this->_rows[ii].SetRecord(Random(DOMAIN_COL_VALUE(col_value_length)),
-								  Random(DOMAIN_COL_VALUE(col_value_length)),
-								  Random(DOMAIN_COL_VALUE(col_value_length)),
+		this->_rows[ii].SetRecord(pick(col_value_length),
+								  pick(col_value_length),
+								  pick(col_value_length),
 								  col_value_length);
 	}
 	TRACE(ENABLE_TRACE);
