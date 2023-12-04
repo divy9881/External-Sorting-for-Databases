@@ -10,7 +10,7 @@
 DataRecord::DataRecord()
 {
 	this->ovc = 0;
-	strcpy(this->rel, "\0");
+	this->rel = '\0';
 	TRACE (false);
 }
 
@@ -21,7 +21,7 @@ DataRecord::DataRecord(string col1, string col2, string col3, uint col_value_len
 	strncpy(this->_record[2], col3.c_str(), col_value_length);
 	this->ovc = 0;
 	this->col_value_length = col_value_length;
-	strcpy(this->rel, "\0");
+	this->rel = '\0';
 	TRACE (false);
 } // DataRecord::DataRecord (lluint col1, lluint col2, lluint col3)
 
@@ -96,11 +96,12 @@ string DataRecord::GetRecord ()
 
 void DataRecord::print ()
 {
-    cout<<this->_record[0]<<" "<<this->_record[1]<<" "<<this->_record[2]<<" ";
+	printf("%.5s %.5s %.5s", this->_record[0], this->_record[1], this->_record[2]);
+    // cout<<this->_record[0].<<" "<<this->_record[1]<<" "<<this->_record[2]<<" ";
 	if (this->ovc == 0) {
-		cout<<"{:}"<<endl;
+		cout<<"{:}"<<endl<<flush;
 	} else {
-		cout<<"{"<<this->ovc<<":"<<this->rel<<"}"<<endl;
+		cout<<"{"<<this->ovc<<":"<<this->rel<<"}"<<endl<<flush;
 	}
 	TRACE (false);
 } // DataRecord::print
@@ -127,33 +128,40 @@ bool DataRecord::is_smaller_str(const DataRecord incoming_record) const
 		// Compare character by character, for the first pass, we will generate the OVC after this.
 		int min_size = incoming_length < current_length ? incoming_length: current_length;
 		int ii = 0;
-		while (++ii < min_size) {
+		while (ii < min_size) {
 			if (this->_record[0][ii] != incoming_record._record[0][ii]) {
+#if DEBUG_PRINT
+				cout << "Current is "<< this->_record[0][ii] <<" AND the incoming is "<< incoming_record._record[0][ii] <<endl;
+#endif
 				return this->_record[0][ii] < incoming_record._record[0][ii];
 			}
+			ii++;
 		}
 		return false;
-	} else if (this->ovc != incoming_record.ovc) {
-		// Larger offset == smaller data record
-		return this->ovc > incoming_record.ovc;
 	} else {
-		// If the offsets are same, check with the values
-		if (this->rel != incoming_record.rel) {
-			// Smaller value at same offset == smaller data record
-			return this->rel < incoming_record.rel;
+		if (this->ovc != incoming_record.ovc) {
+			// Larger offset == smaller data record
+			return this->ovc > incoming_record.ovc;
 		} else {
-			// Offset and value both are same, check for the next set of
-			// characters to determine which record is smaller
-			// (the values will be in relation with the previous winner)
-			int incoming_record_offset = (int) incoming_record.ovc % OVC_DOMAIN;
-			// Since the offsets are same for both the records,
-			// check from the next offset value for both
-			while (++incoming_record_offset < incoming_length) {
-				if (this->_record[0][incoming_record_offset] != incoming_record._record[0][incoming_record_offset]) {
-					return this->_record[0][incoming_record_offset] < incoming_record._record[0][incoming_record_offset];
+			// If the offsets are same, check with the values
+			if (this->rel != incoming_record.rel) {
+				// Smaller value at same offset == smaller data record
+				return this->rel < incoming_record.rel;
+			} else {
+				// Offset and value both are same, check for the next set of
+				// characters to determine which record is smaller
+				// (the values will be in relation with the previous winner)
+				int incoming_record_offset = (int) incoming_record.ovc % OVC_DOMAIN;
+				// Since the offsets are same for both the records,
+				// check from the next offset value for both
+				while (incoming_record_offset < incoming_length) {
+					if (this->_record[0][incoming_record_offset] != incoming_record._record[0][incoming_record_offset]) {
+						return this->_record[0][incoming_record_offset] < incoming_record._record[0][incoming_record_offset];
+					}
+					incoming_record_offset++;
 				}
+				return false;
 			}
-			return false;
 		}
 	}
 	return false;
@@ -191,7 +199,9 @@ void DataRecord::populate_ovc_str(DataRecord winner)
 {
 	string current_record = this->_record[0];
 	string winner_record = winner._record[0];
-
+#if DEBUG_PRINT
+	cout<<current_record<< "  " << winner_record<<endl;
+#endif
 	int current_length = current_record.length();
 	int winner_length = winner_record.length();
 	int arity = 0;
@@ -231,7 +241,7 @@ void DataRecord::populate_ovc_str(DataRecord winner)
 		else
 		{
 			this->ovc = (arity - ii) * OVC_DOMAIN + (current_record[ii] - '0');
-			strcpy(this->rel, winner_record.c_str());
+			this->rel = winner_record[ii];
 			break;
 		}
 	}
@@ -260,7 +270,7 @@ bool comparator(const DataRecord& first, const DataRecord& second) {
 struct DataRecordComparator {
     bool operator()(const DataRecord& first, const DataRecord& second) const {
         // Return true if first should go before second
-		return first._record[0] < second._record[0];
+		return first.is_smaller_str(second);
         // return true;
     }
 };

@@ -12,13 +12,13 @@
 // #define TEST_1 true
 // #define TEST_2 true
 #define TEST_3 false
-#define TEST_4 true
+#define TEST_4 false
 #define TEST_5 false // Run Spilling on Disk and Reading Run Pages from Disk
 #define TEST_6 false // Internal sort on list of records
 #define TEST_7 false // Test get_last_run
 #define TEST_8 false // Test merging sorted runs on SSD
-#define TEST_9 false // Test merging sorted runs on HDD
-#define TEST_10 false // Test External Merge sort of 20 records
+// #define TEST_9 true // Test merging sorted runs on HDD
+#define TEST_10 true // Test External Merge sort of 20 records
 #define CLEAN_RECORDS(records) 	for (lluint iter = 0 ; iter < records.size(); iter++) {\
 		delete records[iter];\
 	}
@@ -28,7 +28,7 @@ SortTrace trace(trace_file);
 /*
  * Test configuration
  */
-#define NUM_RECORDS 4
+#define NUM_RECORDS 8
 #define COUNT_OF_SORTED_RUNS 4
 
 int main (int argc, char * argv [])
@@ -132,12 +132,22 @@ int main (int argc, char * argv [])
 	RecordList records[COUNT_OF_SORTED_RUNS];
 
 	for (int jj = 0 ; jj < NUM_RECORDS ; jj++) {
-		sorted_run[0][jj].SetRecord(to_string(jj+1), to_string(jj+1), to_string(jj+1), DB_COL_SIZE);
-		sorted_run[1][jj].SetRecord(to_string(jj+2), to_string(jj+2), to_string(jj+2), DB_COL_SIZE);
-		sorted_run[2][jj].SetRecord(to_string(jj+3), to_string(jj+3), to_string(jj+3), DB_COL_SIZE);
-		sorted_run[3][jj].SetRecord(to_string(jj+4), to_string(jj+4), to_string(jj+4), DB_COL_SIZE);
-		sorted_run[4][jj].SetRecord(to_string(jj+15), to_string(jj+5), to_string(jj+5), DB_COL_SIZE);
-		sorted_run[5][jj].SetRecord(to_string(jj+16), to_string(jj+6), to_string(jj+6), DB_COL_SIZE);
+		for (int ii = 0 ; ii < 6 ; ii++) {
+			string rec1 = pick(DB_COL_SIZE); string rec2 = pick(DB_COL_SIZE); string rec3 = pick(DB_COL_SIZE);
+			sorted_run[ii][jj].SetRecord(rec1, rec2, rec3, DB_COL_SIZE);
+		}
+		// sorted_run[0][jj].SetRecord("abcd123", "abcd123", "abcd123", DB_COL_SIZE);
+		// sorted_run[1][jj].SetRecord("bcd2345", "bcd2345", "bcd2345", DB_COL_SIZE);
+		// sorted_run[2][jj].SetRecord("cde3456", "cde3456", "cde3456", DB_COL_SIZE);
+		// sorted_run[3][jj].SetRecord("def4567", "def4567", "def4567", DB_COL_SIZE);
+		// sorted_run[4][jj].SetRecord("efg5678", "efg5678", "efg5678", DB_COL_SIZE);
+		// sorted_run[5][jj].SetRecord("fgh6789", "fgh6789", "fgh6789", DB_COL_SIZE);
+		// sorted_run[0][jj].SetRecord(pick(DB_COL_SIZE), pick(DB_COL_SIZE), pick(DB_COL_SIZE), DB_COL_SIZE);
+		// sorted_run[1][jj].SetRecord(pick(DB_COL_SIZE), pick(DB_COL_SIZE), pick(DB_COL_SIZE), DB_COL_SIZE);
+		// sorted_run[2][jj].SetRecord(pick(DB_COL_SIZE), pick(DB_COL_SIZE), pick(DB_COL_SIZE), DB_COL_SIZE);
+		// sorted_run[3][jj].SetRecord(pick(DB_COL_SIZE), pick(DB_COL_SIZE), pick(DB_COL_SIZE), DB_COL_SIZE);
+		// sorted_run[4][jj].SetRecord(pick(DB_COL_SIZE), pick(DB_COL_SIZE), pick(DB_COL_SIZE), DB_COL_SIZE);
+		// sorted_run[5][jj].SetRecord(pick(DB_COL_SIZE), pick(DB_COL_SIZE), pick(DB_COL_SIZE), DB_COL_SIZE);
 	}
 	vector<RecordList *> list_of_sorted_runs;
 
@@ -146,6 +156,7 @@ int main (int argc, char * argv [])
 			records[jj].record_ptr.push_back(sorted_run[jj][ii]);
 		}
 		records[jj].record_count = NUM_RECORDS;
+		InternalSort(&records[jj]);
 		list_of_sorted_runs.push_back(&records[jj]);
 	}
 
@@ -166,6 +177,7 @@ int main (int argc, char * argv [])
 		sorted_run[5][ii].print();
 		cout << endl;
 	}
+	// RecordList *temp = new RecordList;
 	test_tree4.add_run_at_leaf(3, sorted_run[4], NUM_RECORDS);
 	test_tree4.add_run_at_leaf(6, sorted_run[5], NUM_RECORDS);
 	test_tree4.print_heap();
@@ -183,18 +195,21 @@ int main (int argc, char * argv [])
 
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		DataRecord *record = new DataRecord(to_string(ii + 10), to_string(ii + 11), to_string(ii + 12), 2);
+		string s1 = pick(DB_COL_SIZE); string s2 = pick(DB_COL_SIZE); string s3 = pick(DB_COL_SIZE);
+		DataRecord *record = new DataRecord(s1, s2, s3, DB_COL_SIZE);
 		records_to_spill.push_back(record);
+		record->print();
 	}
 
 	ssd.spill_run('n', 0, records_to_spill);
-
+	cout << "Record spill DONE"<<endl<<flush;
 	run_read = ssd.get_run_page(0, NUM_RECORDS / 2);
+	cout << "Run pages READ from the file 1 - DONE"<<endl<<flush;
 	for (uint ii = 0; ii < run_read.size() ; ii++)
 	{
 		run_read[ii].print();
 	}
-
+	cout << "Run pages READ from the file 2 - DONE"<<endl<<flush;
 	run_read = ssd.get_run_page(0, NUM_RECORDS / 2);
 	for (uint ii = 0; ii < run_read.size(); ii++)
 	{
@@ -202,7 +217,7 @@ int main (int argc, char * argv [])
 	}
 
 	ssd.truncate_device();
-
+	cout << "Device truncate - DONE"<<endl<<flush;
 	CLEAN_RECORDS(records_to_spill);
 }
 #endif
@@ -214,9 +229,11 @@ int main (int argc, char * argv [])
 	cout << "Unsorted Data Records:" << endl;
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		DataRecord newRec(to_string(10 - ii), to_string(ii + 11), to_string(ii + 12), 2);
+		string s1 = pick(DB_COL_SIZE); string s2 = pick(DB_COL_SIZE); string s3 = pick(DB_COL_SIZE);
+		DataRecord newRec(s1, s2, s3, DB_COL_SIZE);
 		internal_sort_records.push_back(newRec);
-		cout << newRec.GetRecord() << endl;
+		printf("%.10s\n", newRec._record[0]);		
+		// cout << newRec._record[0] << endl;
 	}
 
 	record_list.record_ptr = internal_sort_records;
@@ -227,7 +244,8 @@ int main (int argc, char * argv [])
 	cout << "Sorted Data Records:" << endl;
 	for (auto iter: record_list.record_ptr)
 	{
-		cout << iter.GetRecord() << endl;
+		// cout << iter._record[0] << endl<<flush;
+		printf("%.10s\n", iter._record[0]);		
 	}
 }
 #endif
@@ -263,7 +281,8 @@ int main (int argc, char * argv [])
 
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		DataRecord* record = new DataRecord(to_string(ii + 10), to_string(ii + 11), to_string(ii + 12), 2);
+		string s1 = pick(DB_COL_SIZE), s2 = pick(DB_COL_SIZE), s3 = pick(DB_COL_SIZE);
+		DataRecord* record = new DataRecord(s1, s2, s3, DB_COL_SIZE);
 		records.push_back(record);
 	}
 	ssd.spill_run('n', 0, records);
@@ -274,7 +293,9 @@ int main (int argc, char * argv [])
 
 	for (int ii = 0; ii < NUM_RECORDS; ii++)
 	{
-		DataRecord * record = new DataRecord(to_string(ii + 10), to_string(ii + 11), to_string(ii + 12), 2);
+		string s1 = pick(DB_COL_SIZE), s2 = pick(DB_COL_SIZE), s3 = pick(DB_COL_SIZE);
+		DataRecord* record = new DataRecord(s1, s2, s3, DB_COL_SIZE);
+		
 		records.push_back(record);
 	}
 	ssd.spill_run('n', 0, records);
@@ -328,9 +349,9 @@ int main (int argc, char * argv [])
 #endif
 #if TEST_10
 {
-	StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE, 2);
-	StorageDevice hdd = StorageDevice("./HDD", (lluint)HDD_SIZE, 2);
-	SortRecords sort = SortRecords(20, &ssd, &hdd, 2);
+	StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE, DB_COL_SIZE);
+	StorageDevice hdd = StorageDevice("./HDD", (lluint)HDD_SIZE, DB_COL_SIZE);
+	SortRecords sort = SortRecords(20, &ssd, &hdd, DB_COL_SIZE);
 
 	ssd.truncate_device();
 	hdd.truncate_device();
@@ -345,7 +366,7 @@ int main (int argc, char * argv [])
 	cout << "Stats for HDD Device:" << endl;
 	hdd.get_device_access_stats();
 
-	sort = SortRecords(100, &ssd, &hdd, 2);
+	sort = SortRecords(100, &ssd, &hdd, DB_COL_SIZE);
 
 	ssd.truncate_device();
 	hdd.truncate_device();
@@ -360,7 +381,7 @@ int main (int argc, char * argv [])
 	cout << "Stats for HDD Device:" << endl;
 	hdd.get_device_access_stats();
 
-	sort = SortRecords(1000, &ssd, &hdd, 2);
+	sort = SortRecords(1000, &ssd, &hdd, DB_COL_SIZE);
 
 	ssd.truncate_device();
 	hdd.truncate_device();
@@ -375,7 +396,7 @@ int main (int argc, char * argv [])
 	cout << "Stats for HDD Device:" << endl;
 	hdd.get_device_access_stats();
 
-	sort = SortRecords(10000, &ssd, &hdd, 2);
+	sort = SortRecords(10000, &ssd, &hdd, DB_COL_SIZE);
 
 	ssd.truncate_device();
 	hdd.truncate_device();
@@ -390,7 +411,7 @@ int main (int argc, char * argv [])
 	cout << "Stats for HDD Device:" << endl;
 	hdd.get_device_access_stats();
 
-	sort = SortRecords(10000, &ssd, &hdd, 2);
+	sort = SortRecords(10000, &ssd, &hdd, DB_COL_SIZE);
 
 	ssd.truncate_device();
 	hdd.truncate_device();
@@ -405,7 +426,7 @@ int main (int argc, char * argv [])
 	cout << "Stats for HDD Device:" << endl;
 	hdd.get_device_access_stats();
 
-	sort = SortRecords(100000, &ssd, &hdd, 2);
+	sort = SortRecords(100000, &ssd, &hdd, DB_COL_SIZE);
 
 	ssd.truncate_device();
 	hdd.truncate_device();
@@ -420,7 +441,7 @@ int main (int argc, char * argv [])
 	cout << "Stats for HDD Device:" << endl;
 	hdd.get_device_access_stats();
 
-	sort = SortRecords(1200000, &ssd, &hdd, 2);
+	sort = SortRecords(1200000, &ssd, &hdd, DB_COL_SIZE);
 
 	ssd.truncate_device();
 	hdd.truncate_device();

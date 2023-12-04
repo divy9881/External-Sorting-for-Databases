@@ -40,7 +40,7 @@ public:
 	luint index; // index of the DataRecord in the list (required to maintain the ordering)
 	uint ovc;
 	uint col_value_length;
-	char rel[NUM_CHARS_COL_VALUE + 1];
+	char rel;
 }; // class DataRecord
 
 /*

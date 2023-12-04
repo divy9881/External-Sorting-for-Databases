@@ -38,8 +38,8 @@ string pick( size_t length )
         const size_t max_index = (sizeof(charset) - 1);
         return charset[ rand() % max_index ];
     };
-    std::string str(length,0);
-    std::generate_n( str.begin(), length, randchar );
+    std::string str(length-1, 0);
+    std::generate_n( str.begin(), length-1, randchar );
     return str;
 }
 
