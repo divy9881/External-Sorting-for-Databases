@@ -116,12 +116,15 @@ void Iterator::run ()
 
 constexpr size_t CHUNK_SIZE = 1024;
 
+template <typename T>
 std::pair<bool, llint> processChunk(const std::vector<std::string>& lines, llint& recordCount) {
-    int previous = std::numeric_limits<int>::lowest();  // Initialize previous to a very small value
+    //int previous = std::numeric_limits<int>::lowest();  // Initialize previous to a very small value
+
+    T previous;
 
     for (const auto& line : lines) {
         std::istringstream iss(line);
-        int firstColumnValue;
+        T firstColumnValue;
 
         // Read and check the first value in each line
         if (iss >> firstColumnValue) {
@@ -170,7 +173,7 @@ std::pair<bool, llint> Iterator::verifySortOrder() {
 
         if (lines.size() * line.size() >= CHUNK_SIZE) {
             // Process the chunk
-            auto result = processChunk(lines, recordCount);
+            auto result = processChunk<std::string>(lines, recordCount);
 
             if (!result.first) {
                 return result;
@@ -183,8 +186,7 @@ std::pair<bool, llint> Iterator::verifySortOrder() {
 
     // Process the remaining lines in the last chunk
     if (!lines.empty()) {
-        auto result = processChunk(lines, recordCount);
-
+        auto result = processChunk<std::string>(lines, recordCount);
         if (!result.first) {
             // Handle the error as needed
             return result;
