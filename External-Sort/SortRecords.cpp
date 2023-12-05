@@ -1,5 +1,7 @@
 #include "SortRecords.h"
 
+extern SortTrace trace;
+
 SortRecords::SortRecords(lluint num_records, StorageDevice *ssd_device, StorageDevice *hdd_device, uint col_value_length)
 {
 	this->num_records = num_records;
@@ -13,6 +15,7 @@ void SortRecords::sort()
 	lluint rem_num_records = this->num_records;
 	uint run_size = DRAM_SIZE / OPTIMAL_FAN_IN;
 	lluint num_records_per_run = run_size / ON_DISK_RECORD_SIZE(this->col_value_length);
+	num_records_per_run = max(10000, num_records_per_run);
 	char input_table_file[256 + 1] = "input";
 	char output_table_file[256 + 1] = "output";
 	Table input_table = Table(input_table_file, this->col_value_length);
@@ -76,6 +79,9 @@ for (auto a: records->record_ptr) {
 void SortRecords::merge_runs_ssd()
 {
 	uint ssd_page_num_records = OPTIMAL_SSD_PAGE_SIZE / ON_DISK_RECORD_SIZE(this->col_value_length);
+	string trace_str = "STATE -> MERGE_RUNS_SSD: Merge sorted runs on the SSD device";
+
+	trace.append_trace(trace_str);
 
 	while (this->ssd_device->get_num_runs()) {
 		lluint num_records;
@@ -128,6 +134,9 @@ void SortRecords::merge_runs_ssd()
 void SortRecords::merge_runs_hdd()
 {
 	uint hdd_page_num_records = OPTIMAL_HDD_PAGE_SIZE / ON_DISK_RECORD_SIZE(this->col_value_length);
+	string trace_str = "STATE -> MERGE_RUNS_HDD: Merge sorted runs on the HDD device";
+
+	trace.append_trace(trace_str);
 
 	while (this->hdd_device->get_num_runs())
 	{

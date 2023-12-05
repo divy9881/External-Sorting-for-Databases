@@ -1,8 +1,4 @@
 - Changes in pick(Sahil)
-- Change string parsing by col_value_length(Divy)
-- Fix output table(Divy)
-- Fix trace file output(Divy)
+- Fix sort order for large records, probable problem with OVC(Sahil)
 - Add README documentation as mentioned in the canvas(Divy)
-- Trace records access sizes, latency for each access on DRAM
-- Trace also should have sort state
-- Merge Manaswini's verification code
+- Sort is crashing for larger runs, might be because of memory starvation due to a leak(Divy)
