@@ -18,4 +18,4 @@
 #define CACHE_SIZE_MINI_RUN     ((TOURNAMENT_TREE_SIZE <= CACHE_SIZE) ? 1 : 0)
 
 /* OVC Configurations */
-#define OVC_DOMAIN 100
+#define OVC_DOMAIN 1000
