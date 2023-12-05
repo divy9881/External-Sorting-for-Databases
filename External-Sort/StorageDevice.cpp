@@ -169,18 +169,12 @@ void StorageDevice::spill_run(char run_bit, uint run, vector<DataRecord*> record
 
 	this->total_writes += 1;
 
-	trace_str += "A write to " + this->device_path;
+	trace_str += "ACCESS -> A write to " + this->device_path;
 	trace_str += " was made with size " + to_string(records.size() * on_disk_record_size) + " bytes";
 	trace_str += " and latency " + to_string(time_spent_us) + "us";
 
 	trace.append_trace(trace_str);
 }
-
-// Check if the number of records matches the expected output
-// bool StorageDevice::verify_sort_result(lluint input_record_count, lluint output_record_count)
-// {
-//     return (input_record_count == output_record_count);
-// }
 
 /*
  * To persist a sorted runs to the StorageDevice
@@ -189,15 +183,9 @@ void StorageDevice::spill_run(char run_bit, uint run, vector<DataRecord*> record
  */
 void StorageDevice::spill_runs(vector<RecordList *> record_lists)
 {
-	 // Check if each run is sorted
-    // for (const auto& run : sorted_runs)
-    // {
-    //     if (!std::is_sorted(run->record_ptr, run->record_ptr + run->record_count))
-    //     {
-    //         // Handle the case where a run is not sorted (throw an exception, print an error, etc.)
-    //         throw std::runtime_error("Error: Input runs must be sorted.");
-    //     }
-    // }
+	string trace_str = "STATE -> SPILL_RUNS_" + this->device_path + ": Spill sorted runs to the " + this->device_path + " device";
+
+	trace.append_trace(trace_str);
 
 	for (uint ii = 0 ; ii < record_lists.size() ; ii++) {
 		vector<DataRecord*> records;
@@ -241,7 +229,7 @@ vector<DataRecord> StorageDevice::get_run_page(uint run, uint num_records)
 
 	this->total_reads += 1;
 
-	trace_str += "A read to " + this->device_path;
+	trace_str += "ACCESS -> A read to " + this->device_path;
 	trace_str += " was made with size " + to_string(num_records * ON_DISK_RECORD_SIZE(this->col_value_length)) + " bytes";
 	trace_str += " and latency " + to_string(time_spent_us) + "us";
 
@@ -262,6 +250,9 @@ pair<vector<RecordList *>, lluint> StorageDevice::get_run_pages(uint num_records
 	struct dirent **namelist;
 	vector<RecordList *> record_lists;
 	pair <vector<RecordList *>, lluint> p;
+	string trace_str = "STATE -> READ_RUN_PAGES_" + this->device_path + ": Read sorted run pages from the " + this->device_path + " device";
+
+	trace.append_trace(trace_str);
 
 	n = scandir(this->device_path.c_str(), &namelist, 0, alphasort);
 
@@ -414,12 +405,12 @@ vector<DataRecord> StorageDevice::get_run_page_from_disk(string run_path, lluint
 {
 	fstream runfile;	
 	vector<DataRecord> records;
+	lluint start_pos = 0;
 	string col_value1, col_value2, col_value3;
-	lluint pos = 0;
 	string record_delimiter(STORAGE_RECORD_DELIMITER);
 	string column_delimiter(STORAGE_COLUMN_DELIMITER);
-	string col_value;
-	char *run_page = new char[num_records * ON_DISK_RECORD_SIZE(this->col_value_length) + 1];
+	uint record_size = ON_DISK_RECORD_SIZE(this->col_value_length);
+	char *run_page = new char[num_records * record_size + 1];
 
 	runfile.open(run_path, ios::in);
 	if (!runfile.is_open())
@@ -427,7 +418,7 @@ vector<DataRecord> StorageDevice::get_run_page_from_disk(string run_path, lluint
 
 	runfile.seekg(*offset, ios::beg);
 
-	runfile.get(run_page, num_records * ON_DISK_RECORD_SIZE(this->col_value_length) + 1);
+	runfile.get(run_page, num_records * record_size + 1);
 	runfile.close();
 	*offset += strlen(run_page);
 
@@ -435,7 +426,7 @@ vector<DataRecord> StorageDevice::get_run_page_from_disk(string run_path, lluint
 	 * Remove file if we have exhausted all the records
 	 * from the run file
 	 */
-	if (strlen(run_page) != (num_records * ON_DISK_RECORD_SIZE(this->col_value_length))) {
+	if (strlen(run_page) != (num_records * record_size)) {
 		remove(run_path.c_str());
 		*offset = 0;
 	}
@@ -444,38 +435,27 @@ vector<DataRecord> StorageDevice::get_run_page_from_disk(string run_path, lluint
 	/*
 	 * Iterating over records
 	 */
-	while ((pos = s.find(record_delimiter)) != string::npos)
+	while (start_pos < strlen(run_page))
 	{
-		stringstream ss1, ss2, ss3;
-		string token;
+		string record_str;
 
-		token = s.substr(0, pos);
-		s.erase(0, pos + record_delimiter.length());
-		
+		record_str = s.substr(start_pos, record_size);
 		/* 
 		 * For Column Value 1
 		 */
-		pos = token.find(column_delimiter);
-		col_value = token.substr(0, pos);
-		ss1 << col_value;
-		ss1 >> col_value1;
-		token.erase(0, pos + column_delimiter.length());
+		col_value1 = record_str.substr(0, this->col_value_length);
 		/*
 		 * For Column Value 2
 		 */
-		pos = token.find(column_delimiter);
-		col_value = token.substr(0, pos);
-		ss2 << col_value;
-		ss2 >> col_value2;
-		token.erase(0, pos + column_delimiter.length());
+		col_value2 = record_str.substr(this->col_value_length + 1, this->col_value_length);
 		/*
 		 * For Column Value 3
 		 */
-		col_value = token;
-		ss3 << col_value;
-		ss3 >> col_value3;
+		col_value3 = record_str.substr(this->col_value_length * 2 + 2, this->col_value_length);
+
 		DataRecord record = DataRecord(col_value1, col_value2, col_value3, this->col_value_length);
 		records.push_back(record);
+		start_pos += record_size;
 	}
 
 	delete[] run_page;

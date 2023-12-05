@@ -58,5 +58,5 @@ $ ./ExternalSort.exe -c 120 -s 1000 -o trace0.txt
 # Run Valgrind for a Leak Check
 ```
 # Creates a log file `valgrind` inside the External-Sort directory
-$ valgrind --track-origins=yes --log-file="/External-Sort/valgrind" --leak-check=yes ./ExternalSort.exe
+$ valgrind --track-origins=yes --log-file="/External-Sort/valgrind" --leak-check=yes ./ExternalSort.exe -c 120 -s 1000 -o trace0.txt
 ```
