@@ -156,6 +156,9 @@ void StorageDevice::spill_run(char run_bit, uint run, vector<DataRecord*> record
 		int last_run = this->get_last_run();
 		run_path = this->device_path + "/run_" + to_string(last_run + 1);
 	} else if (run_bit == 't') {
+		string trace_str = "STATE -> SPILL_RUNS_" + this->device_path + ": Spill sorted runs to the " + this->device_path + " device";
+
+		trace.append_trace(trace_str);
 		run_path = this->device_path + "/temp_run";
 	} else {
 		run_path = this->device_path + "/run_" + to_string(run);
