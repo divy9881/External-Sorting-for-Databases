@@ -1,5 +1,7 @@
 #include "DataRecord.h"
 
+extern SortTrace trace;
+
 #define GET_LENGTH(record_start, iterator, length_measure) length_measure=0;\
 		 iterator = record_start;\
        	while (*iterator != '\0') {\
@@ -277,6 +279,9 @@ struct DataRecordComparator {
 
 void InternalSort(RecordList* records)
 {
+	string trace_str = "STATE -> SORT_MINI_RUNS: Sort cache-size mini runs";
+
+	trace.append_trace(trace_str);
+
 	records->record_ptr.sort(DataRecordComparator());
-	// qsort((void *)records->record_ptr, (size_t)records->record_count, sizeof(DataRecord), comparator);
 }

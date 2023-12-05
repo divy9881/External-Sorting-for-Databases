@@ -3,7 +3,7 @@
 #include "defs.h"
 #include "databaseConfig.h"
 #include "sortParams.h"
-#include <list>
+#include "SortTrace.h"
 
 class DataRecord
 {

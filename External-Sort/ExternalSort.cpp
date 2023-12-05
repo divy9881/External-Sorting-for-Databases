@@ -42,28 +42,28 @@ int main(int argc, char *argv[])
 
     col_value_length = record_size / 3;
 
-    StorageDevice ssd = StorageDevice("./SSD", (lluint)SSD_SIZE, col_value_length);
-    StorageDevice hdd = StorageDevice("./HDD", (lluint)HDD_SIZE, col_value_length);
+    StorageDevice ssd = StorageDevice("SSD", (lluint)SSD_SIZE, col_value_length);
+    StorageDevice hdd = StorageDevice("HDD", (lluint)HDD_SIZE, col_value_length);
     SortRecords sort = SortRecords(num_records, &ssd, &hdd, col_value_length);
     trace = SortTrace(trace_file);
 
     ssd.truncate_device();
     hdd.truncate_device();
 
-    cout << endl << "Sort "<< num_records << " records..." << endl;
+    cout << endl << "Sort "<< num_records << " records..." << endl << endl;
     sort.sort();
 
-    auto result = Iterator :: verifySortOrder();
+    pair<bool, lluint> result = Iterator :: verify_sort_order();
     if (!result.first){
-        cout << "\n\tVerification failed!" << endl;
+        cout << "Verification failed!" << endl;
     }else{
-        cout << "\n\tVerification succeeded." << endl;
+        cout << "Verification succeeded." << endl;
     }
 
     if (result.second != num_records){
-        cout << "\n\tNumber of sorted elements is incorrect! Expected: " << num_records << ", got: " << result.second;
+        cout << "Number of records in the sorted table is incorrect. Expected: " << num_records << ", got: " << result.second << endl;
     }else{
-        cout << "\n\tNumber of records in the sorted file is correct" << endl;
+        cout << "Number of records in the sorted table is correct." << endl;
     }
 
     cout << endl;
