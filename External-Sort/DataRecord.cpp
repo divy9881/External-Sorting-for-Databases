@@ -119,7 +119,7 @@ bool DataRecord::is_smaller_int (const DataRecord incoming_record) const
 	return false;
 }
 
-bool DataRecord::is_smaller_str(const DataRecord incoming_record) const
+bool DataRecord::is_smaller_str (const DataRecord incoming_record) const
 {
 	int incoming_length = 0 ; char const *incoming_iter = NULL;
 	int current_length = 0 ; char const *current_iter = NULL;
