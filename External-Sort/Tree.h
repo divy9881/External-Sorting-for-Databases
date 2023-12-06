@@ -53,7 +53,7 @@ class Tree
 
 		// Tournament tree functions
 		void run_tree();
-		void compare_and_swap(llint parent, llint unused_leaf_idx);
+		void run_tournament(llint parent, llint unused_leaf_idx);
 		vector<llint> get_empty_leaves();
 		llint add_run_at_leaf(llint leaf_node_idx, DataRecord *sorted_run, llint number_of_records);
 		void spillover_run();
