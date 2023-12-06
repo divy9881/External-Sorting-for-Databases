@@ -153,7 +153,8 @@ bool DataRecord::is_smaller_str(const DataRecord incoming_record) const
 				// Offset and value both are same, check for the next set of
 				// characters to determine which record is smaller
 				// (the values will be in relation with the previous winner)
-				int incoming_record_offset = (int) incoming_record.ovc % OVC_DOMAIN;
+				int incoming_record_offset = ((int) incoming_record.ovc % OVC_DOMAIN) - 1;
+				if (incoming_record_offset < 0) incoming_record_offset = 0;
 				// Since the offsets are same for both the records,
 				// check from the next offset value for both
 				while (incoming_record_offset < incoming_length) {
