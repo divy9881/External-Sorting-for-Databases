@@ -9,20 +9,20 @@ External Sorting algorithm for Databases having constrained storage hierarchy
 
 # Techniques Implemented by our submission and the corresponding Source Files and Lines
 
-- Tournament trees [5]: File Tree.cpp @ Line 196
-- Offset-value coding [5]: File DataRecord.cpp @ Line 122
-- Minimum count of row & column comparisons [5]
-- Cache-size mini runs [5]: File SortRecords.cpp @ Line 26
-- Device-optimized page sizes [5]: File SortRecords.cpp @ Line 81 and Line 136 
-- Spilling memory-to-SSD [5]: File SortRecords.cpp @ Line 65
-- Spilling from SSD to disk [5]: File SortRecords.cpp @ Line 69 and Line 125
-- Graceful degradation: File SortRecords.cpp @ Line 72, Line 74 and Line 151
-  - Into merging [5] 
-  - Beyond one merge step [5]
-- Optimized merge patterns [5]: File SortRecords.cpp @ Line 150 and Line 151
-- Verifying: File Iterator.cpp @ Line 69 and Line 84
-  - sets of rows & values [5]: File Iterator.cpp @ Line 84
-  - sort order [5]: File Iterator.cpp @ Line 69
+- **Tournament trees**: `File Tree.cpp @ Line 196`
+- **Offset-value coding**: `File DataRecord.cpp @ Line 122`
+- **Minimum count of row & column comparisons**
+- **Cache-size mini runs**: `File SortRecords.cpp @ Line 26`
+- **Device-optimized page sizes**: `File SortRecords.cpp @ Line 81 and Line 136`
+- **Spilling memory-to-SSD**: `File SortRecords.cpp @ Line 65`
+- **Spilling from SSD to disk**: `File SortRecords.cpp @ Line 69 and Line 125`
+- **Graceful degradation**: `File SortRecords.cpp @ Line 72, Line 74 and Line 151`
+  - **Into merging** 
+  - **Beyond one merge step**
+- **Optimized merge patterns**: `File SortRecords.cpp @ Line 150 and Line 151`
+- **Verifying**: `File Iterator.cpp @ Line 69 and Line 84`
+  - **sets of rows & values**: `File Iterator.cpp @ Line 84`
+  - **sort order**: `File Iterator.cpp @ Line 69`
 
 - Replacement selection?
 - Run size > memory size?
