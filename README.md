@@ -8,10 +8,10 @@ External Sorting algorithm for Databases having constrained storage hierarchy
 - Manaswini Gogineni (9085432699) mgogineni@wisc.edu 
 
 # Individual Contributions
-__Divy__: Cache-size mini runs, Device-optimized page sizes, Spilling memory-to-SSD, Spilling from SSD to disk, Graceful degradation, Optimized merge patterns, Testing and Memory Leak Check
-__Sahil__: Tournament trees, Offset-value coding, Minimum count of row & column comparisons, Optimized merge patterns, Large-size records, Testing and Memory Leak Check
-__Devaki__: Tournament trees, Offset-value coding, Large-size records
-__Manaswini__: Verification
+- __Divy__: Cache-size mini runs, Device-optimized page sizes, Spilling memory-to-SSD, Spilling from SSD to disk, Graceful degradation, Optimized merge patterns, Testing and Memory Leak Check
+- __Sahil__: Tournament trees, Offset-value coding, Minimum count of row & column comparisons, Optimized merge patterns, Large-size records, Testing and Memory Leak Check
+- __Devaki__: Tournament trees, Offset-value coding, Large-size records
+- __Manaswini__: Verification
 
 # Techniques Implemented by our submission and the corresponding Source Files and Lines
 
