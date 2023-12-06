@@ -7,6 +7,12 @@ External Sorting algorithm for Databases having constrained storage hierarchy
 - Devaki Kulkarni (9086222321) dgkulkarni2@wisc.edu
 - Manaswini Gogineni (9085432699) mgogineni@wisc.edu 
 
+# Individual Contributions
+__Divy__: Cache-size mini runs, Device-optimized page sizes, Spilling memory-to-SSD, Spilling from SSD to disk, Graceful degradation, Optimized merge patterns, Testing and Memory Leak Check
+__Sahil__: Tournament trees, Offset-value coding, Minimum count of row & column comparisons, Optimized merge patterns, Large-size records, Testing and Memory Leak Check
+__Devaki__: Tournament trees, Offset-value coding, Large-size records
+__Manaswini__: Verification
+
 # Techniques Implemented by our submission and the corresponding Source Files and Lines
 
 - **Tournament trees**: `File Tree.cpp @ Line 196`
@@ -33,7 +39,7 @@ External Sorting algorithm for Databases having constrained storage hierarchy
 
 
 # Reasons we chose to implement the specific subset of techniques
-- `Tournament-tree priority queue` was used in order to achieve `high fan-in` for merging our sorted run inputs of records
+- `Tournament-tree priority queue` was used in order to achieve `high fan-in` for merging our sorted run inputs of records and less number of comparisons than a standard tree-of-winners
 - `Offset-value coding` was used to achieve `minimum column value comparisons`
 - `Cache-size mini runs` were used to be able to fit the sort inputs, for tournament-tree, in the cache. This enabled us to leverage the low-latency accesses when there are `cache hits`
 - `Device-optimized page sizes` were used in order to being cognizant about the `access-profile(latency, bandwidth)` of various devices in the storage hierarchy. For `SSD`, we used `8KB(100 MB/s * 0.1 ms ~ 10KB)` and for `HDD`, we used `1MB(100 MB/s * 10 ms ~ 1MB)`
