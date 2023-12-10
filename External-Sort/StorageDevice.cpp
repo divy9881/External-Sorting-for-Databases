@@ -279,6 +279,8 @@ pair<vector<RecordList *>, lluint> StorageDevice::get_run_pages(uint num_records
 
 		count += records.size();
 		record_lists.push_back(list);
+
+		records.erase(records.begin(), records.end());
 	}
 
 	p.first = record_lists;
