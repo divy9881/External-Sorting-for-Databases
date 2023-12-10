@@ -46,6 +46,13 @@ void Table::persist_records_from_run(StorageDevice *device)
 		p = device->get_run_pages(page_num_records);
 
 		this->persist_records(p.first[0]);
+
+		for (lluint iter = 0 ; iter < p.first.size(); iter++) {
+			while (!p.first[iter]->record_ptr.empty()) {
+				p.first[iter]->record_ptr.pop_front();
+			}
+			delete p.first[iter];
+		}
 	}
 
 	return;
