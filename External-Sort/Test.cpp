@@ -413,7 +413,7 @@ int main (int argc, char * argv [])
 	cout << endl;
 	cout << "Stats for HDD Device:" << endl;
 	hdd.get_device_access_stats();
-
+/*
 	sort = SortRecords(10000, &ssd, &hdd, DB_COL_SIZE);
 
 	ssd.truncate_device();
@@ -457,7 +457,7 @@ int main (int argc, char * argv [])
 	cout << endl;
 	cout << "Stats for HDD Device:" << endl;
 	hdd.get_device_access_stats();
-
+*/
 }
 #endif
 return 0;
